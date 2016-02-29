@@ -2,6 +2,12 @@
 
 This Webpack plugin will generate a json file containing a mapping of source files to their hashed counterpart.
 
+## Installation
+
+```shell
+npm install webdeveric/webpack-assets-manifest --save
+```
+
 ## Usage
 
 In your webpack config, require the plugin then added an instance to the `plugins` array.
