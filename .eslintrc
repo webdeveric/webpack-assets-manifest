@@ -1,0 +1,23 @@
+{
+  "extends": "eslint:recommended",
+  "globals": {
+  },
+  "env": {
+    "browser": false,
+    "node": true,
+    "es6": false
+  },
+  "rules": {
+    "no-console": 0,
+    "quotes": [1, "single"],
+    "eol-last": [0],
+    "no-mixed-requires": [0],
+    "no-underscore-dangle": [0],
+    "strict": [0, "never"],
+    "no-var": [0],
+    "no-unused-vars": [2],
+    "semi": [1, "always"],
+    "no-use-before-define": [2],
+    "no-undef": [2]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "webpack-assets-manifest",
+  "version": "0.1.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webdeveric/webpack-assets-manifest.git"
+  },
+  "bugs": {
+    "url": "https://github.com/webdeveric/webpack-assets-manifest/issues"
+  },
+  "homepage": "https://github.com/webdeveric/webpack-assets-manifest",
+  "keywords": [
+    "webpack",
+    "plugin",
+    "assets",
+    "manifest",
+    "json"
+  ],
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "eslint": "eslint --fix src",
+    "jshint": "jshint src/*.js",
+    "jscs": "jscs src/*.js",
+    "checkjs": "npm run eslint && npm run jshint && npm run jscs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "email": "eric@webdeveric.com",
+    "name": "Eric King",
+    "url": "http://webdeveric.com/"
+  },
+  "dependencies": {
+    "fs-extra": "^0.26.5",
+    "lodash.keys": "^4.0.4",
+    "lodash.merge": "^4.3.1",
+    "lodash.pick": "^4.1.0"
+  },
+  "devDependencies": {
+    "eslint": "latest",
+    "jscs": "latest",
+    "jshint": "latest"
+  },
+  "peerDependencies": {
+    "webpack": "^1.0.0"
+  }
+}
