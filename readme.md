@@ -44,7 +44,7 @@ module.exports = {
   },
 
   plugins: [
-    new Manifest({
+    new WebpackAssetsManifest({
       output: 'public/assets/manifest.json'
     })
   ]
