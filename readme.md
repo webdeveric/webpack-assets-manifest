@@ -1,6 +1,6 @@
 # Webpack Assets Manifest
 
-This Webpack plugin will generate a json file containing a mapping of source files to their hashed counterpart.
+This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.
 
 ## Installation
 
@@ -58,11 +58,7 @@ module.exports = {
 };
 ```
 
-## Output
-
-The output is a JSON file that matches up the original filename with the hashed version.
-
-### Sample output
+## Sample output
 
 ```json
 {
