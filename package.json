@@ -17,12 +17,12 @@
     "manifest",
     "json"
   ],
-  "private": true,
   "main": "src/webpack-assets-manifest.js",
   "scripts": {
     "eslint": "eslint --fix src",
     "doc": "jsdoc -c ./jsdoc.json",
-    "test": "mocha"
+    "test": "mocha",
+    "prepublish": "npm run eslint && npm run test"
   },
   "author": {
     "email": "eric@webdeveric.com",
