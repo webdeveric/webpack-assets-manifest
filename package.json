@@ -1,6 +1,6 @@
 {
   "name": "webpack-assets-manifest",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "repository": {
     "type": "git",
@@ -18,13 +18,11 @@
     "json"
   ],
   "private": true,
-  "main": "src/index.js",
+  "main": "src/webpack-assets-manifest.js",
   "scripts": {
     "eslint": "eslint --fix src",
-    "jshint": "jshint src/*.js",
-    "jscs": "jscs src/*.js",
-    "checkjs": "npm run eslint && npm run jshint && npm run jscs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "doc": "jsdoc -c ./jsdoc.json",
+    "test": "mocha"
   },
   "author": {
     "email": "eric@webdeveric.com",
@@ -39,8 +37,8 @@
   },
   "devDependencies": {
     "eslint": "latest",
-    "jscs": "latest",
-    "jshint": "latest"
+    "jsdoc": "^3.4.0",
+    "mocha": "^2.4.5"
   },
   "peerDependencies": {
     "webpack": "^1.0.0"

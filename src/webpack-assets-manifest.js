@@ -1,8 +1,20 @@
+/**
+ * Webpack Assets Manifest
+ *
+ * @author Eric King <eric@webdeveric.com>
+ */
+
+'use strict';
+
 var path  = require('path');
 var merge = require('lodash.merge');
 var keys  = require('lodash.keys');
 var pick  = require('lodash.pick');
 
+/**
+ * @param {object} options - configuration options
+ * @constructor
+ */
 function WebpackAssetsManifest(options)
 {
   var defaults = {
@@ -22,17 +34,33 @@ function WebpackAssetsManifest(options)
   this.moduleAssets = {};
 }
 
-WebpackAssetsManifest.prototype.getExtension = function(file, num)
+/**
+ * Get the file extension.
+ *
+ * @param  {string} filename
+ * @param  {number} num - number of extensions to return. For example, use 1 to get `.gz` and use 2 to get `.tar.gz`.
+ * @return {string}
+ */
+WebpackAssetsManifest.prototype.getExtension = function(filename, num)
 {
-  if (num === void 0 || num < 1) {
-    num = 1;
+  if (! filename) {
+    return '';
   }
 
-  var parts = path.basename(file).split(/\./);
+  num = (num || 1) | 0;
+
+  var parts = path.basename(filename).split(/\./);
   parts.shift(); // Remove the filename
-  return '.' + parts.slice(-num).join('.');
+
+  return parts.length ? '.' + parts.slice(-num).join('.') : '';
 };
 
+/**
+ * Get JSON data from compilation stats.
+ *
+ * @param  {object} stats - compilation stats
+ * @return {object}
+ */
 WebpackAssetsManifest.prototype.getStatsData = function(stats)
 {
   return stats.toJson({
@@ -56,6 +84,12 @@ WebpackAssetsManifest.prototype.getStatsData = function(stats)
   });
 };
 
+/**
+ * Process compilation assets.
+ *
+ * @param  {object} assets - assets by chunk name
+ * @return {object}
+ */
 WebpackAssetsManifest.prototype.processAssets = function(assets)
 {
   for (var name in assets) {
@@ -76,11 +110,24 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
   return this.moduleAssets;
 };
 
+/**
+ * JSON stringify module assets
+ *
+ * @return {string}
+ */
 WebpackAssetsManifest.prototype.toString = function()
 {
   return JSON.stringify(this.moduleAssets, this.replacer, this.space);
 };
 
+/**
+ * Handle the `emit` event
+ *
+ * @param  {object} compiler - the Webpack compiler object
+ * @param  {string} output - file path
+ * @param  {object} compilation - the Webpack compilation object
+ * @param  {Function} callback
+ */
 WebpackAssetsManifest.prototype.handleEmit = function(compiler, output, compilation, callback)
 {
   this.processAssets(this.getStatsData(compilation.getStats()).assetsByChunkName);
@@ -101,6 +148,12 @@ WebpackAssetsManifest.prototype.handleEmit = function(compiler, output, compilat
   callback();
 };
 
+/**
+ * Handle the `done` event
+ *
+ * @param  {string} output - file path
+ * @param  {object} stats - compilation stats
+ */
 WebpackAssetsManifest.prototype.handleDone = function(output, stats)
 {
   this.processAssets(this.getStatsData(stats).assetsByChunkName);
@@ -112,6 +165,11 @@ WebpackAssetsManifest.prototype.handleDone = function(output, stats)
   fs.writeFileSync(output, json);
 };
 
+/**
+ * Hook into the Webpack compiler
+ *
+ * @param  {object} compiler - the Webpack compiler object
+ */
 WebpackAssetsManifest.prototype.apply = function(compiler)
 {
   var self   = this;
