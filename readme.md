@@ -5,7 +5,7 @@ This Webpack plugin will generate a json file containing a mapping of source fil
 ## Installation
 
 ```shell
-npm install webdeveric/webpack-assets-manifest --save
+npm install webpack-assets-manifest --save
 ```
 
 ## Usage
