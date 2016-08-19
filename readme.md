@@ -1,5 +1,9 @@
 # Webpack Assets Manifest
 
+[![dependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest)
+[![devDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/dev-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=dev)
+[![peerDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/peer-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=peer)
+
 This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.
 
 ## Installation
@@ -21,7 +25,7 @@ new WebpackAssetsManifest({
 });
 ```
 | option | type | default | description |
-| :----- | :--- | :------ | :---------- |
+| ------ | ---- | ------- | ----------- |
 | `output` | `string` | `manifest.json` | destination of manifest file |
 | `replacer` | `null`, `function`, or `array` | `null` | [replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
 | `space` | `int` | `0` | Number of spaces to use for pretty printing. |
