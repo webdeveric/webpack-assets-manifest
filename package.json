@@ -2,6 +2,7 @@
   "name": "webpack-assets-manifest",
   "version": "0.1.1",
   "description": "This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.",
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/webdeveric/webpack-assets-manifest.git"
@@ -19,10 +20,10 @@
   ],
   "main": "src/webpack-assets-manifest.js",
   "scripts": {
-    "eslint": "eslint --fix src",
+    "lint": "eslint --fix src && eslint --fix test",
     "doc": "jsdoc -c ./jsdoc.json",
     "test": "mocha",
-    "prepublish": "npm run eslint && npm run test"
+    "prepublish": "npm run lint && npm run test"
   },
   "author": {
     "email": "eric@webdeveric.com",
@@ -30,17 +31,18 @@
     "url": "http://webdeveric.com/"
   },
   "dependencies": {
-    "fs-extra": "^0.26.5",
-    "lodash.keys": "^4.0.4",
-    "lodash.merge": "^4.3.1",
-    "lodash.pick": "^4.1.0"
+    "fs-extra": "^0.30",
+    "lodash.keys": "^4.0",
+    "lodash.merge": "^4.0",
+    "lodash.pick": "^4.0"
   },
   "devDependencies": {
-    "eslint": "latest",
-    "jsdoc": "^3.4.0",
-    "mocha": "^2.4.5"
+    "eslint": "^3.0",
+    "eslint-config-webdeveric": "^0.1",
+    "jsdoc": "^3.0",
+    "mocha": "^3.0"
   },
   "peerDependencies": {
-    "webpack": "^1.0.0"
+    "webpack": "^1.0"
   }
 }
