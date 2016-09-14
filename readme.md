@@ -30,6 +30,7 @@ new WebpackAssetsManifest({
 | `replacer` | `null`, `function`, or `array` | `null` | [replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
 | `space` | `int` | `0` | Number of spaces to use for pretty printing. |
 | `emit` | `boolean` | `true` | Should this plugin hook into `complier emit`?<br />Setting this to `false` will cause the manifest file to be written during `compiler done`. |
+| `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 
 If you're using `webpack-dev-server`, `emit` should probably be `false` so that the manifest file is actually written to disk and not kept only in memory.
 
