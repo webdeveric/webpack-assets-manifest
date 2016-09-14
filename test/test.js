@@ -9,9 +9,11 @@ describe('WebpackAssetsManifest', function() {
       assert.equal('.css', manifest.getExtension('main.css'));
     });
 
-    it('should return the file extensions when num is provided', function () {
-      assert.equal('.tar.gz', manifest.getExtension('archive.tar.gz', 2));
-      assert.equal('.html.tar.gz', manifest.getExtension('archive.html.tar.gz', 3));
+    it('should return two extensions for known formats', function () {
+      assert.equal('.js.map', manifest.getExtension('main.js.map'));
+      assert.equal('.css.map', manifest.getExtension('main.css.map'));
+      assert.equal('.tar.gz', manifest.getExtension('archive.tar.gz'));
+      assert.equal('.ext', manifest.getExtension('some.unknown.ext'));
     });
 
     it('should return empty string when filename is undefined or empty', function () {
@@ -42,14 +44,20 @@ describe('WebpackAssetsManifest', function() {
       manifest.processAssets({
         common: [
           'common-123456.js',
-          'common-123456.ext.ext'
+          'common-123456.js.map'
+        ],
+        main: [
+          'main.123456.css',
+          'main.123456.css.map'
         ]
       });
 
       assert.deepEqual(
         {
           'common.js': 'common-123456.js',
-          'common.ext.ext': 'common-123456.ext.ext'
+          'common.js.map': 'common-123456.js.map',
+          'main.css': 'main.123456.css',
+          'main.css.map': 'main.123456.css.map'
         },
         manifest.moduleAssets
       );

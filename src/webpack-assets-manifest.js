@@ -21,7 +21,8 @@ function WebpackAssetsManifest(options)
     output: 'manifest.json',
     replacer: null,
     space: 0,
-    emit: true
+    emit: true,
+    fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i
   };
 
   options = pick(
@@ -38,21 +39,17 @@ function WebpackAssetsManifest(options)
  * Get the file extension.
  *
  * @param  {string} filename
- * @param  {number} num - number of extensions to return. For example, use 1 to get `.gz` and use 2 to get `.tar.gz`.
  * @return {string}
  */
-WebpackAssetsManifest.prototype.getExtension = function(filename, num)
+WebpackAssetsManifest.prototype.getExtension = function(filename)
 {
-  if (! filename) {
+  if (! filename || ! this.fileExtRegex) {
     return '';
   }
 
-  num = (num || 1) | 0;
+  var ext = filename.match(this.fileExtRegex);
 
-  var parts = path.basename(filename).split(/\./);
-  parts.shift(); // Remove the filename
-
-  return parts.length ? '.' + parts.slice(-num).join('.') : '';
+  return ext && ext.length ? ext[ 0 ] : '';
 };
 
 /**
@@ -92,19 +89,21 @@ WebpackAssetsManifest.prototype.getStatsData = function(stats)
  */
 WebpackAssetsManifest.prototype.processAssets = function(assets)
 {
-  for (var name in assets) {
+  var keys = Object.keys(assets);
+  var index = keys.length;
 
+  while ( index-- ) {
+    var name = keys[ index ];
     var filenames = assets[ name ];
 
-    if (! Array.isArray(filenames)) {
+    if ( ! Array.isArray( filenames ) ) {
       filenames = [ filenames ];
     }
 
-    for (var i = 0, l = filenames.length; i < l ; ++i ) {
-      var filename = name + this.getExtension(filenames[ i ], 2);
+    for ( var i = 0, l = filenames.length; i < l ; ++i ) {
+      var filename = name + this.getExtension( filenames[ i ] );
       this.moduleAssets[ filename ] = filenames[ i ];
     }
-
   }
 
   return this.moduleAssets;
