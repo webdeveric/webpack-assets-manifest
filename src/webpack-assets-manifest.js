@@ -22,7 +22,8 @@ function WebpackAssetsManifest(options)
     replacer: null,
     space: 0,
     emit: true,
-    fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i
+    fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
+    sortManifest: true
   };
 
   options = pick(
@@ -32,7 +33,7 @@ function WebpackAssetsManifest(options)
 
   merge(this, options);
 
-  this.moduleAssets = {};
+  this.moduleAssets = Object.create(null);
 }
 
 /**
@@ -43,13 +44,19 @@ function WebpackAssetsManifest(options)
  */
 WebpackAssetsManifest.prototype.getExtension = function(filename)
 {
-  if (! filename || ! this.fileExtRegex) {
+  if (! filename) {
     return '';
   }
 
-  var ext = filename.match(this.fileExtRegex);
+  filename = filename.split(/[?#]/)[0];
 
-  return ext && ext.length ? ext[ 0 ] : '';
+  if (this.fileExtRegex) {
+    var ext = filename.match(this.fileExtRegex);
+
+    return ext && ext.length ? ext[ 0 ] : '';
+  }
+
+  return path.extname(filename);
 };
 
 /**
@@ -110,13 +117,38 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
 };
 
 /**
+ * Get the data
+ *
+ * @return {object}
+ */
+WebpackAssetsManifest.prototype.getData = function()
+{
+  if ( this.sortManifest ) {
+    var keys = Object.keys(this.moduleAssets);
+
+    if ( typeof this.sortManifest === 'function' ) {
+      keys.sort( this.sortManifest.bind(this) );
+    } else {
+      keys.sort();
+    }
+
+    return keys.reduce(function (sorted, key) {
+      sorted[ key ] = this.moduleAssets[ key ];
+      return sorted;
+    }.bind(this), Object.create(null));
+  }
+
+  return this.moduleAssets;
+};
+
+/**
  * JSON stringify module assets
  *
  * @return {string}
  */
 WebpackAssetsManifest.prototype.toString = function()
 {
-  return JSON.stringify(this.moduleAssets, this.replacer, this.space);
+  return JSON.stringify(this.getData(), this.replacer, this.space);
 };
 
 /**
