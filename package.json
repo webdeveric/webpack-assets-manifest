@@ -20,9 +20,10 @@
   ],
   "main": "src/webpack-assets-manifest.js",
   "scripts": {
-    "lint": "eslint --fix src && eslint --fix test",
+    "lint": "eslint --fix src test",
     "doc": "jsdoc -c ./jsdoc.json",
-    "test": "mocha",
+    "test": "mocha --colors",
+    "test:coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec",
     "prepublish": "npm run lint && npm run test"
   },
   "author": {
@@ -39,10 +40,12 @@
   "devDependencies": {
     "eslint": "^3.0",
     "eslint-config-webdeveric": "^0.1",
+    "istanbul": "^0.4.5",
     "jsdoc": "^3.0",
+    "memory-fs": "^0.3.0",
     "mocha": "^3.0"
   },
   "peerDependencies": {
-    "webpack": "^1.0"
+    "webpack": ">=1.0"
   }
 }
