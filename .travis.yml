@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - "6"
+  - "5"
+  - "4"
+  - "node"
+  - "iojs"
+install:
+  - npm install -g codecov
+  - npm install webpack
+  - npm install
+script:
+  - npm test
+  - npm run test:coverage
+  - codecov
