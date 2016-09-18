@@ -4,7 +4,6 @@ node_js:
   - "5"
   - "4"
   - "node"
-  - "iojs"
 install:
   - npm install -g codecov
   - npm install webpack
