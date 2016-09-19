@@ -156,8 +156,6 @@ WebpackAssetsManifest.prototype.toString = function()
 /**
  * Handle the `emit` event
  *
- * @param  {object} compiler - the Webpack compiler object
- * @param  {string} output - file path
  * @param  {object} compilation - the Webpack compilation object
  * @param  {Function} callback
  */
@@ -187,7 +185,6 @@ WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
 /**
  * Handle the `done` event
  *
- * @param  {string} output - file path
  * @param  {object} stats - compilation stats
  */
 WebpackAssetsManifest.prototype.handleDone = function(stats)

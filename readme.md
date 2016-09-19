@@ -27,6 +27,7 @@ new WebpackAssetsManifest({
   sortManifest: true
 });
 ```
+
 | option | type | default | description |
 | ------ | ---- | ------- | ----------- |
 | `output` | `string` | `manifest.json` | Where to save the manifest file relative to `options.output.path`. |
@@ -39,6 +40,8 @@ new WebpackAssetsManifest({
 If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should probably set `emit` to `false` so the manifest file is actually written to disk and not kept only in memory.
 
 ## Example config
+
+In this example, `manifest.json` will be saved in the folder defined in `output.path`.
 
 ```js
 var WebpackAssetsManifest = require('webpack-assets-manifest');
@@ -60,11 +63,17 @@ module.exports = {
   },
 
   plugins: [
-    new WebpackAssetsManifest({
-      output: 'manifest.json'
-    })
+    new WebpackAssetsManifest()
   ]
 };
+```
+
+Use the `output` option to customize where the manifest is saved.
+
+```js
+new WebpackAssetsManifest({
+  output: '/some/other/path/assets-manifest.json'
+})
 ```
 
 ### Sorting the manifest
