@@ -10,6 +10,7 @@ var path  = require('path');
 var merge = require('lodash.merge');
 var keys  = require('lodash.keys');
 var pick  = require('lodash.pick');
+var get   = require('lodash.get');
 
 /**
  * @param {object} options - configuration options
@@ -33,6 +34,7 @@ function WebpackAssetsManifest(options)
 
   merge(this, options);
 
+  this.compiler = null;
   this.moduleAssets = Object.create(null);
 }
 
@@ -117,11 +119,11 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
 };
 
 /**
- * Get the data
+ * Get the data for JSON.stringify
  *
  * @return {object}
  */
-WebpackAssetsManifest.prototype.getData = function()
+WebpackAssetsManifest.prototype.toJSON = function()
 {
   if ( this.sortManifest ) {
     var keys = Object.keys(this.moduleAssets);
@@ -142,13 +144,13 @@ WebpackAssetsManifest.prototype.getData = function()
 };
 
 /**
- * JSON stringify module assets
+ * JSON.stringify the manifest
  *
  * @return {string}
  */
 WebpackAssetsManifest.prototype.toString = function()
 {
-  return JSON.stringify(this.getData(), this.replacer, this.space);
+  return JSON.stringify(this, this.replacer, this.space);
 };
 
 /**
@@ -159,13 +161,16 @@ WebpackAssetsManifest.prototype.toString = function()
  * @param  {object} compilation - the Webpack compilation object
  * @param  {Function} callback
  */
-WebpackAssetsManifest.prototype.handleEmit = function(compiler, output, compilation, callback)
+WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
 {
   this.processAssets(this.getStatsData(compilation.getStats()).assetsByChunkName);
 
   var json = this.toString();
 
-  output = path.relative(compiler.options.output.path, output);
+  var output = path.relative(
+    get(this.compiler, 'options.output.path', this.compiler.context),
+    this.getOutputPath()
+  );
 
   compilation.assets[ output ] = {
     source: function() {
@@ -185,15 +190,28 @@ WebpackAssetsManifest.prototype.handleEmit = function(compiler, output, compilat
  * @param  {string} output - file path
  * @param  {object} stats - compilation stats
  */
-WebpackAssetsManifest.prototype.handleDone = function(output, stats)
+WebpackAssetsManifest.prototype.handleDone = function(stats)
 {
   this.processAssets(this.getStatsData(stats).assetsByChunkName);
 
   var json = this.toString();
-  var fs   = require('fs-extra');
+  var output = this.getOutputPath();
 
-  fs.mkdirsSync( path.dirname(output) );
-  fs.writeFileSync(output, json);
+  this.compiler.outputFileSystem.mkdirpSync(path.dirname(output));
+  this.compiler.outputFileSystem.writeFileSync(output, json);
+};
+
+/**
+ * Get the file system path to the manifest
+ *
+ * @return {string} path to manifest file
+ */
+WebpackAssetsManifest.prototype.getOutputPath = function()
+{
+  return this.compiler ? path.resolve(
+    get(this.compiler, 'options.output.path', this.compiler.context),
+    this.output
+  ) : '';
 };
 
 /**
@@ -203,8 +221,9 @@ WebpackAssetsManifest.prototype.handleDone = function(output, stats)
  */
 WebpackAssetsManifest.prototype.apply = function(compiler)
 {
-  var self   = this;
-  var output = path.resolve(compiler.context, this.output);
+  this.compiler = compiler;
+
+  var self = this;
 
   compiler.plugin('compilation', function(compilation) {
     compilation.plugin('module-asset', function(module, hashedFile) {
@@ -215,11 +234,11 @@ WebpackAssetsManifest.prototype.apply = function(compiler)
 
   if (this.emit) {
 
-    compiler.plugin('emit', this.handleEmit.bind(this, compiler, output) );
+    compiler.plugin('emit', this.handleEmit.bind(this) );
 
   } else {
 
-    compiler.plugin('done', this.handleDone.bind(this, output) );
+    compiler.plugin('done', this.handleDone.bind(this) );
 
   }
 };
