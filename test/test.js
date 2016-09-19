@@ -108,6 +108,18 @@ describe('WebpackAssetsManifest', function() {
         manifest.getOutputPath()
       );
     });
+
+    it('should output manifest in compiler output.path by default', function() {
+      var manifest = new WebpackAssetsManifest();
+      var compiler = makeCompiler();
+
+      manifest.apply(compiler);
+
+      assert.equal(
+        compiler.options.output.path,
+        path.dirname(manifest.getOutputPath())
+      );
+    });
   });
 
   describe('options.sortManifest', function() {
