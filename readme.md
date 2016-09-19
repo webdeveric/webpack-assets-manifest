@@ -29,14 +29,14 @@ new WebpackAssetsManifest({
 ```
 | option | type | default | description |
 | ------ | ---- | ------- | ----------- |
-| `output` | `string` | `manifest.json` | destination of manifest file |
-| `replacer` | `null`, `function`, or `array` | `null` | [replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
+| `output` | `string` | `manifest.json` | Where to save the manifest file relative to `options.output.path`. |
+| `replacer` | `null`, `function`, or `array` | `null` | [Replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
 | `space` | `int` | `0` | Number of spaces to use for pretty printing. |
 | `emit` | `boolean` | `true` | Should this plugin hook into `complier emit`?<br />Setting this to `false` will cause the manifest file to be written during `compiler done`. |
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
 
-If you're using `webpack-dev-server`, `emit` should probably be `false` so that the manifest file is actually written to disk and not kept only in memory.
+If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should probably set `emit` to `false` so the manifest file is actually written to disk and not kept only in memory.
 
 ## Example config
 
@@ -49,7 +49,7 @@ module.exports = {
   },
 
   output: {
-    path: path.join( __dirname, "public", "assets" ),
+    path: path.join( __dirname, 'public', 'assets' ),
     filename: '[name]-[hash].js',
     chunkFilename: '[id]-[hash].js',
     publicPath: 'assets/'
@@ -61,7 +61,7 @@ module.exports = {
 
   plugins: [
     new WebpackAssetsManifest({
-      output: 'public/assets/manifest.json'
+      output: 'manifest.json'
     })
   ]
 };
