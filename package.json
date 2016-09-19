@@ -32,17 +32,18 @@
     "url": "http://webdeveric.com/"
   },
   "dependencies": {
-    "fs-extra": "^0.30",
+    "lodash.get": "^4.0",
     "lodash.keys": "^4.0",
     "lodash.merge": "^4.0",
     "lodash.pick": "^4.0"
   },
   "devDependencies": {
+    "chai": "^3.0",
     "eslint": "^3.0",
     "eslint-config-webdeveric": "^0.1",
-    "istanbul": "^0.4.5",
+    "istanbul": "^0.4",
     "jsdoc": "^3.0",
-    "memory-fs": "^0.3.0",
+    "memory-fs": "^0.3",
     "mocha": "^3.0"
   },
   "peerDependencies": {
