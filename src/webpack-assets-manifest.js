@@ -12,6 +12,8 @@ var keys  = require('lodash.keys');
 var pick  = require('lodash.pick');
 var get   = require('lodash.get');
 
+function noop(){}
+
 /**
  * @param {object} options - configuration options
  * @constructor
@@ -24,7 +26,8 @@ function WebpackAssetsManifest(options)
     space: 0,
     emit: true,
     fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
-    sortManifest: true
+    sortManifest: true,
+    afterWrite: noop
   };
 
   options = pick(
@@ -179,6 +182,10 @@ WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
     }
   };
 
+  if ( this.afterWrite ) {
+    this.afterWrite.call(this);
+  }
+
   callback();
 };
 
@@ -194,8 +201,28 @@ WebpackAssetsManifest.prototype.handleDone = function(stats)
   var json = this.toString();
   var output = this.getOutputPath();
 
-  this.compiler.outputFileSystem.mkdirpSync(path.dirname(output));
-  this.compiler.outputFileSystem.writeFileSync(output, json);
+  this.compiler.outputFileSystem.mkdirp(
+    path.dirname(output),
+    function(err) {
+      if ( err ) {
+        throw err;
+      }
+
+      this.compiler.outputFileSystem.writeFile(
+        output,
+        json,
+        function(err) {
+          if ( err ) {
+            throw err;
+          }
+
+          if ( this.afterWrite ) {
+            this.afterWrite.call(this);
+          }
+        }.bind(this)
+      );
+    }.bind(this)
+  );
 };
 
 /**
