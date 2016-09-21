@@ -1,18 +1,9 @@
-var path = require('path');
 var webpack = require('webpack');
 var MemoryFs = require('memory-fs');
 
-function makeCompiler()
+function makeCompiler( config )
 {
-  var compiler = webpack({
-    entry: {
-      hello: path.resolve(__dirname, './hello.js')
-    },
-    output: {
-      path: __dirname,
-      filename: 'bundle.js'
-    }
-  });
+  var compiler = webpack( config );
 
   compiler.outputFileSystem = new MemoryFs();
 

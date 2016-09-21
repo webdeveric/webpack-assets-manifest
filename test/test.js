@@ -1,7 +1,9 @@
 var path = require('path');
 var assert = require('chai').assert;
+var webpack = require('webpack');
 var WebpackAssetsManifest = require('../src/webpack-assets-manifest');
 var makeCompiler = require('./fixtures/makeCompiler');
+var configs = require('./fixtures/configs');
 
 describe('WebpackAssetsManifest', function() {
   describe('#getExtension()', function() {
@@ -91,7 +93,7 @@ describe('WebpackAssetsManifest', function() {
         output: '/manifest.json'
       });
 
-      manifest.apply(makeCompiler());
+      manifest.apply(makeCompiler(configs.single()));
 
       assert.equal('/manifest.json',  manifest.getOutputPath());
     });
@@ -101,7 +103,7 @@ describe('WebpackAssetsManifest', function() {
         output: '../manifest.json'
       });
 
-      manifest.apply(makeCompiler());
+      manifest.apply(makeCompiler(configs.single()));
 
       assert.equal(
         path.resolve(__dirname, 'manifest.json'),
@@ -111,7 +113,7 @@ describe('WebpackAssetsManifest', function() {
 
     it('should output manifest in compiler output.path by default', function() {
       var manifest = new WebpackAssetsManifest();
-      var compiler = makeCompiler();
+      var compiler = makeCompiler(configs.single());
 
       manifest.apply(compiler);
 
@@ -183,8 +185,33 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('usage with webpack', function() {
-    it('should generate a manifest', function(done) {
-      var compiler = makeCompiler();
+    it('should hook into done when not using emit', function(done) {
+      var compiler = webpack(configs.tmpOutput());
+      var manifest = new WebpackAssetsManifest({
+        emit: false,
+        afterWrite: function() {
+          this.compiler.inputFileSystem.readFile(
+            this.getOutputPath(),
+            function(err, content) {
+              assert.isNull(err, 'Error found reading manifest.json');
+
+              assert.equal('{"main.js":"bundle.js"}', content.toString());
+
+              done();
+            }.bind(this)
+          );
+        }
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+      });
+    });
+
+    it('should generate a manifest using a named entry point', function(done) {
+      var compiler = makeCompiler(configs.singleNamedChunk());
       var manifest = new WebpackAssetsManifest();
 
       manifest.apply(compiler);
@@ -195,6 +222,40 @@ describe('WebpackAssetsManifest', function() {
         var content = compiler.outputFileSystem.readFileSync( path.resolve(__dirname, 'fixtures/manifest.json') );
 
         assert.equal('{"hello.js":"bundle.js"}', content.toString());
+
+        done();
+      });
+    });
+
+    it('should generate a manifest without using a named entry point', function(done) {
+      var compiler = makeCompiler(configs.single());
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err /*, stats */ ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        var content = compiler.outputFileSystem.readFileSync( path.resolve(__dirname, 'fixtures/manifest.json') );
+
+        assert.equal('{"main.js":"bundle.js"}', content.toString());
+
+        done();
+      });
+    });
+
+    it('should generate a manifest using an entry point array', function(done) {
+      var compiler = makeCompiler(configs.singleArray());
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err /*, stats */ ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        var content = compiler.outputFileSystem.readFileSync( path.resolve(__dirname, 'fixtures/manifest.json') );
+
+        assert.equal('{"main.js":"bundle.js"}', content.toString());
 
         done();
       });
