@@ -4,9 +4,12 @@ node_js:
   - "5"
   - "4"
   - "node"
+env:
+  - WEBPACK_VERSION="1.13.1"
+  - WEBPACK_VERSION="2.1.0-beta.25"
 install:
   - npm install -g codecov
-  - npm install webpack
+  - npm install webpack@$WEBPACK_VERSION
   - npm install
 script:
   - npm test

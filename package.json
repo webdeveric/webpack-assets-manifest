@@ -45,8 +45,5 @@
     "jsdoc": "^3.0",
     "memory-fs": "^0.3",
     "mocha": "^3.0"
-  },
-  "peerDependencies": {
-    "webpack": ">=1.0"
   }
 }
