@@ -95,7 +95,7 @@ describe('WebpackAssetsManifest', function() {
 
       manifest.apply(makeCompiler(configs.single()));
 
-      assert.equal('/manifest.json',  manifest.getOutputPath());
+      assert.equal('/manifest.json', manifest.getOutputPath());
     });
 
     it('should work with a relative output path', function() {
@@ -122,6 +122,11 @@ describe('WebpackAssetsManifest', function() {
         path.dirname(manifest.getOutputPath())
       );
     });
+
+    it('should return an empty string if manifest has not been applied yet', function() {
+      var manifest = new WebpackAssetsManifest();
+      assert.equal('', manifest.getOutputPath());
+    });
   });
 
   describe('options.sortManifest', function() {
@@ -139,7 +144,7 @@ describe('WebpackAssetsManifest', function() {
 
       manifest.processAssets(assets);
 
-      assert.equal('{"a.js":"a.js","b.js":"b.js","c.js":"c.js","d.js":"d.js"}',  manifest.toString());
+      assert.equal('{"a.js":"a.js","b.js":"b.js","c.js":"c.js","d.js":"d.js"}', manifest.toString());
     });
 
     it('should turn off sorting', function() {
@@ -149,7 +154,7 @@ describe('WebpackAssetsManifest', function() {
 
       manifest.processAssets(assets);
 
-      assert.equal('{"b.js":"b.js","d.js":"d.js","c.js":"c.js","a.js":"a.js"}',  manifest.toString());
+      assert.equal('{"b.js":"b.js","d.js":"d.js","c.js":"c.js","a.js":"a.js"}', manifest.toString());
     });
 
     it('should use custom comparison function', function() {
@@ -161,7 +166,7 @@ describe('WebpackAssetsManifest', function() {
 
       manifest.processAssets(assets);
 
-      assert.equal('{"a.js":"a.js","b.js":"b.js","c.js":"c.js","d.js":"d.js"}',  manifest.toString());
+      assert.equal('{"a.js":"a.js","b.js":"b.js","c.js":"c.js","d.js":"d.js"}', manifest.toString());
     });
   });
 
