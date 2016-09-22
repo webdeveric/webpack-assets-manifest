@@ -36,6 +36,7 @@ new WebpackAssetsManifest({
 | `emit` | `boolean` | `true` | Should this plugin hook into `complier emit`?<br />Setting this to `false` will cause the manifest file to be written during `compiler done`. |
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
+| `afterWrite` | `function` | `noop` | Callback to run after the manifest has been written. |
 
 If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should probably set `emit` to `false` so the manifest file is actually written to disk and not kept only in memory.
 
