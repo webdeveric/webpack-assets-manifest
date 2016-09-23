@@ -53,6 +53,27 @@ describe('WebpackAssetsManifest', function() {
       assert.equal('{}', manifest + '');
     });
   });
+  
+  describe('#addModuleAsset()', function() {
+    var manifest = new WebpackAssetsManifest();
+    it('should add asset to moduleAssets', function() {
+      assert.deepEqual({}, manifest.moduleAssets);
+      manifest.addModuleAsset('main.js', 'main.123456.js');
+      manifest.addModuleAsset('styles/main.css', 'styles/main.123456.css');
+      assert.deepEqual({
+        'main.js': 'main.123456.js',
+        'styles/main.css': 'styles/main.123456.css'
+      }, manifest.moduleAssets);
+    });
+    it('should transform backslashes to slashes', function() {
+      manifest.addModuleAsset('images\\a.jpg', 'images/a.123456.jpg');
+      assert.deepEqual({
+        'main.js': 'main.123456.js',
+        'styles/main.css': 'styles/main.123456.css',
+        'images/a.jpg': 'images/a.123456.jpg'
+      }, manifest.moduleAssets);
+    });
+  });
 
   describe('#processAssets()', function() {
     var manifest = new WebpackAssetsManifest();

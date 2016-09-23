@@ -94,6 +94,17 @@ WebpackAssetsManifest.prototype.getStatsData = function(stats)
 };
 
 /**
+ * Add item to local collection of assets
+ *
+ * @param {string} key
+ * @param {string} file
+ */
+WebpackAssetsManifest.prototype.addModuleAsset = function(key, file)
+{
+  this.moduleAssets[ key.replace( /\\/g, '/' ) ] = file;
+};
+
+/**
  * Process compilation assets.
  *
  * @param  {object} assets - assets by chunk name
@@ -114,7 +125,7 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
 
     for ( var i = 0, l = filenames.length; i < l ; ++i ) {
       var filename = name + this.getExtension( filenames[ i ] );
-      this.moduleAssets[ filename ] = filenames[ i ];
+      this.addModuleAsset( filename, filenames[ i ] );
     }
   }
 
@@ -252,7 +263,7 @@ WebpackAssetsManifest.prototype.apply = function(compiler)
   compiler.plugin('compilation', function(compilation) {
     compilation.plugin('module-asset', function(module, hashedFile) {
       var file = path.join(path.dirname(hashedFile), path.basename(module.userRequest));
-      self.moduleAssets[ file ] = hashedFile;
+      self.addModuleAsset( file, hashedFile );
     });
   });
 
