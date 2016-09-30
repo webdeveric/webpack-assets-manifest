@@ -18,13 +18,17 @@
     "manifest",
     "json"
   ],
-  "main": "src/webpack-assets-manifest.js",
+  "main": "src/WebpackAssetsManifest.js",
   "scripts": {
     "lint": "eslint --fix src test",
     "doc": "jsdoc -c ./jsdoc.json",
     "test": "mocha --colors",
+    "test:report": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
     "test:coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec",
-    "prepublish": "npm run lint && npm run test"
+    "prepublish": "npm run test"
+  },
+  "engines": {
+    "node": ">=0.12"
   },
   "author": {
     "email": "eric@webdeveric.com",
@@ -35,15 +39,18 @@
     "lodash.get": "^4.0",
     "lodash.keys": "^4.0",
     "lodash.merge": "^4.0",
-    "lodash.pick": "^4.0"
+    "lodash.pick": "^4.0",
+    "mkdirp": "^0.5.1"
   },
   "devDependencies": {
     "chai": "^3.0",
     "eslint": "^3.0",
     "eslint-config-webdeveric": "^0.1",
+    "file-loader": "^0.9.0",
     "istanbul": "^0.4",
     "jsdoc": "^3.0",
     "memory-fs": "^0.3",
-    "mocha": "^3.0"
+    "mocha": "^3.0",
+    "rimraf": "^2.0"
   }
 }
