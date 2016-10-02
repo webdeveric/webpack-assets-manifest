@@ -24,6 +24,8 @@ function WebpackAssetsManifest(options)
 {
   EventEmitter.call(this);
 
+  options = options || {};
+
   var defaults = {
     output: 'manifest.json',
     replacer: null,
@@ -35,16 +37,21 @@ function WebpackAssetsManifest(options)
   };
 
   this.options = pick(
-    merge({}, defaults, options || {}),
+    merge({}, defaults, options),
     keys(defaults)
   );
 
-  this.assets = (options && options.assets) || Object.create(null);
+  if ( options.hasOwnProperty('emit') && ! options.hasOwnProperty('writeToDisk') ) {
+    console.warn('\x1b[36m%s\x1b[0m', 'Webpack Assets Manifest: options.emit is deprecated - use options.writeToDisk instead');
+    this.options.writeToDisk = ! options.emit;
+  }
+
+  this.assets = options.assets || Object.create(null);
   this.compiler = null;
   this.stats = null;
 
-  [ 'beforeWrite', 'afterWrite' ].forEach( function(key) {
-    if ( options && options[ key ] ) {
+  [ 'apply', 'moduleAsset', 'processAssets', 'done' ].forEach( function(key) {
+    if ( options[ key ] ) {
       this.on(key, options[ key ]);
     }
   }, this);
@@ -83,26 +90,7 @@ WebpackAssetsManifest.prototype.getExtension = function(filename)
  */
 WebpackAssetsManifest.prototype.getStatsData = function(stats)
 {
-  return this.stats = stats.toJson({
-    assets: true,
-    modulesSort: true,
-    chunksSort: true,
-    assetsSort: true,
-
-    hash: false,
-    version: false,
-    timings: false,
-    chunks: false,
-    chunkModules: false,
-
-    modules: false,
-    children: false,
-    cached: false,
-    reasons: false,
-    source: false,
-    errorDetails: false,
-    chunkOrigins: false
-  });
+  return this.stats = stats.toJson('verbose');
 };
 
 /**
@@ -187,6 +175,8 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
     }
   }
 
+  this.emit('processAssets', this, assets);
+
   return this.assets;
 };
 
@@ -231,11 +221,9 @@ WebpackAssetsManifest.prototype.maybeMerge = function()
     try {
       var data = JSON.parse(fs.readFileSync(this.getOutputPath()));
 
-      if ( data ) {
-        for ( var key in data ) {
-          if ( ! this.has(key) ) {
-            this.set(key, data[ key ]);
-          }
+      for ( var key in data ) {
+        if ( ! this.has(key) ) {
+          this.set(key, data[ key ]);
         }
       }
     } catch (err) { // eslint-disable-line
@@ -253,8 +241,6 @@ WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
 {
   this.processAssets(this.getStatsData(compilation.getStats()).assetsByChunkName);
 
-  this.emit('beforeWrite', this);
-
   this.maybeMerge();
 
   var output = path.relative(
@@ -264,42 +250,32 @@ WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
 
   compilation.assets[ output ] = new CompilationAsset(this);
 
-  this.emit('afterWrite', this);
-
   callback();
 };
 
 /**
- * Handle the `done` event
+ * Handle the `after-emit` event
  *
- * @param  {object} stats - compilation stats
+ * @param  {object} compilation - the Webpack compilation object
+ * @param  {Function} callback
  */
-WebpackAssetsManifest.prototype.handleDone = function(stats)
+WebpackAssetsManifest.prototype.handleAfterEmit = function(compilation, callback)
 {
-  this.processAssets(this.getStatsData(stats).assetsByChunkName);
-
-  this.emit('beforeWrite', this);
-
-  this.maybeMerge();
+  if ( ! this.options.writeToDisk ) {
+    callback();
+    return;
+  }
 
   var output = this.getOutputPath();
 
   require('mkdirp')(
     path.dirname(output),
-    function(err) {
-      if ( err ) {
-        throw err;
-      }
-
+    function(/* err */) {
       fs.writeFile(
         output,
         this.toString(),
-        function(err) {
-          if ( err ) {
-            throw err;
-          }
-
-          this.emit('afterWrite', this);
+        function(/* err */) {
+          callback();
         }.bind(this)
       );
     }.bind(this)
@@ -314,10 +290,11 @@ WebpackAssetsManifest.prototype.handleDone = function(stats)
  */
 WebpackAssetsManifest.prototype.handleModuleAsset = function(module, hashedFile)
 {
-  this.set(
-    path.join(path.dirname(hashedFile), path.basename(module.userRequest)),
-    hashedFile
-  );
+  var key = path.join(path.dirname(hashedFile), path.basename(module.userRequest));
+
+  this.set(key, hashedFile);
+
+  this.emit('moduleAsset', this, key, hashedFile, module);
 };
 
 /**
@@ -327,7 +304,7 @@ WebpackAssetsManifest.prototype.handleModuleAsset = function(module, hashedFile)
  */
 WebpackAssetsManifest.prototype.handleCompilation = function(compilation)
 {
-  compilation.plugin('module-asset', this.handleModuleAsset.bind(this) );
+  compilation.plugin('module-asset', this.handleModuleAsset.bind(this));
 };
 
 /**
@@ -353,16 +330,9 @@ WebpackAssetsManifest.prototype.apply = function(compiler)
   this.compiler = compiler;
 
   compiler.plugin('compilation', this.handleCompilation.bind(this));
-
-  if ( this.options.writeToDisk ) {
-
-    compiler.plugin('done', this.handleDone.bind(this) );
-
-  } else {
-
-    compiler.plugin('emit', this.handleEmit.bind(this) );
-
-  }
+  compiler.plugin('emit', this.handleEmit.bind(this));
+  compiler.plugin('after-emit', this.handleAfterEmit.bind(this));
+  compiler.plugin('done', this.emit.bind(this, 'done', this));
 
   this.emit('apply', this);
 };

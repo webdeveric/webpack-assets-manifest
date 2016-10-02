@@ -1,9 +1,14 @@
 var path = require('path');
-var tmpDir = path.join(require('os').tmpdir(), 'webpack-assets-manifest');
+var tmpDir = require('os').tmpdir();
 
 function getTmpDir()
 {
   return tmpDir;
+}
+
+function getWorkspace()
+{
+  return path.join(tmpDir, 'webpack-assets-manifest');
 }
 
 function randomString(length)
@@ -20,7 +25,7 @@ function randomString(length)
 
 function tmpDirPath()
 {
-  return path.join(tmpDir, randomString(8));
+  return path.join(getWorkspace(), randomString(8));
 }
 
 function hello()
@@ -85,5 +90,6 @@ module.exports = {
   client: client,
   server: server,
   multi: multi,
-  getTmpDir: getTmpDir
+  getTmpDir: getTmpDir,
+  getWorkspace: getWorkspace
 };

@@ -11,7 +11,7 @@ var WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
 describe('WebpackAssetsManifest', function() {
 
   after('clean up', function(done) {
-    rimraf(configs.getTmpDir(), function(err) {
+    rimraf(configs.getWorkspace(), function(err) {
       if (err) {
         throw err;
       }
@@ -231,6 +231,17 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
+  describe('options.emit', function() {
+    it('has been deprecated - use writeToDisk instead', function() {
+      var manifest = new WebpackAssetsManifest({
+        emit: false
+      });
+
+      assert.isTrue(manifest.options.writeToDisk);
+      assert.isUndefined(manifest.options.emit);
+    });
+  });
+
   describe('options.sortManifest', function() {
     var assets = {
       a: [ 'a.js' ],
@@ -393,7 +404,6 @@ describe('WebpackAssetsManifest', function() {
     it('should merge data if output file exists', function(done) {
       var compiler = webpack(configs.hello());
       var manifest = new WebpackAssetsManifest({
-        writeToDisk: true,
         merge: true
       });
 
@@ -406,7 +416,7 @@ describe('WebpackAssetsManifest', function() {
 
           compiler.outputFileSystem.writeFile(
             manifest.getOutputPath(),
-            JSON.stringify( require('./fixtures/images.json') ),
+            JSON.stringify( require('./fixtures/sample-manifest.json') ),
             function(err) {
               assert.isNull(err, 'Error found when creating file');
 
@@ -432,35 +442,35 @@ describe('WebpackAssetsManifest', function() {
     it('writes to disk', function(done) {
       var compiler = makeCompiler(configs.hello());
       var manifest = new WebpackAssetsManifest({
-        writeToDisk: true,
-        afterWrite: function(manifest) {
-          fs.readFile(
-            manifest.getOutputPath(),
-            function(err, content) {
-              assert.isNull(err, 'Error found reading manifest.json');
-
-              assert.equal(manifest.toString(), content.toString());
-
-              done();
-            }
-          );
-        }
+        writeToDisk: true
       });
 
       manifest.apply(compiler);
 
       compiler.run(function( err ) {
         assert.isNull(err, 'Error found in compiler.run');
+
+        fs.readFile(
+          manifest.getOutputPath(),
+          function(err, content) {
+            assert.isNull(err, 'Error found reading manifest.json');
+
+            assert.equal(manifest.toString(), content.toString());
+
+            done();
+          }
+        );
       });
     });
 
     it('finds module assets', function(done) {
       var compiler = webpack(configs.client());
-      var manifest = new WebpackAssetsManifest({
-        writeToDisk: true
-      });
+      var manifest = new WebpackAssetsManifest();
 
-      manifest.on('afterWrite', function(manifest) {
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
         fs.readFile(
           manifest.getOutputPath(),
           function(err, content) {
@@ -471,12 +481,6 @@ describe('WebpackAssetsManifest', function() {
             done();
           }
         );
-      });
-
-      manifest.apply(compiler);
-
-      compiler.run(function( err ) {
-        assert.isNull(err, 'Error found in compiler.run');
       });
     });
 
@@ -510,6 +514,82 @@ describe('WebpackAssetsManifest', function() {
           }
         );
       });
+    });
+  });
+
+  describe('Setting event listeners', function() {
+    function noop() {}
+
+    it('allows adding event listeners from options', function() {
+      var options = {
+        moduleAsset: noop,
+        processAssets: noop,
+        done: noop
+      };
+
+      var manifest = new WebpackAssetsManifest(options);
+
+      assert.deepEqual(Object.keys(options), manifest.eventNames());
+    });
+
+    it('uses on and emit', function(done) {
+      new WebpackAssetsManifest({
+        apply: function() {
+          done();
+        }
+      }).apply({ plugin: noop });
+    });
+  });
+
+  describe('Errors writing file to disk', function() {
+    var _444 = parseInt('0444', 8);
+    var _777 = parseInt('0777', 8);
+
+    it('has error creating directory', function(done) {
+      fs.chmodSync(configs.getTmpDir(), _444);
+
+      var compiler = webpack(configs.hello());
+      var manifest = new WebpackAssetsManifest({
+        writeToDisk: true
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNotNull(err, 'Permissions error not found');
+        assert.equal('EACCES', err.code);
+
+        fs.chmodSync(configs.getTmpDir(), _777);
+
+        done();
+      });
+    });
+
+    it('has error writing file', function(done) {
+      var compiler = webpack(configs.hello());
+      var manifest = new WebpackAssetsManifest({
+        writeToDisk: true
+      });
+
+      manifest.apply(compiler);
+
+      compiler.outputFileSystem.mkdirp(
+        path.dirname(manifest.getOutputPath()),
+        function(err) {
+          assert.isNull(err, 'Error found when creating directory');
+
+          fs.writeFileSync(manifest.getOutputPath(), '', { mode: _444 });
+
+          compiler.run(function( err ) {
+            assert.isNotNull(err, 'Permissions error not found');
+            assert.equal('EACCES', err.code);
+
+            fs.chmodSync(manifest.getOutputPath(), _777);
+
+            done();
+          });
+        }
+      );
     });
   });
 });
