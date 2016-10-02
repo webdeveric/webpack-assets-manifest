@@ -16,65 +16,62 @@ npm install webpack-assets-manifest --save
 
 ## Usage
 
-In your webpack config, require the plugin then added an instance to the `plugins` array.
+In your webpack config, require the plugin then add an instance to the `plugins` array.
 
 ```js
 new WebpackAssetsManifest({
   output: 'manifest.json',
   replacer: null,
   space: 0,
-  emit: true,
-  sortManifest: true
+  writeToDisk: false,
+  fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
+  sortManifest: true,
+  merge: false
 });
 ```
 
+## Options
+
 | option | type | default | description |
 | ------ | ---- | ------- | ----------- |
-| `output` | `string` | `manifest.json` | Where to save the manifest file relative to `options.output.path`. |
+| `assets` | `object` | `{}` | Data is stored in this object. |
+| `output` | `string` | `manifest.json` | Where to save the manifest file relative to your webpack `output.path`. |
 | `replacer` | `null`, `function`, or `array` | `null` | [Replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
 | `space` | `int` | `0` | Number of spaces to use for pretty printing. |
-| `emit` | `boolean` | `true` | Should this plugin hook into `complier emit`?<br />Setting this to `false` will cause the manifest file to be written during `compiler done`. |
+| `writeToDisk` | `boolean` | `false` | Write the manifest to disk using `fs` during `after-emit` |
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
-| `afterWrite` | `function` | `noop` | Callback to run after the manifest has been written. |
+| `merge` | `boolean` | `false` | If the output file already exists, should the data be merged with it? |
 
-If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should probably set `emit` to `false` so the manifest file is actually written to disk and not kept only in memory.
+If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should probably set `writeToDisk` to `true` so the manifest file is actually written to disk and not kept only in memory.
 
-## Example config
+### Sharing data
 
-In this example, `manifest.json` will be saved in the folder defined in `output.path`.
+You can share data between instances by passing in your own object in the `assets` option.
+This is useful in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler).
 
 ```js
-var WebpackAssetsManifest = require('webpack-assets-manifest');
+var data = Object.create(null);
 
-module.exports = {
-  entry: {
-    main: "./your-main-file",
-  },
+var manifest1 = new WebpackAssetsManifest({
+  assets: data
+});
 
-  output: {
-    path: path.join( __dirname, 'public', 'assets' ),
-    filename: '[name]-[hash].js',
-    chunkFilename: '[id]-[hash].js',
-    publicPath: 'assets/'
-  },
-
-  module: {
-    // Your loader rules go here.
-  },
-
-  plugins: [
-    new WebpackAssetsManifest()
-  ]
-};
+var manifest2 = new WebpackAssetsManifest({
+  assets: data
+});
 ```
 
-Use the `output` option to customize where the manifest is saved.
+### Merging data
+
+If you have a `json` file you'd like to add to, you can do that with the `merge` option.
+If your `json` file is not in `${output.path}/manifest.json`, you should specify where the file is with the `output` option.
 
 ```js
 new WebpackAssetsManifest({
-  output: '/some/other/path/assets-manifest.json'
-})
+  output: '/path/to/manifest.json',
+  merge: true
+});
 ```
 
 ### Sorting the manifest
@@ -106,6 +103,80 @@ new WebpackAssetsManifest({
   }
 });
 ```
+
+---
+
+## Customizing the manifest
+
+You can customize the manifest by adding your own event listeners. The manifest is passed as the first argument so you can do whatever you need to with it.
+
+You can use `has(key)`, `get(key)`, `set(key, value)`, and `delete(key)` to manage what goes into the manifest.
+
+```js
+var manifest = new WebpackAssetsManifest();
+
+manifest.on('apply', function(manifest, stats) {
+  manifest.add('some-key', 'some-value');
+});
+
+manifest.on('done', function(manifest, stats) {
+  console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
+  console.log(stats); // Compilation stats
+});
+```
+
+These event listeners can also be set by passing them in the constructor options.
+
+```js
+new WebpackAssetsManifest({
+  done: function(manifest, stats) {
+    console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
+    console.log(stats); // Compilation stats
+  }
+});
+```
+
+### Events
+
+| name | listener signature |
+| ---- | --------- |
+| `apply` | `function(manifest){}` |
+| `moduleAsset` | `function(manifest, key, hashedFile, module){}` |
+| `processAssets` | `function(manifest, assets){}` |
+| `done` | `function(manifest, stats){}` |
+
+---
+
+## Example config
+
+In this example, `manifest.json` will be saved in the folder defined in `output.path`.
+
+```js
+var WebpackAssetsManifest = require('webpack-assets-manifest');
+
+module.exports = {
+  entry: {
+    main: "./your-main-file",
+  },
+
+  output: {
+    path: path.join( __dirname, 'public', 'assets' ),
+    filename: '[name]-[hash].js',
+    chunkFilename: '[id]-[hash].js',
+    publicPath: 'assets/'
+  },
+
+  module: {
+    // Your loader rules go here.
+  },
+
+  plugins: [
+    new WebpackAssetsManifest()
+  ]
+};
+```
+
+---
 
 ## Sample output
 
