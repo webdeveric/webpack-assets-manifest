@@ -536,7 +536,9 @@ describe('WebpackAssetsManifest', function() {
 
       var manifest = new WebpackAssetsManifest(options);
 
-      assert.deepEqual(Object.keys(options), manifest.eventNames());
+      Object.keys(options).forEach(function(listener) {
+        assert.equal(1, manifest.listeners(listener).length);
+      });
     });
 
     it('uses on and emit', function(done) {
