@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var mkdirp = require('mkdirp');
 var merge = require('lodash.merge');
 var assert = require('chai').assert;
 var rimraf = require('rimraf');
@@ -9,6 +10,12 @@ var makeCompiler = require('./fixtures/makeCompiler');
 var WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
 
 describe('WebpackAssetsManifest', function() {
+
+  before('set up', function(done) {
+    mkdirp(configs.getWorkspace(), function() {
+      done();
+    });
+  });
 
   after('clean up', function(done) {
     rimraf(configs.getWorkspace(), function(err) {
@@ -546,7 +553,7 @@ describe('WebpackAssetsManifest', function() {
     var _777 = parseInt('0777', 8);
 
     it('has error creating directory', function(done) {
-      fs.chmodSync(configs.getTmpDir(), _444);
+      fs.chmodSync(configs.getWorkspace(), _444);
 
       var compiler = webpack(configs.hello());
       var manifest = new WebpackAssetsManifest({
@@ -559,7 +566,7 @@ describe('WebpackAssetsManifest', function() {
         assert.isNotNull(err, 'Permissions error not found');
         assert.equal('EACCES', err.code);
 
-        fs.chmodSync(configs.getTmpDir(), _777);
+        fs.chmodSync(configs.getWorkspace(), _777);
 
         done();
       });
