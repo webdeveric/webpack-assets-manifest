@@ -259,7 +259,8 @@ describe('WebpackAssetsManifest', function() {
 
     it('should turn on sorting', function() {
       var manifest = new WebpackAssetsManifest({
-        sortManifest: true
+        sortManifest: true,
+        space: 0
       });
 
       manifest.processAssets(assets);
@@ -272,7 +273,8 @@ describe('WebpackAssetsManifest', function() {
 
     it('should turn off sorting', function() {
       var manifest = new WebpackAssetsManifest({
-        sortManifest: false
+        sortManifest: false,
+        space: 0
       });
 
       manifest.processAssets(assets);
@@ -287,7 +289,8 @@ describe('WebpackAssetsManifest', function() {
       var manifest = new WebpackAssetsManifest({
         sortManifest: function(a, b) {
           return a.localeCompare(b);
-        }
+        },
+        space: 0
       });
 
       manifest.processAssets(assets);
@@ -343,7 +346,8 @@ describe('WebpackAssetsManifest', function() {
           }
 
           return value;
-        }
+        },
+        space: 0
       });
 
       manifest.processAssets(assets);
@@ -359,7 +363,8 @@ describe('WebpackAssetsManifest', function() {
 
     it('should set the initial assets data', function() {
       var manifest = new WebpackAssetsManifest({
-        assets: merge({}, require('./fixtures/images.json'))
+        assets: merge({}, require('./fixtures/images.json')),
+        space: 0
       });
 
       manifest.processAssets(assets);
@@ -411,7 +416,8 @@ describe('WebpackAssetsManifest', function() {
     it('should merge data if output file exists', function(done) {
       var compiler = webpack(configs.hello());
       var manifest = new WebpackAssetsManifest({
-        merge: true
+        merge: true,
+        space: 0
       });
 
       manifest.apply(compiler);
