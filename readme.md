@@ -76,9 +76,7 @@ new WebpackAssetsManifest({
 
 ### Sorting the manifest
 
-The manifest is sorted by default since I find it easier to read that way.
-
-You can turn off sorting by setting `sortManifest` to `false`.
+The manifest is sorted alphabetically by default. You can turn off sorting by setting `sortManifest` to `false`.
 
 If you want more control over how the manifest is sorted, you can provide your own comparison function.
 In the example below, the manifest will be sorted by file extension then alphabetically.
@@ -110,13 +108,13 @@ new WebpackAssetsManifest({
 
 You can customize the manifest by adding your own event listeners. The manifest is passed as the first argument so you can do whatever you need to with it.
 
-You can use `has(key)`, `get(key)`, `set(key, value)`, and `delete(key)` to manage what goes into the manifest.
+You can use `has(key)`, `get(key)`, `set(key, value)`, and `delete(key)` methods on manifest plugin instance to manage what goes into the manifest.
 
 ```js
 var manifest = new WebpackAssetsManifest();
 
 manifest.on('apply', function(manifest, stats) {
-  manifest.add('some-key', 'some-value');
+  manifest.set('some-key', 'some-value');
 });
 
 manifest.on('done', function(manifest, stats) {
