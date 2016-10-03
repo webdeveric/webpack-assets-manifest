@@ -29,7 +29,7 @@ function WebpackAssetsManifest(options)
   var defaults = {
     output: 'manifest.json',
     replacer: null,
-    space: 0,
+    space: 2,
     writeToDisk: false,
     fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
     sortManifest: true,
