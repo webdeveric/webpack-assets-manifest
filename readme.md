@@ -22,7 +22,7 @@ In your webpack config, require the plugin then add an instance to the `plugins`
 new WebpackAssetsManifest({
   output: 'manifest.json',
   replacer: null,
-  space: 0,
+  space: 2,
   writeToDisk: false,
   fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
   sortManifest: true,
@@ -37,7 +37,7 @@ new WebpackAssetsManifest({
 | `assets` | `object` | `{}` | Data is stored in this object. |
 | `output` | `string` | `manifest.json` | Where to save the manifest file relative to your webpack `output.path`. |
 | `replacer` | `null`, `function`, or `array` | `null` | [Replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
-| `space` | `int` | `0` | Number of spaces to use for pretty printing. |
+| `space` | `int` | `2` | Number of spaces to use for pretty printing. |
 | `writeToDisk` | `boolean` | `false` | Write the manifest to disk using `fs` during `after-emit` |
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
