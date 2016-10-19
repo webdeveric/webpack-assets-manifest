@@ -113,7 +113,7 @@ WebpackAssetsManifest.prototype.fixKey = function(key)
  */
 WebpackAssetsManifest.prototype.set = function(key, value)
 {
-  this.assets[ this.fixKey(key) ] = this.options.publicPath+value;
+  this.assets[ this.fixKey(key) ] = this.options.publicPath + value;
 
   return this;
 };
