@@ -33,7 +33,8 @@ function WebpackAssetsManifest(options)
     writeToDisk: false,
     fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
     sortManifest: true,
-    merge: false
+    merge: false,
+    publicPath: '',
   };
 
   this.options = pick(
@@ -112,7 +113,7 @@ WebpackAssetsManifest.prototype.fixKey = function(key)
  */
 WebpackAssetsManifest.prototype.set = function(key, value)
 {
-  this.assets[ this.fixKey(key) ] = value;
+  this.assets[ this.fixKey(key) ] = this.options.publicPath+value;
 
   return this;
 };
