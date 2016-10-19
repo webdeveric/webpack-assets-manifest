@@ -160,7 +160,7 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('#set()', function() {
-    it('should add to manifest.assets', function() {
+    it('should add to manifest.assets prepended with publicPath', function() {
       var manifest = new WebpackAssetsManifest({
         publicPath: 'http://cdn.xyz.com/'
       });
