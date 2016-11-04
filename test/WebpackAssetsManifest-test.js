@@ -106,7 +106,13 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('#getStatsData()', function() {
-    it('should return statistics from webpack');
+    it('should return statistics from webpack', function() {
+      var manifest = new WebpackAssetsManifest();
+
+      assert.throws(function() { manifest.getStatsData(); });
+
+      assert.deepEqual( {}, manifest.getStatsData( { toJson: function() { return {}; } } ) );
+    });
   });
 
   describe('#getOutputPath()', function() {

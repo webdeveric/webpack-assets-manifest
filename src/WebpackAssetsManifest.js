@@ -88,10 +88,15 @@ WebpackAssetsManifest.prototype.getExtension = function(filename)
  * Get JSON data from compilation stats.
  *
  * @param  {object} stats - compilation stats
+ * @throws {TypeError} If stats is not an object
  * @return {object}
  */
 WebpackAssetsManifest.prototype.getStatsData = function(stats)
 {
+  if (typeof stats !== 'object') {
+    throw new TypeError('stats must be an object');
+  }
+
   return this.stats = stats.toJson('verbose');
 };
 
