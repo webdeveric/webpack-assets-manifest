@@ -75,6 +75,17 @@ function server()
   };
 }
 
+function devServer( outputPath )
+{
+  outputPath = outputPath || '/';
+
+  var config = server();
+  config.devServer = { outputPath: outputPath };
+  config.output.path = outputPath;
+
+  return config;
+}
+
 function multi()
 {
   var c = client();
@@ -89,7 +100,9 @@ module.exports = {
   hello: hello,
   client: client,
   server: server,
+  devServer: devServer,
   multi: multi,
   getTmpDir: getTmpDir,
+  tmpDirPath: tmpDirPath,
   getWorkspace: getWorkspace
 };

@@ -5,12 +5,13 @@ var merge = require('lodash.merge');
 var assert = require('chai').assert;
 var rimraf = require('rimraf');
 var webpack = require('webpack');
+var superagent = require('superagent');
 var configs = require('./fixtures/configs');
 var makeCompiler = require('./fixtures/makeCompiler');
+var WebpackDevServer = require('webpack-dev-server');
 var WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
 
 describe('WebpackAssetsManifest', function() {
-
   before('set up', function(done) {
     mkdirp(configs.getWorkspace(), function() {
       done();
@@ -238,6 +239,34 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
+  describe('#inDevServer()', function() {
+    it('Identifies webpack-dev-server from argv', function() {
+      var manifest = new WebpackAssetsManifest();
+
+      assert.isFalse(manifest.inDevServer());
+
+      var originalArgv = process.argv.slice(0);
+
+      process.argv.push('webpack-dev-server');
+
+      assert.isTrue(manifest.inDevServer());
+
+      process.argv = originalArgv;
+    });
+
+    it('Identifies webpack-dev-server from outputFileSystem', function() {
+      var config = configs.hello();
+      config.output.path = '/';
+
+      var compiler = makeCompiler(config);
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+
+      assert.isTrue(manifest.inDevServer());
+    });
+  });
+
   describe('options.emit', function() {
     it('has been deprecated - use writeToDisk instead', function() {
       var manifest = new WebpackAssetsManifest({
@@ -451,7 +480,6 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('usage with webpack', function() {
-
     it('writes to disk', function(done) {
       var compiler = makeCompiler(configs.hello());
       var manifest = new WebpackAssetsManifest({
@@ -605,6 +633,117 @@ describe('WebpackAssetsManifest', function() {
           });
         }
       );
+    });
+  });
+
+  describe('Usage with webpack-dev-server', function() {
+
+    var options = {
+      publicPath: '/assets/',
+      quiet: true,
+      noInfo: true,
+    };
+
+    it('#inDevServer() should return true', function(done) {
+      var compiler = makeCompiler(configs.devServer());
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+
+      var server = new WebpackDevServer(compiler, options);
+
+      server.listen(8888, 'localhost', function() {
+        assert.isTrue(manifest.inDevServer());
+
+        server.close();
+
+        done();
+      });
+    });
+
+    it('Should serve /assets/manifest.json', function(done) {
+      var compiler = makeCompiler(configs.devServer());
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+
+      var server = new WebpackDevServer(compiler, options);
+
+      server.listen(8888, 'localhost', function() {
+        superagent
+          .get('http://localhost:8888/assets/manifest.json')
+          .end(function(err, res) {
+            if ( err ) {
+              throw err;
+            }
+
+            assert( JSON.parse(res.text) );
+
+            server.close();
+
+            done();
+          });
+      });
+    });
+
+    it('Should write to disk using absolute output path', function(done) {
+      var config = configs.devServer( configs.tmpDirPath() );
+
+      var compiler = makeCompiler(config);
+      var manifest = new WebpackAssetsManifest({
+        output: path.join( config.output.path, 'manifest.json' ),
+        writeToDisk: true
+      });
+
+      manifest.apply(compiler);
+
+      var server = new WebpackDevServer(compiler, options);
+
+      server.listen(8888, 'localhost', function() {
+        superagent
+          .get('http://localhost:8888/assets/manifest.json')
+          .end(function(err) {
+            if ( err ) {
+              throw err;
+            }
+
+            assert.isTrue(fs.statSync(manifest.getOutputPath()).isFile());
+
+            server.close();
+
+            done();
+          });
+      });
+    });
+
+    it('Should write to cwd if no output paths are specified', function(done) {
+      var config = configs.devServer();
+      var compiler = makeCompiler(config);
+      var manifest = new WebpackAssetsManifest({
+        writeToDisk: true
+      });
+
+      manifest.apply(compiler);
+
+      var server = new WebpackDevServer(compiler, options);
+
+      server.listen(8888, 'localhost', function() {
+        superagent
+          .get('http://localhost:8888/assets/manifest.json')
+          .end(function(err) {
+            if ( err ) {
+              throw err;
+            }
+
+            assert.isTrue(fs.statSync(manifest.getOutputPath()).isFile());
+
+            fs.unlinkSync(manifest.getOutputPath());
+
+            server.close();
+
+            done();
+          });
+      });
     });
   });
 });

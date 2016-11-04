@@ -12,7 +12,9 @@ var util  = require('util');
 var merge = require('lodash.merge');
 var keys  = require('lodash.keys');
 var pick  = require('lodash.pick');
+var find  = require('lodash.find');
 var get   = require('lodash.get');
+var chalk = require('chalk');
 var EventEmitter = require('events');
 var CompilationAsset = require('./CompilationAsset');
 
@@ -42,7 +44,7 @@ function WebpackAssetsManifest(options)
   );
 
   if ( options.hasOwnProperty('emit') && ! options.hasOwnProperty('writeToDisk') ) {
-    console.warn('\x1b[36m%s\x1b[0m', 'Webpack Assets Manifest: options.emit is deprecated - use options.writeToDisk instead');
+    console.warn( chalk.cyan('Webpack Assets Manifest: options.emit is deprecated - use options.writeToDisk instead') );
     this.options.writeToDisk = ! options.emit;
   }
 
@@ -215,6 +217,9 @@ WebpackAssetsManifest.prototype.toString = function()
   return JSON.stringify(this, this.options.replacer, this.options.space) || '{}';
 };
 
+/**
+ * Merge data if the output file already exists
+ */
 WebpackAssetsManifest.prototype.maybeMerge = function()
 {
   if ( this.options.merge ) {
@@ -243,10 +248,9 @@ WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
 
   this.maybeMerge();
 
-  var output = path.relative(
-    get(this.compiler, 'options.output.path', this.compiler.context),
-    this.getOutputPath()
-  );
+  var output = this.inDevServer() ?
+    path.basename( this.getOutputPath() ) :
+    path.relative( this.compiler.outputPath, this.getOutputPath() );
 
   compilation.assets[ output ] = new CompilationAsset(this);
 
@@ -308,16 +312,46 @@ WebpackAssetsManifest.prototype.handleCompilation = function(compilation)
 };
 
 /**
+ * Determine if webpack-dev-server is being used
+ *
+ * @return {boolean}
+ */
+WebpackAssetsManifest.prototype.inDevServer = function()
+{
+  if ( find( process.argv, function(arg) { return arg.lastIndexOf('webpack-dev-server') > -1; } ) ) {
+    return true;
+  }
+
+  return !!this.compiler && this.compiler.outputFileSystem.constructor.name === 'MemoryFileSystem';
+};
+
+/**
  * Get the file system path to the manifest
  *
  * @return {string} path to manifest file
  */
 WebpackAssetsManifest.prototype.getOutputPath = function()
 {
-  return this.compiler ? path.resolve(
-    get(this.compiler, 'options.output.path', this.compiler.context),
-    this.options.output
-  ) : '';
+  if ( ! this.compiler ) {
+    return '';
+  }
+
+  if ( path.isAbsolute( this.options.output ) ) {
+    return this.options.output;
+  }
+
+  if ( this.inDevServer() ) {
+    var outputPath = get( this, 'compiler.options.devServer.outputPath', get( this, 'compiler.outputPath', '/' ) );
+
+    if( outputPath === '/' ) {
+      console.warn( chalk.cyan('Webpack Assets Manifest: Please use an absolute path in options.output when using webpack-dev-server.') );
+      outputPath = get( this, 'compiler.context', process.cwd() );
+    }
+
+    return path.resolve( outputPath, this.options.output );
+  }
+
+  return path.resolve( this.compiler.outputPath, this.options.output );
 };
 
 /**
