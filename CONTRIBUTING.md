@@ -24,6 +24,8 @@ npm run test:report
 
 ## Pull requests
 
+If you'd like to add a new feature, please create an issue first so it can be discussed.
+
 Before forking and submitting a PR, please make sure all tests pass and the coding style is consistent.
 
 ```bash

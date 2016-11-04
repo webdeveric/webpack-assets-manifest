@@ -113,7 +113,7 @@ You can use `has(key)`, `get(key)`, `set(key, value)`, and `delete(key)` methods
 ```js
 var manifest = new WebpackAssetsManifest();
 
-manifest.on('apply', function(manifest, stats) {
+manifest.on('apply', function(manifest) {
   manifest.set('some-key', 'some-value');
 });
 
