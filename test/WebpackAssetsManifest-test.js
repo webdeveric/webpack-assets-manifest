@@ -167,8 +167,10 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('#set()', function() {
-    it('should add to manifest.assets', function() {
-      var manifest = new WebpackAssetsManifest();
+    it('should add to manifest.assets prepended with publicPath', function() {
+      var manifest = new WebpackAssetsManifest({
+        publicPath: 'http://cdn.xyz.com/'
+      });
 
       assert.deepEqual({}, manifest.assets);
 
@@ -177,8 +179,8 @@ describe('WebpackAssetsManifest', function() {
 
       assert.deepEqual(
         {
-          'main.js': 'main.123456.js',
-          'styles/main.css': 'styles/main.123456.css'
+          'main.js': 'http://cdn.xyz.com/main.123456.js',
+          'styles/main.css': 'http://cdn.xyz.com/styles/main.123456.css'
         },
         manifest.assets
       );
