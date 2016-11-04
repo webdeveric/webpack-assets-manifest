@@ -485,6 +485,54 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
+  describe('options.publicPath', function() {
+    var img = '/images/photo.jpg';
+    var cdn = {
+      default: '//cdn.example.com',
+      images: '//img-cdn.example.com'
+    };
+
+    it('should convert into a function', function() {
+      var manifest = new WebpackAssetsManifest({
+        publicPath: cdn.default
+      });
+
+      assert.isFunction( manifest.options.publicPath );
+
+      assert.equal( cdn.default + img, manifest.options.publicPath( img ) );
+    });
+
+    it('only prefixes strings', function() {
+      var manifest = new WebpackAssetsManifest({
+        publicPath: cdn.default
+      });
+
+      assert.isFunction( manifest.options.publicPath );
+
+      manifest.set('obj', {} );
+
+      assert.deepEqual({}, manifest.get('obj'));
+    });
+
+    it('can be a custom function', function() {
+      var manifest = new WebpackAssetsManifest({
+        publicPath: function( val, manifest ) {
+          if ( manifest.getExtension( val ).substr(1).toLowerCase() ) {
+            return cdn.images + val;
+          }
+
+          return cdn.default + val;
+        }
+      });
+
+      assert.isFunction( manifest.options.publicPath );
+
+      manifest.set( img, img );
+
+      assert.equal( cdn.images + img, manifest.get( img ) );
+    });
+  });
+
   describe('usage with webpack', function() {
     it('writes to disk', function(done) {
       var compiler = makeCompiler(configs.hello());

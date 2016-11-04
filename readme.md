@@ -26,7 +26,8 @@ new WebpackAssetsManifest({
   writeToDisk: false,
   fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
   sortManifest: true,
-  merge: false
+  merge: false,
+  publicPath: ''
 });
 ```
 
@@ -42,8 +43,11 @@ new WebpackAssetsManifest({
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
 | `merge` | `boolean` | `false` | If the output file already exists, should the data be merged with it? |
+| `publicPath` | `string`, `function` | `''` | Value prefix or callback to customize the value. |
 
-If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should probably set `writeToDisk` to `true` so the manifest file is actually written to disk and not kept only in memory.
+### Using `webpack-dev-server`
+
+If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should set `writeToDisk` to `true` and provide an absolute path in `output` so the manifest file is actually written to disk and not kept only in memory.
 
 ### Sharing data
 
@@ -98,6 +102,41 @@ new WebpackAssetsManifest({
     }
 
     return a.localeCompare(b);
+  }
+});
+```
+
+### Add your CDN
+
+You can customize the value that gets saved to the manifest by using `publicPath`.
+
+One common use is to prefix your __CDN URL__ to the value.
+
+```js
+var manifest = new WebpackAssetsManifest({
+  publicPath: '//cdn.example.com'
+});
+```
+
+If you'd like to have more control, use a function.
+The example below shows how you can prefix a different CDN based on the file extension.
+
+```js
+var manifest = new WebpackAssetsManifest({
+  publicPath: function( val, manifest ) {
+    switch( manifest.getExtension( val ).substr(1).toLowerCase() ) {
+      case 'jpg': case 'jpeg': case 'gif': case 'png': case 'svg':
+        return '//img-cdn.example.com' + val;
+        break;
+      case 'css':
+        return '//css-cdn.example.com' + val;
+        break;
+      case 'js':
+        return '//js-cdn.example.com' + val;
+        break;
+      default:
+        return '//cdn.example.com' + val;
+    }
   }
 });
 ```

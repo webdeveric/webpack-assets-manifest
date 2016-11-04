@@ -35,7 +35,8 @@ function WebpackAssetsManifest(options)
     writeToDisk: false,
     fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
     sortManifest: true,
-    merge: false
+    merge: false,
+    publicPath: ''
   };
 
   this.options = pick(
@@ -51,6 +52,18 @@ function WebpackAssetsManifest(options)
   this.assets = options.assets || Object.create(null);
   this.compiler = null;
   this.stats = null;
+
+  if ( typeof this.options.publicPath !== 'function' ) {
+    var prefix = this.options.publicPath + '';
+
+    this.options.publicPath = function addPrefix( str ) {
+      if ( typeof str === 'string' ) {
+        return prefix + str;
+      }
+
+      return str;
+    };
+  }
 
   [ 'apply', 'moduleAsset', 'processAssets', 'done' ].forEach( function(key) {
     if ( options[ key ] ) {
@@ -119,7 +132,7 @@ WebpackAssetsManifest.prototype.fixKey = function(key)
  */
 WebpackAssetsManifest.prototype.set = function(key, value)
 {
-  this.assets[ this.fixKey(key) ] = value;
+  this.assets[ this.fixKey(key) ] = this.options.publicPath( value, this );
 
   return this;
 };
