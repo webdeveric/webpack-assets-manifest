@@ -48,7 +48,7 @@ function client()
     },
     output: {
       path: tmpDirPath(),
-      filename: 'client-bundle.js'
+      filename: '[name].js'
     },
     module: {
       loaders: [
@@ -70,7 +70,7 @@ function server()
     },
     output: {
       path: tmpDirPath(),
-      filename: 'server-bundle.js'
+      filename: '[name].js'
     }
   };
 }

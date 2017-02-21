@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var chalk = require('chalk');
 var mkdirp = require('mkdirp');
 var merge = require('lodash.merge');
 var assert = require('chai').assert;
@@ -10,6 +11,9 @@ var configs = require('./fixtures/configs');
 var makeCompiler = require('./fixtures/makeCompiler');
 var WebpackDevServer = require('webpack-dev-server');
 var WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
+
+console.log( chalk.green( 'Webpack version: %s'), require('webpack/package.json').version );
+console.log( chalk.green( 'Webpack dev server version: %s'), require('webpack-dev-server/package.json').version );
 
 describe('WebpackAssetsManifest', function() {
   before('set up', function(done) {
@@ -601,8 +605,8 @@ describe('WebpackAssetsManifest', function() {
           manifestPath,
           function(err, content) {
             assert.isNull(err, 'Error found reading manifest.json');
-            assert.include(content.toString(), 'client-bundle.js');
-            assert.include(content.toString(), 'server-bundle.js');
+            assert.include(content.toString(), 'client.js');
+            assert.include(content.toString(), 'server.js');
             assert.include(content.toString(), 'images/Ginger.jpg');
 
             done();
@@ -634,7 +638,7 @@ describe('WebpackAssetsManifest', function() {
         apply: function() {
           done();
         }
-      }).apply({ plugin: noop });
+      }).apply( makeCompiler( configs.hello() ) );
     });
   });
 
@@ -798,6 +802,54 @@ describe('WebpackAssetsManifest', function() {
             done();
           });
       });
+    });
+  });
+
+  describe('Hot module replacement', function() {
+    it('Should ignore HMR files', function() {
+      var manifest = new WebpackAssetsManifest();
+      var config = configs.hello();
+
+      config.output.hotUpdateChunkFilename = '[id].[hash:6].hot-update.js';
+
+      manifest.apply(makeCompiler(config));
+
+      manifest.processAssets({
+        main: [
+          'main.123456.js',
+          '0.123456.hot-update.js'
+        ]
+      });
+
+      assert.deepEqual(
+        {
+          'main.js': 'main.123456.js'
+        },
+        manifest.assets
+      );
+    });
+
+    it('Should ignore HMR module assets', function() {
+      var compiler = makeCompiler(configs.client());
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+      manifest.handleModuleAsset({ userRequest: '' }, '0.123456.hot-update.js');
+
+      assert.deepEqual( {}, manifest.assets );
+    });
+
+    it('isHMR should return false when hotUpdateChunkFilename is ambiguous', function() {
+      var manifest = new WebpackAssetsManifest();
+      var config = configs.client();
+      var compiler = makeCompiler(config);
+
+      config.output.hotUpdateChunkFilename = config.output.filename;
+
+      manifest.apply(compiler);
+
+      assert.isFalse( manifest.isHMR('main.js') );
+      assert.isFalse( manifest.isHMR('0.123456.hot-update.js') );
     });
   });
 });
