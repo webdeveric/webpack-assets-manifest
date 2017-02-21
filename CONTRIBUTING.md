@@ -16,7 +16,7 @@ Run tests
 npm test
 ```
 
-Run tests and get generate a coverage report
+Run tests and generate a coverage report. Please keep the code coverage at 100%.
 
 ```bash
 npm run test:report
