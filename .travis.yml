@@ -5,16 +5,16 @@ node_js:
   - "4"
   - "node"
 env:
-  - WEBPACK_VERSION="1"
-  - WEBPACK_VERSION="2"
+  - WEBPACK_VERSION=1
+  - WEBPACK_VERSION=2
 matrix:
   fast_finish: true
   allow_failures:
-    - env: WEBPACK_VERSION="2"
+    - env: WEBPACK_VERSION=2
 install:
   - npm install -g codecov
-  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$WEBPACK_VERSION
   - npm install
+  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$WEBPACK_VERSION
 script:
   - npm run test:coverage
   - codecov
