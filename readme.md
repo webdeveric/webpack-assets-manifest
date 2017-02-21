@@ -4,7 +4,6 @@
 [![codecov](https://codecov.io/gh/webdeveric/webpack-assets-manifest/branch/master/graph/badge.svg)](https://codecov.io/gh/webdeveric/webpack-assets-manifest)
 [![dependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest)
 [![devDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/dev-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=dev)
-[![peerDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/peer-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=peer)
 
 This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.
 
