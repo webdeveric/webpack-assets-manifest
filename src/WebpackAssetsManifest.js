@@ -52,6 +52,7 @@ function WebpackAssetsManifest(options)
   this.assets = options.assets || Object.create(null);
   this.compiler = null;
   this.stats = null;
+  this.hmrRegex = null;
 
   if ( typeof this.options.publicPath !== 'function' ) {
     var prefix = this.options.publicPath + '';
@@ -124,6 +125,16 @@ WebpackAssetsManifest.prototype.fixKey = function(key)
 };
 
 /**
+ * Determine if the filename matches the HMR filename pattern
+ *
+ * @return {boolean}
+ */
+WebpackAssetsManifest.prototype.isHMR = function(filename)
+{
+  return this.hmrRegex ? this.hmrRegex.test( filename ) : false;
+};
+
+/**
  * Add item to assets
  *
  * @param {string} key
@@ -191,6 +202,11 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
 
     for ( var i = 0, l = filenames.length; i < l ; ++i ) {
       var filename = name + this.getExtension( filenames[ i ] );
+
+      if ( this.isHMR( filenames[ i ] ) ) {
+        continue;
+      }
+
       this.set( filename, filenames[ i ] );
     }
   }
@@ -314,6 +330,10 @@ WebpackAssetsManifest.prototype.handleModuleAsset = function(module, hashedFile)
 {
   var key = path.join(path.dirname(hashedFile), path.basename(module.userRequest));
 
+  if ( this.isHMR( hashedFile ) ) {
+    return;
+  }
+
   this.set(key, hashedFile);
 
   this.emit('moduleAsset', this, key, hashedFile, module);
@@ -379,7 +399,20 @@ WebpackAssetsManifest.prototype.getOutputPath = function()
  */
 WebpackAssetsManifest.prototype.apply = function(compiler)
 {
+  var output = compiler.options.output;
+
   this.compiler = compiler;
+
+  if ( output.filename !== output.hotUpdateChunkFilename ) {
+    this.hmrRegex = new RegExp(
+      output.hotUpdateChunkFilename
+        .replace(/\./g, '\\.')
+        .replace( /\[[a-z]+(:\d+)?\]/gi, function(m, n) {
+          return '.' + ( n ? '{' + n.substr(1) + '}' : '+' );
+        }) + '$',
+      'i'
+    );
+  }
 
   compiler.plugin('compilation', this.handleCompilation.bind(this));
   compiler.plugin('emit', this.handleEmit.bind(this));
