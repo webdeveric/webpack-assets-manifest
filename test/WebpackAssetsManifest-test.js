@@ -109,6 +109,39 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
+  describe('#overridegetAssetKey()', function() {
+    var manifest = new WebpackAssetsManifest();
+
+    it('should process assets with the given key function', function() {
+      assert.deepEqual({}, manifest.assets);
+
+      manifest.getAssetKey = function (name, filename) {
+        return path.join(path.dirname(filename), name) + this.getExtension(filename);
+      };
+
+      manifest.processAssets({
+        common: [
+          'js/common-123456.js',
+          'js/common-123456.js.map'
+        ],
+        main: [
+          'css/main.123456.css',
+          'css/main.123456.css.map'
+        ]
+      });
+
+      assert.deepEqual(
+        {
+          'js/common.js': 'js/common-123456.js',
+          'js/common.js.map': 'js/common-123456.js.map',
+          'css/main.css': 'css/main.123456.css',
+          'css/main.css.map': 'css/main.123456.css.map'
+        },
+        manifest.assets
+      );
+    });
+  });
+
   describe('#getStatsData()', function() {
     it('should return statistics from webpack', function() {
       var manifest = new WebpackAssetsManifest();
