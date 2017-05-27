@@ -26,7 +26,9 @@ new WebpackAssetsManifest({
   fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
   sortManifest: true,
   merge: false,
-  publicPath: ''
+  publicPath: null,
+  customize: null,
+  contextRelativeKeys: false,
 });
 ```
 
@@ -42,7 +44,9 @@ new WebpackAssetsManifest({
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
 | `merge` | `boolean` | `false` | If the output file already exists, should the data be merged with it? |
-| `publicPath` | `string`, `function` | `''` | Value prefix or callback to customize the value. |
+| `publicPath` | `string`, `function`, `boolean` | `null` | Value prefix or callback to customize the value. If `true`, your webpack config `output.publicPath` will be used as the prefix. |
+| `customize` | `function` | `null` | Callback to customize the `key` and/or `value`. If `false` is returned, that item is not added to the manifest. |
+| `contextRelativeKeys` | `boolean` | `false` | Should the `key` be relative to you compiler context? |
 
 ### Using `webpack-dev-server`
 
@@ -180,6 +184,43 @@ new WebpackAssetsManifest({
 | `moduleAsset` | `function(manifest, key, hashedFile, module){}` |
 | `processAssets` | `function(manifest, assets){}` |
 | `done` | `function(manifest, stats){}` |
+
+### `customize` callback
+
+If you want more control over exactly what gets added to your manifest, then use the `customize` option.
+
+> Be aware that keys and/or values may have been modified if you're using the `publicPath` or `contextRelativeKeys` options.
+
+```js
+new WebpackAssetsManifest({
+  customize( key, value, originalValue, manifest )
+  {
+    // You can prevent adding items to the manifest by returning false.
+    if ( key.toLowerCase().endsWith('.map') ) {
+      return false;
+    }
+
+    // The manifest instance is available if you need it.
+    if ( manifest.options.publicPath ) {
+      // Do something
+    }
+
+    // originalValue is the value before the publicPath option was applied.
+    if ( originalValue ) {
+      // Do something
+    }
+
+    // To alter the key/value, return an object with a key/value property.
+    // The key should be a string and the value can be anything that can be JSON stringified.
+    // If something else (or nothing) is returned, this callback will have no affect and the
+    // manifest will add the entry normally.
+    return {
+      key: key,
+      value: value,
+    };
+  },
+}),
+```
 
 ---
 
