@@ -277,6 +277,68 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
+  describe('#pickFileByExtension()', function() {
+    var files = [
+      'main.js',
+      'main.css',
+    ];
+
+    it('returns file with matching extension', function() {
+      var manifest = new WebpackAssetsManifest();
+      var file = manifest.pickFileByExtension(files, '.css', 'default');
+
+      assert.equal(file, 'main.css');
+    });
+
+    it('returns default when no matches found', function() {
+      var manifest = new WebpackAssetsManifest();
+      var file = manifest.pickFileByExtension(files, '.jpg', 'default');
+
+      assert.equal(file, 'default');
+    });
+  });
+
+  describe('#processCompilationEntry()', function() {
+    var comp = {
+      getPath: function(t, data) {
+        return data.filename;
+      },
+    };
+
+    it('does sets if userRequest is truthy', function(done) {
+      var compiler = makeCompiler(configs.hello());
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+        var mod = {
+          userRequest: 'main.js',
+          chunks: [
+            {
+              files: [ 'main.js' ],
+            },
+          ],
+        };
+
+        manifest.processCompilationEntry(comp, mod);
+
+        assert.isTrue( manifest.has('main.js') );
+
+        done();
+      });
+    });
+
+    it('does not set if userRequest is falsy', function() {
+      var manifest = new WebpackAssetsManifest();
+
+      manifest.processCompilationEntry(comp, { userRequest: false });
+
+      assert.deepEqual({}, manifest.assets);
+    });
+  });
+
   describe('options.emit', function() {
     it('has been deprecated - use writeToDisk instead', function() {
       var manifest = new WebpackAssetsManifest({
@@ -490,28 +552,61 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('options.publicPath', function() {
-    var img = '/images/photo.jpg';
+    var img = 'images/photo.jpg';
     var cdn = {
-      default: '//cdn.example.com',
-      images: '//img-cdn.example.com'
+      default: 'https://cdn.example.com/',
+      images: 'https://img-cdn.example.com/'
     };
 
-    it('should convert into a function', function() {
+    it('can be a string', function() {
       var manifest = new WebpackAssetsManifest({
-        publicPath: cdn.default
+        publicPath: 'assets/',
       });
 
-      assert.isFunction( manifest.options.publicPath );
+      manifest.set('hello', 'world');
+      assert.equal( manifest.get('hello') , 'assets/world' );
+    });
 
-      assert.equal( cdn.default + img, manifest.options.publicPath( img ) );
+    it('can be true', function(done) {
+      var config = configs.hello();
+      config.output.publicPath = cdn.default;
+
+      var compiler = makeCompiler(config);
+      var manifest = new WebpackAssetsManifest({
+        publicPath: true,
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+        assert.equal( cdn.default + 'bundle.js', manifest.get('main.js') );
+        done();
+      });
+    });
+
+    it('has no affect if false', function(done) {
+      var config = configs.hello();
+      config.output.publicPath = cdn.default;
+
+      var compiler = makeCompiler(config);
+      var manifest = new WebpackAssetsManifest({
+        publicPath: false,
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+        assert.equal('bundle.js', manifest.get('main.js') );
+        done();
+      });
     });
 
     it('only prefixes strings', function() {
       var manifest = new WebpackAssetsManifest({
         publicPath: cdn.default
       });
-
-      assert.isFunction( manifest.options.publicPath );
 
       manifest.set('obj', {} );
 
@@ -534,6 +629,106 @@ describe('WebpackAssetsManifest', function() {
       manifest.set( img, img );
 
       assert.equal( cdn.images + img, manifest.get( img ) );
+    });
+  });
+
+  describe('options.contextRelativeKeys', function() {
+    it('asset key is relative to the context', function(done) {
+      var compiler = webpack(configs.client());
+      var manifest = new WebpackAssetsManifest({
+        contextRelativeKeys: true
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+        fs.readFile(
+          manifest.getOutputPath(),
+          function(err) {
+            assert.isNull(err, 'Error found reading manifest.json');
+            assert.isFalse(manifest.has('Ginger.jpg'));
+            assert.isTrue(manifest.has('test/fixtures/Ginger.jpg'));
+            assert.equal(manifest.get('test/fixtures/Ginger.jpg'), 'images/Ginger.jpg');
+            done();
+          }
+        );
+      });
+    });
+  });
+
+  describe('options.customize', function() {
+    it('customizes the key and value', function() {
+      var manifest = new WebpackAssetsManifest({
+        customize: function(key, value) {
+          return {
+            key: key.toUpperCase(),
+            value: value.toUpperCase(),
+          };
+        },
+      });
+
+      manifest.set('hello', 'world');
+
+      assert.isTrue( manifest.has('HELLO') );
+      assert.isFalse( manifest.has('hello') );
+    });
+
+    it('customizes the key', function() {
+      var manifest = new WebpackAssetsManifest({
+        customize: function(key) {
+          return {
+            key: key.toUpperCase(),
+          };
+        },
+      });
+
+      manifest.set('hello', 'world');
+
+      assert.isTrue( manifest.has('HELLO') );
+      assert.isFalse( manifest.has('hello') );
+      assert.equal( manifest.get('HELLO'), 'world' );
+    });
+
+    it('customizes the value', function() {
+      var manifest = new WebpackAssetsManifest({
+        customize: function(key, value) {
+          return {
+            value: value.toUpperCase(),
+          };
+        },
+      });
+
+      manifest.set('hello', 'world');
+
+      assert.isFalse( manifest.has('HELLO') );
+      assert.isTrue( manifest.has('hello') );
+      assert.equal( manifest.get('hello'), 'WORLD' );
+    });
+
+    it('has no affect if nothing is returned', function() {
+      var manifest = new WebpackAssetsManifest({
+        customize: function() {
+        },
+      });
+
+      manifest.set('hello', 'world');
+
+      assert.isTrue( manifest.has('hello') );
+      assert.equal( manifest.get('hello'), 'world' );
+    });
+
+    it('skips adding asset if false is returned', function() {
+      var manifest = new WebpackAssetsManifest({
+        customize: function() {
+          return false;
+        },
+      });
+
+      manifest.set('hello', 'world');
+
+      assert.isFalse( manifest.has('hello') );
+      assert.deepEqual( {}, manifest.assets );
     });
   });
 
