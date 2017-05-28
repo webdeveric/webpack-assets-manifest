@@ -126,7 +126,7 @@ The example below shows how you can prefix a different CDN based on the file ext
 
 ```js
 var manifest = new WebpackAssetsManifest({
-  publicPath: function( val, manifest ) {
+  publicPath: function(val, manifest) {
     switch( manifest.getExtension( val ).substr(1).toLowerCase() ) {
       case 'jpg': case 'jpeg': case 'gif': case 'png': case 'svg':
         return '//img-cdn.example.com' + val;
@@ -193,8 +193,7 @@ If you want more control over exactly what gets added to your manifest, then use
 
 ```js
 new WebpackAssetsManifest({
-  customize( key, value, originalValue, manifest )
-  {
+  customize: function(key, value, originalValue, manifest) {
     // You can prevent adding items to the manifest by returning false.
     if ( key.toLowerCase().endsWith('.map') ) {
       return false;
