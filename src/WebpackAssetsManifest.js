@@ -195,6 +195,18 @@ WebpackAssetsManifest.prototype.delete = function(key)
 };
 
 /**
+ * Returns the key that will be associated to the asset in manifest.json
+ *
+ * Override it if you want something different that the entry's name + file extension as key
+ * @param  {object} entryName - entry name
+ * @param  {object} filename - filename of the asset
+ * @return {object}
+ */
+ WebpackAssetsManifest.prototype.getAssetKey = function (entryName, filename) {
+  return entryName + this.getExtension( filename );
+ };
+
+/**
  * Process compilation assets.
  *
  * @param  {object} assets - assets by chunk name
@@ -214,13 +226,14 @@ WebpackAssetsManifest.prototype.processAssets = function(assets)
     }
 
     for ( var i = 0, l = filenames.length; i < l ; ++i ) {
-      var filename = name + this.getExtension( filenames[ i ] );
+      var filename = filenames[ i ],
+          assetKey = this.getAssetKey(name, filename);
 
-      if ( this.isHMR( filenames[ i ] ) ) {
+      if ( this.isHMR( filename ) ) {
         continue;
       }
 
-      this.set( filename, filenames[ i ] );
+      this.set( assetKey, filename );
     }
   }
 
