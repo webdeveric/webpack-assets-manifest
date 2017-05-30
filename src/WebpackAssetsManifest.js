@@ -7,6 +7,7 @@
 'use strict';
 
 var fs    = require('fs');
+var url   = require('url');
 var path  = require('path');
 var util  = require('util');
 var merge = require('lodash.merge');
@@ -14,6 +15,7 @@ var keys  = require('lodash.keys');
 var pick  = require('lodash.pick');
 var find  = require('lodash.find');
 var get   = require('lodash.get');
+var has   = require('lodash.has');
 var chalk = require('chalk');
 var EventEmitter = require('events');
 var CompilationAsset = require('./CompilationAsset');
@@ -26,7 +28,7 @@ function WebpackAssetsManifest(options)
 {
   EventEmitter.call(this);
 
-  options = options || {};
+  options = options || Object.create(null);
 
   var defaults = {
     output: 'manifest.json',
@@ -36,7 +38,9 @@ function WebpackAssetsManifest(options)
     fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
     sortManifest: true,
     merge: false,
-    publicPath: ''
+    publicPath: null,
+    customize: null,
+    contextRelativeKeys: false,
   };
 
   this.options = pick(
@@ -44,7 +48,7 @@ function WebpackAssetsManifest(options)
     keys(defaults)
   );
 
-  if ( options.hasOwnProperty('emit') && ! options.hasOwnProperty('writeToDisk') ) {
+  if ( has(options, 'emit') && ! has(options, 'writeToDisk') ) {
     console.warn( chalk.cyan('Webpack Assets Manifest: options.emit is deprecated - use options.writeToDisk instead') );
     this.options.writeToDisk = ! options.emit;
   }
@@ -53,18 +57,6 @@ function WebpackAssetsManifest(options)
   this.compiler = null;
   this.stats = null;
   this.hmrRegex = null;
-
-  if ( typeof this.options.publicPath !== 'function' ) {
-    var prefix = this.options.publicPath + '';
-
-    this.options.publicPath = function addPrefix( str ) {
-      if ( typeof str === 'string' ) {
-        return prefix + str;
-      }
-
-      return str;
-    };
-  }
 
   [ 'apply', 'moduleAsset', 'processAssets', 'done' ].forEach( function(key) {
     if ( options[ key ] ) {
@@ -143,7 +135,28 @@ WebpackAssetsManifest.prototype.isHMR = function(filename)
  */
 WebpackAssetsManifest.prototype.set = function(key, value)
 {
-  this.assets[ this.fixKey(key) ] = this.options.publicPath( value, this );
+  var originalValue = value;
+  value = this.getPublicPath( value );
+
+  if ( this.options.customize && typeof this.options.customize === 'function' ) {
+    var custom = this.options.customize( key, value, originalValue, this );
+
+    if ( custom === false ) {
+      return this;
+    }
+
+    if ( typeof custom === 'object' ) {
+      if ( has(custom, 'key') ) {
+        key = custom.key;
+      }
+
+      if ( has(custom, 'value') ) {
+        value = custom.value;
+      }
+    }
+  }
+
+  this.assets[ this.fixKey(key) ] = value;
 
   return this;
 };
@@ -156,7 +169,7 @@ WebpackAssetsManifest.prototype.set = function(key, value)
  */
 WebpackAssetsManifest.prototype.has = function(key)
 {
-  return Object.prototype.hasOwnProperty.call(this.assets, this.fixKey(key));
+  return has(this.assets, this.fixKey(key));
 };
 
 /**
@@ -271,6 +284,57 @@ WebpackAssetsManifest.prototype.maybeMerge = function()
 };
 
 /**
+ * Return an item from an array if it matches the file extension
+ *
+ * @param  {array} files
+ * @param  {string} ext
+ * @param  {string} defaultValue
+ * @return {string}
+ */
+WebpackAssetsManifest.prototype.pickFileByExtension = function(files, ext, defaultValue)
+{
+  return files.reduce( function(val, file) {
+    return ext === this.getExtension(file) ? file : val;
+  }.bind(this), defaultValue );
+};
+
+/**
+ * Process an item from `compilation.entries`
+ *
+ * @param  {object} compilation
+ * @param  {object} mod
+ */
+WebpackAssetsManifest.prototype.processCompilationEntry = function(compilation, mod)
+{
+  if ( mod.userRequest ) {
+    var key = path.relative(this.compiler.context, mod.userRequest);
+
+    var value = compilation.getPath( this.compiler.options.output.filename, {
+      chunk: mod.chunks[0],
+      filename: key,
+    });
+
+    value = this.pickFileByExtension(
+      mod.chunks[0].files,
+      this.getExtension(key),
+      value
+    );
+
+    this.set(key, value);
+  }
+};
+
+/**
+ * Process `compilation.entries`
+ *
+ * @param  {object} compilation
+ */
+WebpackAssetsManifest.prototype.processCompilationEntries = function(compilation)
+{
+  compilation.entries.forEach( this.processCompilationEntry.bind(this, compilation) );
+};
+
+/**
  * Handle the `emit` event
  *
  * @param  {object} compilation - the Webpack compilation object
@@ -278,6 +342,10 @@ WebpackAssetsManifest.prototype.maybeMerge = function()
  */
 WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
 {
+  if ( this.options.contextRelativeKeys ) {
+    this.processCompilationEntries(compilation);
+  }
+
   this.processAssets(this.getStatsData(compilation.getStats()).assetsByChunkName);
 
   this.maybeMerge();
@@ -285,6 +353,8 @@ WebpackAssetsManifest.prototype.handleEmit = function(compilation, callback)
   var output = this.inDevServer() ?
     path.basename( this.getOutputPath() ) :
     path.relative( this.compiler.outputPath, this.getOutputPath() );
+
+  output = compilation.getPath( output, { chunk: { name: 'manifest' }, filename: 'manifest.json' } );
 
   compilation.assets[ output ] = new CompilationAsset(this);
 
@@ -332,6 +402,10 @@ WebpackAssetsManifest.prototype.handleModuleAsset = function(module, hashedFile)
 
   if ( this.isHMR( hashedFile ) ) {
     return;
+  }
+
+  if ( this.options.contextRelativeKeys ) {
+    key = path.relative(this.compiler.context, module.userRequest);
   }
 
   this.set(key, hashedFile);
@@ -390,6 +464,32 @@ WebpackAssetsManifest.prototype.getOutputPath = function()
   }
 
   return path.resolve( this.compiler.outputPath, this.options.output );
+};
+
+/**
+ * Get the public path for the filename
+ *
+ * @param  {string} filePath
+ */
+WebpackAssetsManifest.prototype.getPublicPath = function(filename)
+{
+  var publicPath = this.options.publicPath;
+
+  if ( typeof publicPath === 'function' ) {
+    return publicPath( filename, this );
+  }
+
+  if ( typeof filename === 'string' ) {
+    if ( typeof publicPath === 'string' ) {
+      return url.resolve( publicPath, filename );
+    }
+
+    if ( publicPath === true ) {
+      return url.resolve( this.compiler.options.output.publicPath, filename );
+    }
+  }
+
+  return filename;
 };
 
 /**
