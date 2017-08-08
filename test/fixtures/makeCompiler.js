@@ -1,9 +1,11 @@
-var webpack = require('webpack');
-var MemoryFs = require('memory-fs');
+'use strict';
+
+const webpack = require('webpack');
+const MemoryFs = require('memory-fs');
 
 function makeCompiler( config )
 {
-  var compiler = webpack( config );
+  const compiler = webpack( config );
 
   compiler.outputFileSystem = new MemoryFs();
 

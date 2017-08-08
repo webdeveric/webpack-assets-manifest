@@ -1,5 +1,7 @@
-var path = require('path');
-var tmpDir = require('os').tmpdir();
+'use strict';
+
+const path = require('path');
+const tmpDir = require('os').tmpdir();
 
 function getTmpDir()
 {
@@ -13,8 +15,8 @@ function getWorkspace()
 
 function randomString(length)
 {
-  var str = '';
-  var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+  let str = '';
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
   while(length--) {
     str += chars[ Math.floor( Math.random() * chars.length ) ];
@@ -54,7 +56,7 @@ function client()
       loaders: [
         {
           test: /\.jpg$/i,
-          loader: 'file?name=images/[name].[ext]'
+          loader: 'file-loader?name=images/[name].[ext]'
         }
       ]
     }
@@ -79,7 +81,7 @@ function devServer( outputPath )
 {
   outputPath = outputPath || '/';
 
-  var config = server();
+  const config = server();
   config.devServer = { outputPath: outputPath };
   config.output.path = outputPath;
 
@@ -88,8 +90,8 @@ function devServer( outputPath )
 
 function multi()
 {
-  var c = client();
-  var s = server();
+  const c = client();
+  const s = server();
 
   c.output.path = s.output.path = tmpDirPath();
 
