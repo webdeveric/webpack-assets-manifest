@@ -52,6 +52,7 @@
     "fs-extra": "^4.0.1",
     "istanbul": "^0.4",
     "jsdoc": "^3.0",
+    "memory-fs": "^0.4.1",
     "mocha": "^3.0",
     "rimraf": "^2.0",
     "superagent": "^3.0",
