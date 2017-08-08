@@ -1,20 +1,21 @@
 language: node_js
 node_js:
+  - "8"
   - "6"
-  - "5"
   - "4"
   - "node"
 env:
-  - WEBPACK_VERSION=1
-  - WEBPACK_VERSION=2
+  - WEBPACK_VERSION=3 DEVSERVER_VERSION=2
+  - WEBPACK_VERSION=2 DEVSERVER_VERSION=2
+  - WEBPACK_VERSION=1 DEVSERVER_VERSION=1
 matrix:
   fast_finish: true
   allow_failures:
-    - env: WEBPACK_VERSION=2
+    - env: WEBPACK_VERSION=1
 install:
   - npm install -g codecov
   - npm install
-  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$WEBPACK_VERSION
+  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$DEVSERVER_VERSION
 script:
   - npm run test:coverage
   - codecov
