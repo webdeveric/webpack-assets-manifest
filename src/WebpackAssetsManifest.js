@@ -50,11 +50,6 @@ class WebpackAssetsManifest extends EventEmitter
       keys(defaults)
     );
 
-    if ( has(options, 'emit') && ! has(options, 'writeToDisk') ) {
-      console.warn( chalk.cyan('Webpack Assets Manifest: options.emit is deprecated - use options.writeToDisk instead') );
-      this.options.writeToDisk = ! options.emit;
-    }
-
     this.assets = options.assets || Object.create(null);
     this.compiler = null;
     this.stats = null;

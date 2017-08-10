@@ -369,17 +369,6 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
-  describe('options.emit', function() {
-    it('has been deprecated - use writeToDisk instead', function() {
-      const manifest = new WebpackAssetsManifest({
-        emit: false
-      });
-
-      assert.isTrue(manifest.options.writeToDisk);
-      assert.isUndefined(manifest.options.emit);
-    });
-  });
-
   describe('options.sortManifest', function() {
     const assets = {
       a: [ 'a.js' ],
