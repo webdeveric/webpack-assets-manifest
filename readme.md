@@ -19,16 +19,7 @@ In your webpack config, require the plugin then add an instance to the `plugins`
 
 ```js
 new WebpackAssetsManifest({
-  output: 'manifest.json',
-  replacer: null,
-  space: 2,
-  writeToDisk: false,
-  fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
-  sortManifest: true,
-  merge: false,
-  publicPath: null,
-  customize: null,
-  contextRelativeKeys: false,
+  // Options go here
 });
 ```
 
@@ -43,7 +34,7 @@ new WebpackAssetsManifest({
 | `writeToDisk` | `boolean` | `false` | Write the manifest to disk using `fs` during `after-emit` |
 | `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
 | `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
-| `merge` | `boolean` | `false` | If the output file already exists, should the data be merged with it? |
+| `merge` | `boolean`, `string` | `false` | If the output file already exists, should the data be merged with it? If merge is set to `customize`, the customize callback will be used during merge. |
 | `publicPath` | `string`, `function`, `boolean` | `null` | Value prefix or callback to customize the value. If `true`, your webpack config `output.publicPath` will be used as the prefix. |
 | `customize` | `function` | `null` | Callback to customize the `key` and/or `value`. If `false` is returned, that item is not added to the manifest. |
 | `contextRelativeKeys` | `boolean` | `false` | Should the `key` be relative to you compiler context? |
@@ -58,13 +49,13 @@ You can share data between instances by passing in your own object in the `asset
 This is useful in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler).
 
 ```js
-var data = Object.create(null);
+const data = Object.create(null);
 
-var manifest1 = new WebpackAssetsManifest({
+const manifest1 = new WebpackAssetsManifest({
   assets: data
 });
 
-var manifest2 = new WebpackAssetsManifest({
+const manifest2 = new WebpackAssetsManifest({
   assets: data
 });
 ```
@@ -74,11 +65,28 @@ var manifest2 = new WebpackAssetsManifest({
 If you have a `json` file you'd like to add to, you can do that with the `merge` option.
 If your `json` file is not in `${output.path}/manifest.json`, you should specify where the file is with the `output` option.
 
+By default, the existing keys/values are copied over without modification.
+
 ```js
 new WebpackAssetsManifest({
   output: '/path/to/manifest.json',
   merge: true
 });
+```
+
+If you need to customize during merge, use `merge: 'customize'`. 
+
+If you want to know if [`customize`](#customize-callback) was called when merging with an existing manifest, you can check `manifest.isMerging`.
+
+```js
+new WebpackAssetsManifest({
+  merge: 'customize',
+  customize: function(key, value, originalValue, manifest) {
+    if ( manifest.isMerging ) {
+      // Do something
+    }
+  },
+}),
 ```
 
 ### Sorting the manifest
@@ -93,8 +101,8 @@ new WebpackAssetsManifest({
   output: 'manifest.json',
   space: 2,
   sortManifest: function(a, b) {
-    var extA = this.getExtension(a);
-    var extB = this.getExtension(b);
+    const extA = this.getExtension(a);
+    const extB = this.getExtension(b);
 
     if ( extA > extB ) {
       return 1;
@@ -116,7 +124,7 @@ You can customize the value that gets saved to the manifest by using `publicPath
 One common use is to prefix your __CDN URL__ to the value.
 
 ```js
-var manifest = new WebpackAssetsManifest({
+const manifest = new WebpackAssetsManifest({
   publicPath: '//cdn.example.com'
 });
 ```
@@ -125,7 +133,7 @@ If you'd like to have more control, use a function.
 The example below shows how you can prefix a different CDN based on the file extension.
 
 ```js
-var manifest = new WebpackAssetsManifest({
+const manifest = new WebpackAssetsManifest({
   publicPath: function(val, manifest) {
     switch( manifest.getExtension( val ).substr(1).toLowerCase() ) {
       case 'jpg': case 'jpeg': case 'gif': case 'png': case 'svg':
@@ -153,7 +161,7 @@ You can customize the manifest by adding your own event listeners. The manifest 
 You can use `has(key)`, `get(key)`, `set(key, value)`, and `delete(key)` methods on manifest plugin instance to manage what goes into the manifest.
 
 ```js
-var manifest = new WebpackAssetsManifest();
+const manifest = new WebpackAssetsManifest();
 
 manifest.on('apply', function(manifest) {
   manifest.set('some-key', 'some-value');
@@ -194,6 +202,11 @@ If you want more control over exactly what gets added to your manifest, then use
 ```js
 new WebpackAssetsManifest({
   customize: function(key, value, originalValue, manifest) {
+    // currently merging with an existing manifest file.
+    if ( manifest.isMerging ) {
+      // Do something
+    }
+
     // You can prevent adding items to the manifest by returning false.
     if ( key.toLowerCase().endsWith('.map') ) {
       return false;
@@ -228,7 +241,8 @@ new WebpackAssetsManifest({
 In this example, `manifest.json` will be saved in the folder defined in `output.path`.
 
 ```js
-var WebpackAssetsManifest = require('webpack-assets-manifest');
+const path = require('path');
+const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 module.exports = {
   entry: {

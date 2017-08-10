@@ -1,20 +1,25 @@
-function CompilationAsset(content)
+'use strict';
+
+class CompilationAsset
 {
-  if ( content === undefined ) {
-    throw new Error('content is required');
+  constructor(content)
+  {
+    if ( content === undefined ) {
+      throw new Error('content is required');
+    }
+
+    this.content = content.toString();
   }
 
-  this.content = content.toString();
+  source()
+  {
+    return this.content;
+  }
+
+  size()
+  {
+    return this.content.length;
+  }
 }
-
-CompilationAsset.prototype.source = function()
-{
-  return this.content;
-};
-
-CompilationAsset.prototype.size = function()
-{
-  return this.content.length;
-};
 
 module.exports = CompilationAsset;

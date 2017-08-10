@@ -28,7 +28,7 @@
     "prepublishOnly": "npm test"
   },
   "engines": {
-    "node": ">=0.12"
+    "node": ">=4"
   },
   "author": {
     "email": "eric@webdeveric.com",
@@ -36,8 +36,7 @@
     "url": "http://webdeveric.com/"
   },
   "dependencies": {
-    "chalk": "^1.0",
-    "lodash.find": "^4.0",
+    "chalk": "^2.0",
     "lodash.get": "^4.0",
     "lodash.has": "^4.0",
     "lodash.keys": "^4.0",
@@ -47,16 +46,17 @@
   },
   "devDependencies": {
     "chai": "^4.0",
-    "eslint": "^3.0",
-    "eslint-config-webdeveric": "^0.1",
+    "eslint": "^4.0",
+    "eslint-config-webdeveric": "^0.2",
     "file-loader": "^0.11",
+    "fs-extra": "^4.0.1",
     "istanbul": "^0.4",
     "jsdoc": "^3.0",
-    "memory-fs": "^0.4",
+    "memory-fs": "^0.4.1",
     "mocha": "^3.0",
     "rimraf": "^2.0",
     "superagent": "^3.0",
-    "webpack": "^1.0.0",
-    "webpack-dev-server": "^1.0.0"
+    "webpack": "^3.0",
+    "webpack-dev-server": "^2.0"
   }
 }
