@@ -26,11 +26,9 @@ class WebpackAssetsManifest extends EventEmitter
    * @param {object} options - configuration options
    * @constructor
    */
-  constructor(options)
+  constructor(options = {})
   {
     super();
-
-    options = options || Object.create(null);
 
     const defaults = {
       output: 'manifest.json',
@@ -45,10 +43,7 @@ class WebpackAssetsManifest extends EventEmitter
       contextRelativeKeys: false,
     };
 
-    this.options = pick(
-      merge({}, defaults, options),
-      keys(defaults)
-    );
+    this.options = pick( merge(defaults, options), keys(defaults) );
 
     this.assets = options.assets || Object.create(null);
     this.compiler = null;
@@ -62,6 +57,9 @@ class WebpackAssetsManifest extends EventEmitter
     }, this);
   }
 
+  /**
+   * @return {boolean}
+   */
   get isMerging()
   {
     return this[ isMerging ] || false;
@@ -371,32 +369,34 @@ class WebpackAssetsManifest extends EventEmitter
   }
 
   /**
-   * Handle the `after-emit` event
+   * Write to disk using `fs`.
+   *
+   * This is likely only needed if you're using webpack-dev-server
+   * and you don't want to keep the manifest file only in memory.
    *
    * @param  {object} compilation - the Webpack compilation object
-   * @param  {Function} callback
    */
-  handleAfterEmit(compilation, callback)
+  handleAfterEmit(compilation) // eslint-disable-line
   {
     if ( ! this.options.writeToDisk ) {
-      callback();
-      return;
+      return Promise.resolve();
     }
 
-    const output = this.getOutputPath();
+    return new Promise( (resolve, reject) => {
+      const output = this.getOutputPath();
 
-    require('mkdirp')(
-      path.dirname(output),
-      () => {
-        fs.writeFile(
-          output,
-          this.toString(),
-          () => {
-            callback();
+      require('mkdirp')(
+        path.dirname(output),
+        err => {
+          if ( err ) {
+            reject( err );
+            return;
           }
-        );
-      }
-    );
+
+          fs.writeFile( output, this.toString(), resolve );
+        }
+      );
+    });
   }
 
   /**
@@ -429,7 +429,7 @@ class WebpackAssetsManifest extends EventEmitter
    */
   handleCompilation(compilation)
   {
-    compilation.plugin('module-asset', this.handleModuleAsset.bind(this));
+    compilation.hooks.moduleAsset.tap(this.constructor.name, this.handleModuleAsset.bind(this));
   }
 
   /**
@@ -512,7 +512,7 @@ class WebpackAssetsManifest extends EventEmitter
 
     this.compiler = compiler;
 
-    if ( output.filename !== output.hotUpdateChunkFilename ) {
+    if ( output.filename !== output.hotUpdateChunkFilename && typeof output.hotUpdateChunkFilename === 'string' ) {
       this.hmrRegex = new RegExp(
         output.hotUpdateChunkFilename
           .replace(/\./g, '\\.')
@@ -523,10 +523,10 @@ class WebpackAssetsManifest extends EventEmitter
       );
     }
 
-    compiler.plugin('compilation', this.handleCompilation.bind(this));
-    compiler.plugin('emit', this.handleEmit.bind(this));
-    compiler.plugin('after-emit', this.handleAfterEmit.bind(this));
-    compiler.plugin('done', this.emit.bind(this, 'done', this));
+    compiler.hooks.compilation.tap(this.constructor.name, this.handleCompilation.bind(this));
+    compiler.hooks.emit.tapAsync(this.constructor.name, this.handleEmit.bind(this));
+    compiler.hooks.afterEmit.tapPromise(this.constructor.name, this.handleAfterEmit.bind(this));
+    compiler.hooks.done.tap(this.constructor.name, this.emit.bind(this, 'done', this));
 
     this.emit('apply', this);
   }

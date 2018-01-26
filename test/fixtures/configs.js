@@ -53,7 +53,7 @@ function client()
       filename: '[name].js'
     },
     module: {
-      loaders: [
+      rules: [
         {
           test: /\.jpg$/i,
           loader: 'file-loader?name=images/[name].[ext]'

@@ -14,12 +14,19 @@ const makeCompiler = require('./fixtures/makeCompiler');
 const WebpackDevServer = require('webpack-dev-server');
 const WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
 
+const _444 = parseInt('0444', 8);
+const _777 = parseInt('0777', 8);
+
 console.log( chalk`Webpack version: {blueBright.bold %s}`, require('webpack/package.json').version );
 console.log( chalk`Webpack dev server version: {blueBright.bold %s}`, require('webpack-dev-server/package.json').version );
 
 describe('WebpackAssetsManifest', function() {
   before('set up', function(done) {
-    mkdirp(configs.getWorkspace(), function() {
+    mkdirp(configs.getWorkspace(), _777, function(err) {
+      if (err) {
+        throw err;
+      }
+
       done();
     });
   });
@@ -819,6 +826,27 @@ describe('WebpackAssetsManifest', function() {
       });
     });
 
+    it('compiler has error if unable to create directory', function(done) {
+      const compiler = makeCompiler(configs.hello());
+      const manifest = new WebpackAssetsManifest({
+        writeToDisk: true,
+        apply() {
+          fs.chmodSync(configs.getWorkspace(), _444);
+        }
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNotNull(err, 'Permissions error not found');
+        assert.equal('EACCES', err.code);
+
+        fs.chmodSync(configs.getWorkspace(), _777);
+
+        done();
+      });
+    });
+
     it('finds module assets', function(done) {
       const compiler = webpack(configs.client());
       const manifest = new WebpackAssetsManifest();
@@ -846,7 +874,7 @@ describe('WebpackAssetsManifest', function() {
       const multiConfig = configs.multi().map(function(config) {
         config.plugins = [
           new WebpackAssetsManifest({
-            assets: assets
+            assets,
           })
         ];
 
@@ -900,9 +928,6 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('Errors writing file to disk', function() {
-    const _444 = parseInt('0444', 8);
-    const _777 = parseInt('0777', 8);
-
     it('has error creating directory', function(done) {
       fs.chmodSync(configs.getWorkspace(), _444);
 
@@ -1099,11 +1124,10 @@ describe('WebpackAssetsManifest', function() {
     it('isHMR should return false when hotUpdateChunkFilename is ambiguous', function() {
       const manifest = new WebpackAssetsManifest();
       const config = configs.client();
-      const compiler = makeCompiler(config);
 
       config.output.hotUpdateChunkFilename = config.output.filename;
 
-      manifest.apply(compiler);
+      manifest.apply(makeCompiler(config));
 
       assert.isFalse( manifest.isHMR('main.js') );
       assert.isFalse( manifest.isHMR('0.123456.hot-update.js') );
