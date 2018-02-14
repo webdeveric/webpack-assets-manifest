@@ -1,15 +1,19 @@
 language: node_js
 node_js:
+  - "6.11.5"
   - "8"
-  - "6"
   - "node"
 env:
-  - WEBPACK_VERSION=4 DEVSERVER_VERSION=2
-
+  - WEBPACK_VERSION=4
+  - WEBPACK_VERSION=next
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: WEBPACK_VERSION=4
 install:
   - npm install -g codecov
   - npm install
-  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$DEVSERVER_VERSION
+  - npm install webpack@$WEBPACK_VERSION
 script:
   - npm run test:coverage
   - codecov

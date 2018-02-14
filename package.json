@@ -49,17 +49,17 @@
   },
   "devDependencies": {
     "chai": "^4.0",
-    "eslint": "^4.16.0",
+    "eslint": "^4.17.0",
     "eslint-config-webdeveric": "^0.2",
     "file-loader": "^1.1.6",
     "fs-extra": "^5.0",
     "istanbul": "^0.4",
     "jsdoc": "^3.0",
     "memory-fs": "^0.4.1",
-    "mocha": "^5.0",
+    "mocha": "^5.0.1",
     "rimraf": "^2.0",
     "superagent": "^3.8.2",
-    "webpack": "^4.0.0-beta.0",
+    "webpack": "next",
     "webpack-dev-server": "^2.11.1"
   }
 }
