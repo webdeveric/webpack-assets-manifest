@@ -9,8 +9,16 @@ This Webpack plugin will generate a JSON file that matches the original filename
 
 ## Installation
 
+:warning: Starting with version 2, this plugin works with Webpack 4+.
+
 ```shell
 npm install webpack-assets-manifest --save
+```
+
+If you're using Webpack 3 or below, you'll need to install version 1.
+
+```shell
+npm install webpack-assets-manifest@1 --save
 ```
 
 ## Usage
