@@ -3,19 +3,11 @@ node_js:
   - "6.11.5"
   - "8"
   - "node"
-env:
-  - WEBPACK_VERSION=4
-  - WEBPACK_VERSION=next
-matrix:
-  fast_finish: true
-  allow_failures:
-    - env: WEBPACK_VERSION=4
 before_install:
   - npm install -g npm@latest
 install:
   - npm install -g codecov
   - npm install
-  - npm install webpack@$WEBPACK_VERSION
 script:
   - npm run test:coverage
   - codecov

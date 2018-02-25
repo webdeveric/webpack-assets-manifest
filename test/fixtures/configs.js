@@ -33,6 +33,7 @@ function tmpDirPath()
 function hello()
 {
   return {
+    mode: 'development',
     entry: path.resolve(__dirname, './hello.js'),
     output: {
       path: tmpDirPath(),
@@ -44,6 +45,7 @@ function hello()
 function client()
 {
   return {
+    mode: 'development',
     target: 'web',
     entry: {
       client: path.resolve(__dirname, './client.js')
@@ -66,6 +68,7 @@ function client()
 function server()
 {
   return {
+    mode: 'development',
     target: 'node',
     entry: {
       server: path.resolve(__dirname, './server.js')
