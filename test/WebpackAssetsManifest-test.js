@@ -4,7 +4,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
 const mkdirp = require('mkdirp');
-const merge = require('lodash.merge');
 const assert = require('chai').assert;
 const rimraf = require('rimraf');
 const webpack = require('webpack');
@@ -89,13 +88,13 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
-  describe('#processAssets()', function() {
+  describe('#processAssetsByChunkName()', function() {
     const manifest = new WebpackAssetsManifest();
 
-    it('should process assets', function() {
-      assert.deepEqual({}, manifest.assets);
+    it('should record asset names', function() {
+      assert.equal(0, manifest.assetNames.size);
 
-      manifest.processAssets({
+      manifest.processAssetsByChunkName({
         common: [
           'common-123456.js',
           'common-123456.js.map'
@@ -106,25 +105,18 @@ describe('WebpackAssetsManifest', function() {
         ]
       });
 
-      assert.deepEqual(
-        {
-          'common.js': 'common-123456.js',
-          'common.js.map': 'common-123456.js.map',
-          'main.css': 'main.123456.css',
-          'main.css.map': 'main.123456.css.map'
-        },
-        manifest.assets
-      );
-    });
-  });
+      assert.equal(4, manifest.assetNames.size);
 
-  describe('#getStatsData()', function() {
-    it('should return statistics from webpack', function() {
-      const manifest = new WebpackAssetsManifest();
+      const expected = {
+        'common.js': 'common-123456.js',
+        'common.js.map': 'common-123456.js.map',
+        'main.css': 'main.123456.css',
+        'main.css.map': 'main.123456.css.map'
+      };
 
-      assert.throws(function() { manifest.getStatsData(); });
-
-      assert.deepEqual( {}, manifest.getStatsData( { toJson: function() { return {}; } } ) );
+      manifest.assetNames.forEach( (filename, hashedFile) => {
+        assert.equal( hashedFile, expected[ filename ] );
+      });
     });
   });
 
@@ -216,7 +208,7 @@ describe('WebpackAssetsManifest', function() {
   describe('#has()', function() {
     it('should return a boolean', function() {
       const manifest = new WebpackAssetsManifest({
-        assets: merge({}, require('./fixtures/images.json'))
+        assets: Object.assign({}, require('./fixtures/images.json')),
       });
 
       assert.isTrue(manifest.has('Ginger.jpg'));
@@ -226,7 +218,7 @@ describe('WebpackAssetsManifest', function() {
 
   describe('#get()', function() {
     const manifest = new WebpackAssetsManifest({
-      assets: merge({}, require('./fixtures/images.json'))
+      assets: Object.assign({}, require('./fixtures/images.json')),
     });
 
     it('gets a value from the manifest', function() {
@@ -247,7 +239,7 @@ describe('WebpackAssetsManifest', function() {
   describe('#delete()', function() {
     it('removes an asset from the manifest', function() {
       const manifest = new WebpackAssetsManifest({
-        assets: merge({}, require('./fixtures/images.json'))
+        assets: Object.assign({}, require('./fixtures/images.json')),
       });
 
       assert.isTrue(manifest.has('Ginger.jpg'));
@@ -286,111 +278,20 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
-  describe('#pickFileByExtension()', function() {
-    const files = [
-      'main.js',
-      'main.css',
-    ];
-
-    it('returns file with matching extension', function() {
-      const manifest = new WebpackAssetsManifest();
-      const file = manifest.pickFileByExtension(files, '.css', 'default');
-
-      assert.equal(file, 'main.css');
-    });
-
-    it('returns default when no matches found', function() {
-      const manifest = new WebpackAssetsManifest();
-      const file = manifest.pickFileByExtension(files, '.jpg', 'default');
-
-      assert.equal(file, 'default');
-    });
-  });
-
-  describe('#processCompilationEntry()', function() {
-    const comp = {
-      getPath: function(t, data) {
-        return data.filename;
-      },
-    };
-
-    it('sets if userRequest is truthy', function(done) {
-      const compiler = makeCompiler(configs.hello());
-      const manifest = new WebpackAssetsManifest();
-
-      manifest.apply(compiler);
-
-      compiler.run(function( err ) {
-        assert.isNull(err, 'Error found in compiler.run');
-        const mod = {
-          userRequest: 'main.js',
-          chunks: [
-            {
-              files: [ 'main.js' ],
-            },
-          ],
-        };
-
-        manifest.processCompilationEntry(comp, mod);
-
-        assert.isTrue( manifest.has('main.js') );
-
-        done();
-      });
-    });
-
-    it('supports module.getChunks() from Webpack 3', function(done) {
-      const compiler = makeCompiler(configs.hello());
-      const manifest = new WebpackAssetsManifest();
-
-      manifest.apply(compiler);
-
-      compiler.run(function( err ) {
-        assert.isNull(err, 'Error found in compiler.run');
-        const mod = {
-          userRequest: 'main.js',
-          _chunks: [
-            {
-              files: [ 'main.js' ],
-            },
-          ],
-          getChunks() {
-            return this._chunks;
-          }
-        };
-
-        manifest.processCompilationEntry(comp, mod);
-
-        assert.isTrue( manifest.has('main.js') );
-
-        done();
-      });
-    });
-
-    it('does not set if userRequest is falsy', function() {
-      const manifest = new WebpackAssetsManifest();
-
-      manifest.processCompilationEntry(comp, { userRequest: false });
-
-      assert.deepEqual({}, manifest.assets);
-    });
-  });
-
   describe('options.sortManifest', function() {
     const assets = {
-      a: [ 'a.js' ],
-      c: [ 'c.js' ],
-      d: [ 'd.js' ],
-      b: [ 'b.js' ]
+      'd.js': 'd.js',
+      'c.js': 'c.js',
+      'b.js': 'b.js',
+      'a.js': 'a.js',
     };
 
     it('should turn on sorting', function() {
       const manifest = new WebpackAssetsManifest({
+        assets,
         sortManifest: true,
-        space: 0
+        space: 0,
       });
-
-      manifest.processAssets(assets);
 
       assert.equal(
         '{"a.js":"a.js","b.js":"b.js","c.js":"c.js","d.js":"d.js"}',
@@ -400,27 +301,29 @@ describe('WebpackAssetsManifest', function() {
 
     it('should turn off sorting', function() {
       const manifest = new WebpackAssetsManifest({
+        assets,
         sortManifest: false,
-        space: 0
+        space: 0,
       });
 
-      manifest.processAssets(assets);
+      manifest.processAssetsByChunkName(assets);
 
       assert.equal(
-        '{"b.js":"b.js","d.js":"d.js","c.js":"c.js","a.js":"a.js"}',
+        '{"d.js":"d.js","c.js":"c.js","b.js":"b.js","a.js":"a.js"}',
         manifest.toString()
       );
     });
 
     it('should use custom comparison function', function() {
       const manifest = new WebpackAssetsManifest({
+        assets,
         sortManifest: function(a, b) {
           return a.localeCompare(b);
         },
-        space: 0
+        space: 0,
       });
 
-      manifest.processAssets(assets);
+      manifest.processAssetsByChunkName(assets);
 
       assert.equal(
         '{"a.js":"a.js","b.js":"b.js","c.js":"c.js","d.js":"d.js"}',
@@ -450,23 +353,22 @@ describe('WebpackAssetsManifest', function() {
 
   describe('options.replacer', function() {
     const assets = {
-      logo: [ 'images/logo.svg' ]
+      'logo.svg': 'images/logo.svg',
     };
 
     it('should remove all entries', function() {
       const manifest = new WebpackAssetsManifest({
-        replacer: function() {
-          return undefined;
-        }
+        assets,
+        replacer: () => undefined,
       });
-
-      manifest.processAssets(assets);
 
       assert.equal('{}', manifest.toString());
     });
 
     it('should update values', function() {
       const manifest = new WebpackAssetsManifest({
+        assets,
+        space: 0,
         replacer: function(key, value) {
           if ( typeof value === 'string' ) {
             return value.toUpperCase();
@@ -474,10 +376,7 @@ describe('WebpackAssetsManifest', function() {
 
           return value;
         },
-        space: 0
       });
-
-      manifest.processAssets(assets);
 
       assert.equal('{"logo.svg":"IMAGES/LOGO.SVG"}', manifest.toString());
     });
@@ -485,16 +384,18 @@ describe('WebpackAssetsManifest', function() {
 
   describe('options.assets', function() {
     const assets = {
-      logo: [ 'images/logo.svg' ]
+      'logo.svg': 'images/logo.svg',
     };
 
     it('should set the initial assets data', function() {
       const manifest = new WebpackAssetsManifest({
-        assets: merge({}, require('./fixtures/images.json')),
+        assets: Object.assign({}, require('./fixtures/images.json')),
         space: 0
       });
 
-      manifest.processAssets(assets);
+      Object.keys( assets ).forEach( key => {
+        manifest.set(key, assets[ key ]);
+      });
 
       assert.equal(
         '{"Ginger.jpg":"images/Ginger.jpg","logo.svg":"images/logo.svg"}',
@@ -506,20 +407,16 @@ describe('WebpackAssetsManifest', function() {
       const sharedAssets = Object.create(null);
 
       const manifest1 = new WebpackAssetsManifest({
-        assets: sharedAssets
+        assets: sharedAssets,
       });
 
       const manifest2 = new WebpackAssetsManifest({
-        assets: sharedAssets
+        assets: sharedAssets,
       });
 
-      manifest1.processAssets({
-        main: [ 'main.js' ]
-      });
+      manifest1.set('main.js', 'main.js');
 
-      manifest2.processAssets({
-        subpage: [ 'subpage.js' ]
-      });
+      manifest2.set('subpage.js', 'subpage.js');
 
       assert.equal(manifest1.toString(), manifest2.toString());
     });
@@ -700,32 +597,6 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
-  describe('options.contextRelativeKeys', function() {
-    it('asset key is relative to the context', function(done) {
-      const compiler = webpack(configs.client());
-      const manifest = new WebpackAssetsManifest({
-        contextRelativeKeys: true
-      });
-
-      manifest.apply(compiler);
-
-      compiler.run(function( err ) {
-        assert.isNull(err, 'Error found in compiler.run');
-        fs.readFile(
-          manifest.getOutputPath(),
-          function(err) {
-            assert.isNull(err, 'Error found reading manifest.json');
-            assert.isFalse(manifest.has('Ginger.jpg'));
-            assert.isTrue(manifest.has('test/fixtures/Ginger.jpg'));
-            assert.equal(manifest.get('test/fixtures/Ginger.jpg'), 'images/Ginger.jpg');
-
-            done();
-          }
-        );
-      });
-    });
-  });
-
   describe('options.customize', function() {
     it('customizes the key and value', function() {
       const manifest = new WebpackAssetsManifest({
@@ -801,6 +672,127 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
+  describe('options.integrityHashes', function() {
+    it('invalid crypto hashes are filtered out', function() {
+      const manifest = new WebpackAssetsManifest({
+        integrityHashes: ['sha256', 'invalid-algorithm'],
+      });
+
+      assert.notInclude(manifest.options.integrityHashes, 'invalid-algorithm');
+    });
+  });
+
+  describe('options.integrity', function() {
+    it('manifest entry contains an integrity property', function(done) {
+      const compiler = makeCompiler(configs.hello());
+      const manifest = new WebpackAssetsManifest({
+        integrity: true,
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const asset = manifest.get('main.js');
+
+        assert.typeOf(asset, 'object');
+        assert.property(asset, 'integrity');
+
+        done();
+      });
+    });
+  });
+
+  describe('options.entrypoints', function() {
+    it('entrypoints are included in manifest', function(done) {
+      const compiler = makeCompiler(configs.hello());
+      const manifest = new WebpackAssetsManifest({
+        entrypoints: true,
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const entrypoints = manifest.get('entrypoints');
+
+        assert.typeOf(entrypoints, 'object');
+
+        done();
+      });
+    });
+  });
+
+  describe('options.entrypointsKey', function() {
+    it('customize the key used for entrypoints', function(done) {
+      const compiler = makeCompiler(configs.hello());
+      const manifest = new WebpackAssetsManifest({
+        entrypoints: true,
+        entrypointsKey: 'myEntrypoints',
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const entrypoints = manifest.get('myEntrypoints');
+
+        assert.typeOf(entrypoints, 'object');
+
+        done();
+      });
+    });
+
+    it('can be false', function(done) {
+      const compiler = makeCompiler(configs.hello());
+      const manifest = new WebpackAssetsManifest({
+        entrypoints: true,
+        entrypointsKey: false,
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const entrypoint = manifest.get('main');
+
+        assert.typeOf(entrypoint, 'object');
+
+        done();
+      });
+    });
+  });
+
+  describe('options.done', function() {
+    it('is called when compilation is done', function(done) {
+      const compiler = makeCompiler(configs.hello());
+      const manifest = new WebpackAssetsManifest({
+        done() {
+          done();
+        }
+      });
+
+      manifest.apply(compiler);
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+      });
+    });
+  });
+
+  describe('options.contextRelativeKeys', function() {
+    it('has been removed', function() {
+
+      new WebpackAssetsManifest({
+        contextRelativeKeys: true,
+      });
+    });
+  });
+
   describe('usage with webpack', function() {
     it('writes to disk', function(done) {
       const compiler = makeCompiler(configs.hello());
@@ -827,12 +819,11 @@ describe('WebpackAssetsManifest', function() {
     });
 
     it('compiler has error if unable to create directory', function(done) {
+      fs.chmodSync(configs.getWorkspace(), _444);
+
       const compiler = makeCompiler(configs.hello());
       const manifest = new WebpackAssetsManifest({
         writeToDisk: true,
-        apply() {
-          fs.chmodSync(configs.getWorkspace(), _444);
-        }
       });
 
       manifest.apply(compiler);
@@ -901,31 +892,31 @@ describe('WebpackAssetsManifest', function() {
     });
   });
 
-  describe('Setting event listeners', function() {
-    function noop() {}
+  // describe.skip('Setting event listeners', function() {
+  //   function noop() {}
 
-    it('allows adding event listeners from options', function() {
-      const options = {
-        moduleAsset: noop,
-        processAssets: noop,
-        done: noop
-      };
+  //   it('allows adding event listeners from options', function() {
+  //     const options = {
+  //       moduleAsset: noop,
+  //       processAssets: noop,
+  //       done: noop
+  //     };
 
-      const manifest = new WebpackAssetsManifest(options);
+  //     const manifest = new WebpackAssetsManifest(options);
 
-      Object.keys(options).forEach(function(listener) {
-        assert.equal(1, manifest.listeners(listener).length);
-      });
-    });
+  //     Object.keys(options).forEach(function(listener) {
+  //       assert.equal(1, manifest.listeners(listener).length);
+  //     });
+  //   });
 
-    it('uses on and emit', function(done) {
-      new WebpackAssetsManifest({
-        apply: function() {
-          done();
-        }
-      }).apply( makeCompiler( configs.hello() ) );
-    });
-  });
+  //   it('uses on and emit', function(done) {
+  //     new WebpackAssetsManifest({
+  //       apply: function() {
+  //         done();
+  //       }
+  //     }).apply( makeCompiler( configs.hello() ) );
+  //   });
+  // });
 
   describe('Errors writing file to disk', function() {
     it('has error creating directory', function(done) {
@@ -1096,19 +1087,16 @@ describe('WebpackAssetsManifest', function() {
 
       manifest.apply(makeCompiler(config));
 
-      manifest.processAssets({
+      manifest.processAssetsByChunkName({
         main: [
           'main.123456.js',
           '0.123456.hot-update.js'
         ]
       });
 
-      assert.deepEqual(
-        {
-          'main.js': 'main.123456.js'
-        },
-        manifest.assets
-      );
+      assert.equal( manifest.assetNames.get('main.123456.js'), 'main.js' );
+
+      assert.isFalse( manifest.assetNames.has('0.123456.hot-update.js') );
     });
 
     it('Should ignore HMR module assets', function() {
@@ -1116,9 +1104,9 @@ describe('WebpackAssetsManifest', function() {
       const manifest = new WebpackAssetsManifest();
 
       manifest.apply(compiler);
-      manifest.handleModuleAsset({ userRequest: '' }, '0.123456.hot-update.js');
+      manifest.handleModuleAsset({}, { userRequest: '' }, '0.123456.hot-update.js');
 
-      assert.deepEqual( {}, manifest.assets );
+      assert.isFalse( manifest.assetNames.has('0.123456.hot-update.js') );
     });
 
     it('isHMR should return false when hotUpdateChunkFilename is ambiguous', function() {

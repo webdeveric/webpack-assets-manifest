@@ -9,18 +9,16 @@
 const fs    = require('fs');
 const url   = require('url');
 const path  = require('path');
-const merge = require('lodash.merge');
-const keys  = require('lodash.keys');
-const pick  = require('lodash.pick');
 const get   = require('lodash.get');
 const has   = require('lodash.has');
-const chalk = require('chalk');
-const EventEmitter = require('events');
-const CompilationAsset = require('./CompilationAsset');
+const crypto = require('crypto');
+const { RawSource } = require('webpack-sources');
+const { maybeArrayWrap, getSRIHash, warn } = require('./helpers.js');
 
 const isMerging = Symbol('isMerging');
+const PLUGIN_NAME = 'WebpackAssetsManifest';
 
-class WebpackAssetsManifest extends EventEmitter
+class WebpackAssetsManifest
 {
   /**
    * @param {object} options - configuration options
@@ -28,33 +26,61 @@ class WebpackAssetsManifest extends EventEmitter
    */
   constructor(options = {})
   {
-    super();
+    this.options = Object.assign(
+      {
+        output: 'manifest.json',
+        replacer: null,
+        space: 2,
+        writeToDisk: false,
+        fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
+        sortManifest: true,
+        merge: false,
+        publicPath: null,
+        customize: null, // customize( key, value, originalValue, manifest, currentAsset )
+        done: null, // done( stats, manifest )
+        entrypoints: false,
+        entrypointsKey: 'entrypoints',
+        // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+        integrity: false,
+        integrityHashes: [
+          'sha256',
+          'sha384',
+          'sha512',
+        ],
+      },
+      options
+    );
 
-    const defaults = {
-      output: 'manifest.json',
-      replacer: null,
-      space: 2,
-      writeToDisk: false,
-      fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
-      sortManifest: true,
-      merge: false,
-      publicPath: null,
-      customize: null,
-      contextRelativeKeys: false,
-    };
+    if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
+      warn('contextRelativeKeys has been removed. Please use customize() instead.');
+    }
 
-    this.options = pick( merge(defaults, options), keys(defaults) );
-
-    this.assets = options.assets || Object.create(null);
-    this.compiler = null;
-    this.stats = null;
-    this.hmrRegex = null;
-
-    [ 'apply', 'moduleAsset', 'processAssets', 'done' ].forEach( key => {
-      if ( options[ key ] ) {
-        this.on(key, options[ key ]);
+    this.options.integrityHashes = maybeArrayWrap(this.options.integrityHashes).filter( hash => {
+      if ( ! crypto.getHashes().includes(hash) ) {
+        warn(`${hash} is not a supported hash algorithm`);
+        return false;
       }
-    }, this);
+
+      return true;
+    });
+
+    // This is what gets JSON stringified
+    this.assets = options.assets || Object.create(null);
+
+    // hashed filename : original filename
+    this.assetNames = new Map();
+
+    // This is passed to the customize() option
+    this.currentAsset = null;
+
+    // The Webpack compiler instance
+    this.compiler = null;
+
+    // compilation stats
+    this.stats = null;
+
+    // This is used to identify hot module replacement files
+    this.hmrRegex = null;
   }
 
   /**
@@ -73,7 +99,7 @@ class WebpackAssetsManifest extends EventEmitter
    */
   getExtension(filename)
   {
-    if (! filename) {
+    if (! filename || typeof filename !== 'string') {
       return '';
     }
 
@@ -86,22 +112,6 @@ class WebpackAssetsManifest extends EventEmitter
     }
 
     return path.extname(filename);
-  }
-
-  /**
-   * Get JSON data from compilation stats.
-   *
-   * @param  {object} stats - compilation stats
-   * @throws {TypeError} If stats is not an object
-   * @return {object}
-   */
-  getStatsData(stats)
-  {
-    if (typeof stats !== 'object') {
-      throw new TypeError('stats must be an object');
-    }
-
-    return this.stats = stats.toJson('verbose');
   }
 
   /**
@@ -142,7 +152,7 @@ class WebpackAssetsManifest extends EventEmitter
     value = this.getPublicPath( value );
 
     if ( this.options.customize && typeof this.options.customize === 'function' ) {
-      const custom = this.options.customize( key, value, originalValue, this );
+      const custom = this.options.customize( key, value, originalValue, this, this.currentAsset );
 
       if ( custom === false ) {
         return this;
@@ -182,9 +192,9 @@ class WebpackAssetsManifest extends EventEmitter
    * @param {string} defaultValue
    * @return {*}
    */
-  get(key, defaultValue)
+  get(key, defaultValue = '')
   {
-    return this.has(key) ? this.assets[ this.fixKey(key) ] : defaultValue || '';
+    return this.has(key) ? this.assets[ this.fixKey(key) ] : defaultValue;
   }
 
   /**
@@ -203,33 +213,17 @@ class WebpackAssetsManifest extends EventEmitter
    * @param  {object} assets - assets by chunk name
    * @return {object}
    */
-  processAssets(assets)
+  processAssetsByChunkName(assets)
   {
-    const keys = Object.keys(assets);
-    let index = keys.length;
+    Object.keys(assets).forEach( chunkName => {
+      maybeArrayWrap( assets[ chunkName ] )
+        .filter( f => ! this.isHMR(f) ) // Remove hot module replacement files
+        .forEach( filename => {
+          this.assetNames.set( filename, chunkName + this.getExtension( filename ) );
+        });
+    });
 
-    while ( index-- ) {
-      const name = keys[ index ];
-      let filenames = assets[ name ];
-
-      if ( ! Array.isArray( filenames ) ) {
-        filenames = [ filenames ];
-      }
-
-      for ( let i = 0, l = filenames.length; i < l ; ++i ) {
-        const filename = name + this.getExtension( filenames[ i ] );
-
-        if ( this.isHMR( filenames[ i ] ) ) {
-          continue;
-        }
-
-        this.set( filename, filenames[ i ] );
-      }
-    }
-
-    this.emit('processAssets', this, assets);
-
-    return this.assets;
+    return this.assetNames;
   }
 
   /**
@@ -291,54 +285,25 @@ class WebpackAssetsManifest extends EventEmitter
   }
 
   /**
-   * Return an item from an array if it matches the file extension
-   *
-   * @param  {array} files
-   * @param  {string} ext
-   * @param  {string} defaultValue
-   * @return {string}
+   * @param {object} entrypoints from a compilation
    */
-  pickFileByExtension(files, ext, defaultValue)
+  getEntrypointFilesGroupedByExtension( entrypoints )
   {
-    return files.reduce( (val, file) => ext === this.getExtension(file) ? file : val, defaultValue );
-  }
+    const files = Object.create(null);
 
-  /**
-   * Process an item from `compilation.entries`
-   *
-   * @param  {object} compilation
-   * @param  {object} mod
-   */
-  processCompilationEntry(compilation, mod)
-  {
-    if ( mod.userRequest ) {
-      const key = path.relative(this.compiler.context, mod.userRequest);
+    for( const [ name, entrypoint ] of entrypoints ) {
+      entrypoint.getFiles().reduce( (files, file) => {
+        const ext = this.getExtension(file).replace(/^\.+/, '').toLowerCase();
 
-      const firstChunk = mod.getChunks ? mod.getChunks().shift() : mod.chunks[0];
+        files[ name ] = files[ name ] || Object.create(null);
+        files[ name ][ ext ] = files[ name ][ ext ] || [];
+        files[ name ][ ext ].push(file);
 
-      let value = compilation.getPath( this.compiler.options.output.filename, {
-        chunk: firstChunk,
-        filename: key,
-      });
-
-      value = this.pickFileByExtension(
-        firstChunk.files,
-        this.getExtension(key),
-        value
-      );
-
-      this.set(key, value);
+        return files;
+      }, files );
     }
-  }
 
-  /**
-   * Process `compilation.entries`
-   *
-   * @param  {object} compilation
-   */
-  processCompilationEntries(compilation)
-  {
-    compilation.entries.forEach( this.processCompilationEntry.bind(this, compilation) );
+    return files;
   }
 
   /**
@@ -349,23 +314,62 @@ class WebpackAssetsManifest extends EventEmitter
    */
   handleEmit(compilation, callback)
   {
-    if ( this.options.contextRelativeKeys ) {
-      this.processCompilationEntries(compilation);
+    this.stats = compilation.getStats().toJson();
+
+    this.processAssetsByChunkName( this.stats.assetsByChunkName );
+
+    for ( const [ hashedFile, filename ] of this.assetNames ) {
+      this.currentAsset = compilation.assets[ hashedFile ];
+
+      // `integrity` may have already been set by another plugin, like `webpack-subresource-integrity`.
+      // Only generate the SRI hash if `integrity` is not found.
+      if ( this.options.integrity && ! this.currentAsset.integrity ) {
+        this.currentAsset.integrity = getSRIHash( this.options.integrityHashes, this.currentAsset.source() );
+      }
+
+      this.set( filename, hashedFile );
+
+      const manifestEntry = this.assets[ filename ];
+
+      if ( typeof manifestEntry === 'string' && this.options.integrity ) {
+        this.assets[ filename ] = {
+          src: manifestEntry,
+          integrity: this.currentAsset.integrity,
+        };
+      }
     }
 
-    this.processAssets(this.getStatsData(compilation.getStats()).assetsByChunkName);
+    this.currentAsset = null;
 
     this.maybeMerge();
 
-    let output = this.inDevServer() ?
-      path.basename( this.getOutputPath() ) :
-      path.relative( this.compiler.outputPath, this.getOutputPath() );
+    const output = this.getManifestPath(
+      compilation,
+      this.inDevServer() ?
+        path.basename( this.getOutputPath() ) :
+        path.relative( compilation.compiler.outputPath, this.getOutputPath() )
+    );
 
-    output = compilation.getPath( output, { chunk: { name: 'manifest' }, filename: 'manifest.json' } );
+    if ( this.options.entrypoints ) {
+      const epFiles = this.getEntrypointFilesGroupedByExtension( compilation.entrypoints );
 
-    compilation.assets[ output ] = new CompilationAsset(this);
+      if ( this.options.entrypointsKey ) {
+        this.set(this.options.entrypointsKey, epFiles);
+      } else {
+        for ( const key in epFiles ) {
+          this.set( key, epFiles[ key ] );
+        }
+      }
+    }
+
+    compilation.assets[ output ] = new RawSource(this.toString());
 
     callback();
+  }
+
+  getManifestPath(compilation, filename)
+  {
+    return compilation.getPath( filename, { chunk: { name: 'manifest', }, filename: 'manifest.json' } );
   }
 
   /**
@@ -383,7 +387,7 @@ class WebpackAssetsManifest extends EventEmitter
     }
 
     return new Promise( (resolve, reject) => {
-      const output = this.getOutputPath();
+      const output = this.getManifestPath( compilation, this.getOutputPath() );
 
       require('mkdirp')(
         path.dirname(output),
@@ -402,24 +406,22 @@ class WebpackAssetsManifest extends EventEmitter
   /**
    * Handle module assets
    *
+   * @param  {object} compilation
    * @param  {object} module
    * @param  {string} hashedFile
    */
-  handleModuleAsset(module, hashedFile)
+  handleModuleAsset(compilation, module, hashedFile)
   {
-    let key = path.join(path.dirname(hashedFile), path.basename(module.userRequest));
-
     if ( this.isHMR( hashedFile ) ) {
       return;
     }
 
-    if ( this.options.contextRelativeKeys ) {
-      key = path.relative(this.compiler.context, module.userRequest);
-    }
+    const filename = path.join(
+      path.dirname(hashedFile),
+      path.basename(module.userRequest)
+    );
 
-    this.set(key, hashedFile);
-
-    this.emit('moduleAsset', this, key, hashedFile, module);
+    this.assetNames.set(hashedFile, filename);
   }
 
   /**
@@ -429,7 +431,7 @@ class WebpackAssetsManifest extends EventEmitter
    */
   handleCompilation(compilation)
   {
-    compilation.hooks.moduleAsset.tap(this.constructor.name, this.handleModuleAsset.bind(this));
+    compilation.hooks.moduleAsset.tap(PLUGIN_NAME, this.handleModuleAsset.bind(this, compilation));
   }
 
   /**
@@ -465,7 +467,7 @@ class WebpackAssetsManifest extends EventEmitter
       let outputPath = get( this, 'compiler.options.devServer.outputPath', get( this, 'compiler.outputPath', '/' ) );
 
       if( outputPath === '/' ) {
-        console.warn( chalk.cyan('Webpack Assets Manifest: Please use an absolute path in options.output when using webpack-dev-server.') );
+        warn.once('Please use an absolute path in options.output when using webpack-dev-server.');
         outputPath = get( this, 'compiler.context', process.cwd() );
       }
 
@@ -482,19 +484,22 @@ class WebpackAssetsManifest extends EventEmitter
    */
   getPublicPath(filename)
   {
-    const publicPath = this.options.publicPath;
-
-    if ( typeof publicPath === 'function' ) {
-      return publicPath( filename, this );
-    }
-
     if ( typeof filename === 'string' ) {
+      const publicPath = this.options.publicPath;
+
+      if ( typeof publicPath === 'function' ) {
+        return publicPath( filename, this );
+      }
+
       if ( typeof publicPath === 'string' ) {
         return url.resolve( publicPath, filename );
       }
 
       if ( publicPath === true ) {
-        return url.resolve( this.compiler.options.output.publicPath, filename );
+        return url.resolve(
+          get( this, 'compiler.options.output.publicPath', '' ),
+          filename
+        );
       }
     }
 
@@ -508,27 +513,32 @@ class WebpackAssetsManifest extends EventEmitter
    */
   apply(compiler)
   {
-    const output = compiler.options.output;
-
     this.compiler = compiler;
 
-    if ( output.filename !== output.hotUpdateChunkFilename && typeof output.hotUpdateChunkFilename === 'string' ) {
+    const { output: { filename, hotUpdateChunkFilename } } = compiler.options;
+
+    if ( filename !== hotUpdateChunkFilename && typeof hotUpdateChunkFilename === 'string' ) {
       this.hmrRegex = new RegExp(
-        output.hotUpdateChunkFilename
+        hotUpdateChunkFilename
           .replace(/\./g, '\\.')
-          .replace( /\[[a-z]+(:\d+)?\]/gi, function(m, n) {
-            return '.' + ( n ? '{' + n.substr(1) + '}' : '+' );
-          }) + '$',
+          .replace(/\[[a-z]+(:\d+)?\]/gi, (m, n) => (n ? `.{${n.substr(1)}}` : '.+')) + '$',
         'i'
       );
     }
 
-    compiler.hooks.compilation.tap(this.constructor.name, this.handleCompilation.bind(this));
-    compiler.hooks.emit.tapAsync(this.constructor.name, this.handleEmit.bind(this));
-    compiler.hooks.afterEmit.tapPromise(this.constructor.name, this.handleAfterEmit.bind(this));
-    compiler.hooks.done.tap(this.constructor.name, this.emit.bind(this, 'done', this));
+    // compilation.assets contains the results of the build
+    compiler.hooks.compilation.tap(PLUGIN_NAME, this.handleCompilation.bind(this));
 
-    this.emit('apply', this);
+    // Add manifest.json to compiler.assets
+    compiler.hooks.emit.tapAsync(PLUGIN_NAME, this.handleEmit.bind(this));
+
+    // Use fs to write the manifest.json to disk
+    compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
+
+    // Call user provided `done` callback
+    if ( typeof this.options.done === 'function' ) {
+      compiler.hooks.done.tap(PLUGIN_NAME, stats => this.options.done(stats, this) );
+    }
   }
 }
 
