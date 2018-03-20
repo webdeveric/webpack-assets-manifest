@@ -6,16 +6,25 @@
 
 'use strict';
 
-const fs    = require('fs');
-const url   = require('url');
-const path  = require('path');
-const get   = require('lodash.get');
-const has   = require('lodash.has');
-const crypto = require('crypto');
+const fs = require('fs');
+const url = require('url');
+const path = require('path');
+const get = require('lodash.get');
+const has = require('lodash.has');
+const validateOptions = require('schema-utils');
+const { SyncHook, SyncWaterfallHook } = require('tapable');
 const { RawSource } = require('webpack-sources');
-const { maybeArrayWrap, getSRIHash, warn } = require('./helpers.js');
+const optionsSchema = require('./options-schema.json');
+const {
+  maybeArrayWrap,
+  filterHashes,
+  getSRIHash,
+  warn,
+  varType,
+  getSortedObject,
+} = require('./helpers.js');
 
-const isMerging = Symbol('isMerging');
+const IS_MERGING = Symbol('isMerging');
 const PLUGIN_NAME = 'WebpackAssetsManifest';
 
 class WebpackAssetsManifest
@@ -26,43 +35,45 @@ class WebpackAssetsManifest
    */
   constructor(options = {})
   {
-    this.options = Object.assign(
-      {
-        output: 'manifest.json',
-        replacer: null,
-        space: 2,
-        writeToDisk: false,
-        fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
-        sortManifest: true,
-        merge: false,
-        publicPath: null,
-        customize: null, // customize( key, value, originalValue, manifest, currentAsset )
-        done: null, // done( stats, manifest )
-        entrypoints: false,
-        entrypointsKey: 'entrypoints',
-        // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
-        integrity: false,
-        integrityHashes: [
-          'sha256',
-          'sha384',
-          'sha512',
-        ],
-      },
-      options
-    );
+    /**
+     * This is using hooks from {@link https://github.com/webpack/tapable Tapable}.
+     */
+    this.hooks = {
+      apply: new SyncHook(['manifest']),
+      customize: new SyncWaterfallHook(['entry', 'original', 'manifest', 'asset']),
+      transform: new SyncWaterfallHook(['assets', 'manifest']),
+      done: new SyncHook(['manifest', 'stats']),
+      options: new SyncWaterfallHook(['options']),
+      afterOptions: new SyncHook(['options']),
+    };
 
-    if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
-      warn('contextRelativeKeys has been removed. Please use customize() instead.');
-    }
+    this.hooks.transform.tap(PLUGIN_NAME, assets => {
+      const { sortManifest } = this.options;
 
-    this.options.integrityHashes = maybeArrayWrap(this.options.integrityHashes).filter( hash => {
-      if ( ! crypto.getHashes().includes(hash) ) {
-        warn(`${hash} is not a supported hash algorithm`);
-        return false;
+      return sortManifest ? getSortedObject(
+        assets,
+        typeof sortManifest === 'function' ? sortManifest.bind(this) : undefined
+      ) : assets;
+    });
+
+    this.hooks.afterOptions.tap(PLUGIN_NAME, options => {
+      this.options = Object.assign( this.defaultOptions, options );
+      this.options.integrityHashes = filterHashes( this.options.integrityHashes );
+
+      validateOptions(optionsSchema, this.options, PLUGIN_NAME);
+
+      if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
+        warn('contextRelativeKeys has been removed. Please use the customize hook instead.');
       }
 
-      return true;
+      ['apply', 'customize', 'transform', 'done'].forEach( hookName => {
+        if ( typeof this.options[ hookName ] === 'function' ) {
+          this.hooks[ hookName ].tap(`${PLUGIN_NAME}.option.${hookName}`, this.options[ hookName ] );
+        }
+      });
     });
+
+    this.options = Object.assign( this.defaultOptions, options );
 
     // This is what gets JSON stringified
     this.assets = options.assets || Object.create(null);
@@ -70,7 +81,7 @@ class WebpackAssetsManifest
     // hashed filename : original filename
     this.assetNames = new Map();
 
-    // This is passed to the customize() option
+    // This is passed to the customize() hook
     this.currentAsset = null;
 
     // The Webpack compiler instance
@@ -81,14 +92,98 @@ class WebpackAssetsManifest
 
     // This is used to identify hot module replacement files
     this.hmrRegex = null;
+
+    // Is a merge happening?
+    this[ IS_MERGING ] = false;
   }
 
   /**
+   * Hook into the Webpack compiler
+   *
+   * @param  {object} compiler - The Webpack compiler object
+   */
+  apply(compiler)
+  {
+    this.compiler = compiler;
+
+    // Allow hooks to modify options
+    this.options = this.hooks.options.call(this.options);
+
+    // Ensure options contain defaults and are valid
+    this.hooks.afterOptions.call(this.options);
+
+    const { output: { filename, hotUpdateChunkFilename } } = compiler.options;
+
+    if ( filename !== hotUpdateChunkFilename && typeof hotUpdateChunkFilename === 'string' ) {
+      this.hmrRegex = new RegExp(
+        hotUpdateChunkFilename
+          .replace(/\./g, '\\.')
+          .replace(/\[[a-z]+(:\d+)?\]/gi, (m, n) => (n ? `.{${n.substr(1)}}` : '.+')) + '$',
+        'i'
+      );
+    }
+
+    // compilation.assets contains the results of the build
+    compiler.hooks.compilation.tap(PLUGIN_NAME, this.handleCompilation.bind(this));
+
+    // Add manifest.json to compiler.assets
+    compiler.hooks.emit.tapAsync(PLUGIN_NAME, this.handleEmit.bind(this));
+
+    // Use fs to write the manifest.json to disk if `options.writeToDisk` is true
+    compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
+
+    // The compilation has finished
+    compiler.hooks.done.tap(PLUGIN_NAME, stats => this.hooks.done.call(this, stats));
+
+    // Setup is complete.
+    this.hooks.apply.call(this);
+  }
+
+  /**
+   * Get the default options.
+   *
+   * @return {object}
+   */
+  get defaultOptions()
+  {
+    return {
+      output: 'manifest.json',
+      replacer: null, // Its easier to use the transform hook instead.
+      space: 2,
+      writeToDisk: false,
+      fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
+      sortManifest: true,
+      merge: false,
+      publicPath: null,
+
+      // Hooks
+      apply: null,     // After setup is complete
+      customize: null, // Customize each entry in the manifest
+      transform: null, // Transform the entire manifest
+      done: null,      // Compilation is done and the manifest has been written
+
+      // Include `compilation.entrypoints` in the manifest file
+      entrypoints: false,
+      entrypointsKey: 'entrypoints',
+
+      // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+      integrity: false,
+      integrityHashes: [
+        'sha256',
+        'sha384',
+        'sha512',
+      ],
+    };
+  }
+
+  /**
+   * Determine if the manifest data is currently being merged.
+   *
    * @return {boolean}
    */
   get isMerging()
   {
-    return this[ isMerging ] || false;
+    return this[ IS_MERGING ];
   }
 
   /**
@@ -115,17 +210,17 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Replace backslash with forward slash
+   * Replace backslash with forward slash.
    *
    * @return {string}
    */
   fixKey(key)
   {
-    return key.replace( /\\/g, '/' );
+    return typeof key === 'string' ? key.replace( /\\/g, '/' ) : key;
   }
 
   /**
-   * Determine if the filename matches the HMR filename pattern
+   * Determine if the filename matches the HMR filename pattern.
    *
    * @return {boolean}
    */
@@ -135,7 +230,21 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Add item to assets
+   * Add item to assets without modifying the key or value.
+   *
+   * @param {string} key
+   * @param {string} value
+   * @return {object} this
+   */
+  setRaw(key, value)
+  {
+    this.assets[ key ] = value;
+
+    return this;
+  }
+
+  /**
+   * Add an item to the manifest.
    *
    * @param {string} key
    * @param {string} value
@@ -144,38 +253,54 @@ class WebpackAssetsManifest
   set(key, value)
   {
     if ( this.isMerging && this.options.merge !== 'customize' ) {
-      this.assets[ key ] = value;
+      // Do not fix the key if merging since it should already be correct.
+      return this.setRaw(key, value);
+    }
+
+    const fixedKey = this.fixKey(key);
+    const publicPath = this.getPublicPath( value );
+
+    const entry = this.hooks.customize.call(
+      {
+        key: fixedKey,
+        value: publicPath,
+      },
+      {
+        key,
+        value,
+      },
+      this,
+      this.currentAsset
+    );
+
+    // Allow the entry to be skipped
+    if ( entry === false ) {
       return this;
     }
 
-    const originalValue = value;
-    value = this.getPublicPath( value );
+    // Use the customized values
+    if ( varType(entry) === 'Object' ) {
+      let { key = fixedKey, value = publicPath } = entry;
 
-    if ( this.options.customize && typeof this.options.customize === 'function' ) {
-      const custom = this.options.customize( key, value, originalValue, this, this.currentAsset );
-
-      if ( custom === false ) {
-        return this;
+      // If the integrity should be returned but the entry value was
+      // not customized lets do that now so it includes both.
+      if ( value === publicPath && this.options.integrity ) {
+        value = {
+          src: value,
+          integrity: get(this, 'currentAsset.integrity', ''),
+        };
       }
 
-      if ( typeof custom === 'object' ) {
-        if ( has(custom, 'key') ) {
-          key = custom.key;
-        }
-
-        if ( has(custom, 'value') ) {
-          value = custom.value;
-        }
-      }
+      return this.setRaw( key, value );
     }
 
-    this.assets[ this.fixKey(key) ] = value;
+    warn.once(`Unexpected customize() return type: ${varType(entry)}`);
 
-    return this;
+    return this.setRaw( fixedKey, publicPath );
   }
 
   /**
-   * Does an item exist in assets?
+   * Determine if an item exist in the manifest.
    *
    * @param {string} key
    * @return {boolean}
@@ -186,31 +311,42 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Get item from assets
+   * Get an item from the manifest.
    *
    * @param {string} key
-   * @param {string} defaultValue
+   * @param {string} defaultValue - Defaults to empty string
    * @return {*}
    */
   get(key, defaultValue = '')
   {
-    return this.has(key) ? this.assets[ this.fixKey(key) ] : defaultValue;
+    return this.assets[ key ] || this.assets[ this.fixKey(key) ] || defaultValue;
   }
 
   /**
-   * Delete item from assets
+   * Delete an item from the manifest.
    *
    * @param {string} key
+   * @return {boolen}
    */
   delete(key)
   {
-    delete this.assets[ this.fixKey(key) ];
+    if ( has(this.assets, key) ) {
+      return (delete this.assets[ key ]);
+    }
+
+    key = this.fixKey(key);
+
+    if ( has(this.assets, key) ) {
+      return (delete this.assets[ key ]);
+    }
+
+    return false;
   }
 
   /**
    * Process compilation assets.
    *
-   * @param  {object} assets - assets by chunk name
+   * @param  {object} assets - Assets by chunk name
    * @return {object}
    */
   processAssetsByChunkName(assets)
@@ -227,32 +363,18 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Get the data for JSON.stringify
+   * Get the data for `JSON.stringify()`.
    *
    * @return {object}
    */
   toJSON()
   {
-    if ( this.options.sortManifest ) {
-      const keys = Object.keys(this.assets);
-
-      if ( typeof this.options.sortManifest === 'function' ) {
-        keys.sort( this.options.sortManifest.bind(this) );
-      } else {
-        keys.sort();
-      }
-
-      return keys.reduce(
-        (sorted, key) => (sorted[ key ] = this.assets[ key ], sorted),
-        Object.create(null)
-      );
-    }
-
-    return this.assets;
+    // This is the last chance to modify the data before the manifest file gets created.
+    return this.hooks.transform.call(this.assets, this);
   }
 
   /**
-   * JSON.stringify the manifest
+   * `JSON.stringify()` the manifest.
    *
    * @return {string}
    */
@@ -268,7 +390,7 @@ class WebpackAssetsManifest
   {
     if ( this.options.merge ) {
       try {
-        this[ isMerging ] = true;
+        this[ IS_MERGING ] = true;
 
         const data = JSON.parse(fs.readFileSync(this.getOutputPath()));
 
@@ -279,7 +401,7 @@ class WebpackAssetsManifest
         }
       } catch (err) { // eslint-disable-line
       } finally {
-        delete this[ isMerging ];
+        this[ IS_MERGING ] = false;
       }
     }
   }
@@ -323,23 +445,26 @@ class WebpackAssetsManifest
 
       // `integrity` may have already been set by another plugin, like `webpack-subresource-integrity`.
       // Only generate the SRI hash if `integrity` is not found.
-      if ( this.options.integrity && ! this.currentAsset.integrity ) {
+      if ( this.options.integrity && this.currentAsset && ! this.currentAsset.integrity ) {
         this.currentAsset.integrity = getSRIHash( this.options.integrityHashes, this.currentAsset.source() );
       }
 
       this.set( filename, hashedFile );
 
-      const manifestEntry = this.assets[ filename ];
-
-      if ( typeof manifestEntry === 'string' && this.options.integrity ) {
-        this.assets[ filename ] = {
-          src: manifestEntry,
-          integrity: this.currentAsset.integrity,
-        };
-      }
+      this.currentAsset = null;
     }
 
-    this.currentAsset = null;
+    if ( this.options.entrypoints ) {
+      const entrypoints = this.getEntrypointFilesGroupedByExtension( compilation.entrypoints );
+
+      if ( this.options.entrypointsKey === false ) {
+        for ( const key in entrypoints ) {
+          this.setRaw( key, entrypoints[ key ] );
+        }
+      } else {
+        this.setRaw( this.options.entrypointsKey, entrypoints );
+      }
+    }
 
     this.maybeMerge();
 
@@ -350,23 +475,18 @@ class WebpackAssetsManifest
         path.relative( compilation.compiler.outputPath, this.getOutputPath() )
     );
 
-    if ( this.options.entrypoints ) {
-      const epFiles = this.getEntrypointFilesGroupedByExtension( compilation.entrypoints );
-
-      if ( this.options.entrypointsKey ) {
-        this.set(this.options.entrypointsKey, epFiles);
-      } else {
-        for ( const key in epFiles ) {
-          this.set( key, epFiles[ key ] );
-        }
-      }
-    }
-
     compilation.assets[ output ] = new RawSource(this.toString());
 
     callback();
   }
 
+  /**
+   * Get the parsed output path. [hash] is supported.
+   *
+   * @param  {object} compilation - the Webpack compilation object
+   * @param  {string} filename
+   * @return {string}
+   */
   getManifestPath(compilation, filename)
   {
     return compilation.getPath( filename, { chunk: { name: 'manifest', }, filename: 'manifest.json' } );
@@ -380,7 +500,7 @@ class WebpackAssetsManifest
    *
    * @param  {object} compilation - the Webpack compilation object
    */
-  handleAfterEmit(compilation) // eslint-disable-line
+  handleAfterEmit(compilation)
   {
     if ( ! this.options.writeToDisk ) {
       return Promise.resolve();
@@ -404,24 +524,24 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Handle module assets
+   * Record module asset names
    *
-   * @param  {object} compilation
    * @param  {object} module
    * @param  {string} hashedFile
    */
-  handleModuleAsset(compilation, module, hashedFile)
+  handleModuleAsset(module, hashedFile)
   {
     if ( this.isHMR( hashedFile ) ) {
-      return;
+      return false;
     }
 
-    const filename = path.join(
-      path.dirname(hashedFile),
-      path.basename(module.userRequest)
-    );
-
-    this.assetNames.set(hashedFile, filename);
+    return this.assetNames.set(
+      hashedFile,
+      path.join(
+        path.dirname(hashedFile),
+        path.basename(module.userRequest)
+      )
+    ).has( hashedFile );
   }
 
   /**
@@ -431,7 +551,7 @@ class WebpackAssetsManifest
    */
   handleCompilation(compilation)
   {
-    compilation.hooks.moduleAsset.tap(PLUGIN_NAME, this.handleModuleAsset.bind(this, compilation));
+    compilation.hooks.moduleAsset.tap(PLUGIN_NAME, this.handleModuleAsset.bind(this));
   }
 
   /**
@@ -445,7 +565,7 @@ class WebpackAssetsManifest
       return true;
     }
 
-    return !!this.compiler && this.compiler.outputFileSystem.constructor.name === 'MemoryFileSystem';
+    return has(this, 'compiler.outputFileSystem') && this.compiler.outputFileSystem.constructor.name === 'MemoryFileSystem';
   }
 
   /**
@@ -485,7 +605,7 @@ class WebpackAssetsManifest
   getPublicPath(filename)
   {
     if ( typeof filename === 'string' ) {
-      const publicPath = this.options.publicPath;
+      const { publicPath } = this.options;
 
       if ( typeof publicPath === 'function' ) {
         return publicPath( filename, this );
@@ -507,38 +627,30 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Hook into the Webpack compiler
+   * Get a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler|Proxy} for the manifest.
+   * This allows you to use `[]` to manage entries.
    *
-   * @param  {object} compiler - the Webpack compiler object
+   * @param {boolean} raw - Shoud the proxy use `setRaw` instead of `set`?
+   * @return {Proxy}
    */
-  apply(compiler)
+  getProxy(raw = false)
   {
-    this.compiler = compiler;
+    const setMethod = raw ? 'setRaw' : 'set';
 
-    const { output: { filename, hotUpdateChunkFilename } } = compiler.options;
-
-    if ( filename !== hotUpdateChunkFilename && typeof hotUpdateChunkFilename === 'string' ) {
-      this.hmrRegex = new RegExp(
-        hotUpdateChunkFilename
-          .replace(/\./g, '\\.')
-          .replace(/\[[a-z]+(:\d+)?\]/gi, (m, n) => (n ? `.{${n.substr(1)}}` : '.+')) + '$',
-        'i'
-      );
-    }
-
-    // compilation.assets contains the results of the build
-    compiler.hooks.compilation.tap(PLUGIN_NAME, this.handleCompilation.bind(this));
-
-    // Add manifest.json to compiler.assets
-    compiler.hooks.emit.tapAsync(PLUGIN_NAME, this.handleEmit.bind(this));
-
-    // Use fs to write the manifest.json to disk
-    compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
-
-    // Call user provided `done` callback
-    if ( typeof this.options.done === 'function' ) {
-      compiler.hooks.done.tap(PLUGIN_NAME, stats => this.options.done(stats, this) );
-    }
+    return new Proxy(this, {
+      has(target, property) {
+        return target.has(property);
+      },
+      get(target, property) {
+        return target.get(property) || undefined;
+      },
+      set(target, property, value) {
+        return target[ setMethod ](property, value).has(property);
+      },
+      deleteProperty(target, property) {
+        return target.delete(property);
+      },
+    });
   }
 }
 
