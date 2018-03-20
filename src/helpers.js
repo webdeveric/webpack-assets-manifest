@@ -1,11 +1,71 @@
 const crypto = require('crypto');
 const chalk = require('chalk');
 
+/**
+ * Display a warning message.
+ *
+ * @param {string} message
+ */
+function warn( message )
+{
+  if ( message in warn.cache ) {
+    return;
+  }
+
+  const prefix = chalk.hex('#CC4A8B')('WARNING:');
+
+  console.warn(chalk`${prefix} ${message}`);
+}
+
+warn.cache = Object.create(null);
+
+/**
+ * Display a warning message once.
+ *
+ * @param {string} message
+ */
+warn.once = function( message ) {
+  warn( message );
+  warn.cache[ message ] = true;
+};
+
+/**
+ * @param  {*} data
+ * @return {array}
+ */
 function maybeArrayWrap( data )
 {
   return Array.isArray( data ) ? data : [ data ];
 }
 
+/**
+ * Filter out invalid hash algorithms.
+ *
+ * @param  {array} hashes
+ * @return {array} Valid hash algorithms
+ */
+function filterHashes( hashes )
+{
+  const validHashes = crypto.getHashes();
+
+  return hashes.filter( hash => {
+    if ( validHashes.includes(hash) ) {
+      return true;
+    }
+
+    warn(chalk`{blueBright ${hash}} is not a supported hash algorithm`);
+
+    return false;
+  });
+}
+
+/**
+ * See {@link https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity|Subresource Integrity} at MDN
+ *
+ * @param  {array} hashes - The algorithms you want to use when hashing `content`
+ * @param  {string} content - File contents you want to hash
+ * @return {string} SRI hash
+ */
 function getSRIHash( hashes, content )
 {
   return Array.isArray( hashes ) ? hashes.map( hash => {
@@ -14,24 +74,43 @@ function getSRIHash( hashes, content )
   }).join(' ') : '';
 }
 
-function warn( message )
+/**
+ * Get the data type of an argument.
+ *
+ * @param  {*} v - Some variable
+ * @return {string} Data type
+ */
+function varType( v )
 {
-  if ( message in warn.cache ) {
-    return;
-  }
+  const [ , type ] = Object.prototype.toString.call( v ).match(/\[object\s(\w+)\]/);
 
-  console.warn(chalk`{bold.cyanBright WARNING:} ${message}`);
+  return type;
 }
 
-warn.cache = Object.create(null);
+/**
+ * Get an object sorted by keys.
+ *
+ * @param  {object} object
+ * @param {function} compareFunction
+ * @return {object}
+ */
+function getSortedObject(object, compareFunction)
+{
+  const keys = Object.keys(object);
 
-warn.once = function( message ) {
-  warn( message );
-  warn.cache[ message ] = true;
-};
+  keys.sort( compareFunction );
+
+  return keys.reduce(
+    (sorted, key) => (sorted[ key ] = object[ key ], sorted),
+    Object.create(null)
+  );
+}
 
 module.exports = {
   maybeArrayWrap,
+  filterHashes,
   getSRIHash,
   warn,
+  varType,
+  getSortedObject,
 };
