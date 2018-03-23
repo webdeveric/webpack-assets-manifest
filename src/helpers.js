@@ -70,6 +70,7 @@ function getSRIHash( hashes, content )
 {
   return Array.isArray( hashes ) ? hashes.map( hash => {
     const integrity = crypto.createHash(hash).update(content, 'utf-8').digest('base64');
+
     return `${hash}-${integrity}`;
   }).join(' ') : '';
 }

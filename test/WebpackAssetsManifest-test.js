@@ -106,7 +106,7 @@ describe('WebpackAssetsManifest', function() {
     describe('getOutputPath()', function() {
       it('should work with an absolute output path', function() {
         const manifest = new WebpackAssetsManifest({
-          output: '/manifest.json'
+          output: '/manifest.json',
         });
 
         manifest.apply(makeCompiler(configs.hello()));
@@ -117,7 +117,7 @@ describe('WebpackAssetsManifest', function() {
       it('should work with a relative output path', function() {
         const compiler = makeCompiler(configs.hello());
         const manifest = new WebpackAssetsManifest({
-          output: '../manifest.json'
+          output: '../manifest.json',
         });
 
         manifest.apply(compiler);
@@ -142,6 +142,7 @@ describe('WebpackAssetsManifest', function() {
 
       it('should return an empty string if manifest has not been applied yet', function() {
         const manifest = new WebpackAssetsManifest();
+
         assert.equal('', manifest.getOutputPath());
       });
     });
@@ -172,7 +173,7 @@ describe('WebpackAssetsManifest', function() {
         assert.deepEqual(
           {
             'main.js': 'main.123456.js',
-            'styles/main.css': 'styles/main.123456.css'
+            'styles/main.css': 'styles/main.123456.css',
           },
           manifest.assets
         );
@@ -187,7 +188,7 @@ describe('WebpackAssetsManifest', function() {
 
         assert.deepEqual(
           {
-            'images/a.jpg': 'images/a.123456.jpg'
+            'images/a.jpg': 'images/a.123456.jpg',
           },
           manifest.assets
         );
@@ -240,8 +241,8 @@ describe('WebpackAssetsManifest', function() {
       it('removes an asset from the manifest', function() {
         const manifest = new WebpackAssetsManifest();
 
-        ['some/image.jpg', 'some\\image.jpg'].forEach( key => {
-          ['set', 'setRaw'].forEach( method => {
+        [ 'some/image.jpg', 'some\\image.jpg' ].forEach( key => {
+          [ 'set', 'setRaw' ].forEach( method => {
             manifest[ method ](key, 'image.jpg');
 
             assert.isTrue( manifest.has(key) );
@@ -273,6 +274,7 @@ describe('WebpackAssetsManifest', function() {
 
       it('Identifies webpack-dev-server from outputFileSystem', function() {
         const config = configs.hello();
+
         config.output.path = '/';
 
         const compiler = makeCompiler(config);
@@ -288,7 +290,7 @@ describe('WebpackAssetsManifest', function() {
       it('Returns a Proxy', function() {
         const manifest = new WebpackAssetsManifest();
 
-        [undefined, false, true].forEach( raw => {
+        [ undefined, false, true ].forEach( raw => {
           const proxy = manifest.getProxy( raw );
 
           assert.instanceOf(proxy, WebpackAssetsManifest);
@@ -366,7 +368,7 @@ describe('WebpackAssetsManifest', function() {
     describe('fileExtRegex', function() {
       it('should use custom RegExp', function() {
         const manifest = new WebpackAssetsManifest({
-          fileExtRegex: /\.[a-z0-9]+$/i
+          fileExtRegex: /\.[a-z0-9]+$/i,
         });
 
         assert.equal(manifest.getExtension('test.js'), '.js');
@@ -375,7 +377,7 @@ describe('WebpackAssetsManifest', function() {
 
       it('should fallback to path.extname', function() {
         const manifest = new WebpackAssetsManifest({
-          fileExtRegex: false
+          fileExtRegex: false,
         });
 
         assert.equal(manifest.getExtension('test.js'), '.js');
@@ -421,7 +423,7 @@ describe('WebpackAssetsManifest', function() {
       it('should set the initial assets data', function() {
         const manifest = new WebpackAssetsManifest({
           assets: Object.assign({}, require('./fixtures/images.json')),
-          space: 0
+          space: 0,
         });
 
         Object.keys( assets ).forEach( key => {
@@ -465,6 +467,7 @@ describe('WebpackAssetsManifest', function() {
             err => {
               if ( err ) {
                 reject( err );
+
                 return;
               }
 
@@ -510,7 +513,7 @@ describe('WebpackAssetsManifest', function() {
           customize(entry, original, manifest) {
             assert.isBoolean(manifest.isMerging);
             mergingResults.push(manifest.isMerging);
-          }
+          },
         });
 
         setupManifest(compiler, manifest).then( () => {
@@ -533,7 +536,7 @@ describe('WebpackAssetsManifest', function() {
             if ( manifest.isMerging ) {
               customizeCalled = true;
             }
-          }
+          },
         });
 
         setupManifest(compiler, manifest).then( () => {
@@ -551,7 +554,7 @@ describe('WebpackAssetsManifest', function() {
       const img = 'images/photo.jpg';
       const cdn = {
         default: 'https://cdn.example.com/',
-        images: 'https://img-cdn.example.com/'
+        images: 'https://img-cdn.example.com/',
       };
 
       it('can be a string', function() {
@@ -565,6 +568,7 @@ describe('WebpackAssetsManifest', function() {
 
       it('can be true', function(done) {
         const config = configs.hello();
+
         config.output.publicPath = cdn.default;
 
         const compiler = makeCompiler(config);
@@ -583,6 +587,7 @@ describe('WebpackAssetsManifest', function() {
 
       it('has no affect if false', function(done) {
         const config = configs.hello();
+
         config.output.publicPath = cdn.default;
 
         const compiler = makeCompiler(config);
@@ -601,7 +606,7 @@ describe('WebpackAssetsManifest', function() {
 
       it('only prefixes strings', function() {
         const manifest = new WebpackAssetsManifest({
-          publicPath: cdn.default
+          publicPath: cdn.default,
         });
 
         manifest.set('obj', {} );
@@ -617,7 +622,7 @@ describe('WebpackAssetsManifest', function() {
             }
 
             return cdn.default + val;
-          }
+          },
         });
 
         assert.isFunction( manifest.options.publicPath );
@@ -724,7 +729,7 @@ describe('WebpackAssetsManifest', function() {
         const compiler = makeCompiler(configs.hello());
 
         const manifest = new WebpackAssetsManifest({
-          integrityHashes: ['sha256', 'invalid-algorithm'],
+          integrityHashes: [ 'sha256', 'invalid-algorithm' ],
         });
 
         manifest.apply(compiler);
@@ -824,7 +829,7 @@ describe('WebpackAssetsManifest', function() {
         const manifest = new WebpackAssetsManifest({
           done() {
             done();
-          }
+          },
         });
 
         manifest.apply(compiler);
@@ -894,7 +899,7 @@ describe('WebpackAssetsManifest', function() {
         const manifest = new WebpackAssetsManifest({
           apply() {
             mock();
-          }
+          },
         });
 
         expect( mock ).to.not.have.been.called();
@@ -910,7 +915,7 @@ describe('WebpackAssetsManifest', function() {
         const manifest = new WebpackAssetsManifest({
           customize(entry) {
             entry.value = 'customized';
-          }
+          },
         });
 
         manifest.apply( makeCompiler( configs.hello() ) );
@@ -947,7 +952,7 @@ describe('WebpackAssetsManifest', function() {
           space: 0,
           transform(assets) {
             return { assets };
-          }
+          },
         });
 
         manifest.apply(compiler);
@@ -963,7 +968,7 @@ describe('WebpackAssetsManifest', function() {
         const manifest = new WebpackAssetsManifest({
           done() {
             mock();
-          }
+          },
         });
 
         expect( mock ).to.not.have.been.called();
@@ -984,7 +989,7 @@ describe('WebpackAssetsManifest', function() {
     it('writes to disk', function(done) {
       const compiler = makeCompiler(configs.hello());
       const manifest = new WebpackAssetsManifest({
-        writeToDisk: true
+        writeToDisk: true,
       });
 
       manifest.apply(compiler);
@@ -1053,7 +1058,7 @@ describe('WebpackAssetsManifest', function() {
         config.plugins = [
           new WebpackAssetsManifest({
             assets,
-          })
+          }),
         ];
 
         manifestPath = path.join( config.output.path, 'manifest.json' );
@@ -1085,7 +1090,7 @@ describe('WebpackAssetsManifest', function() {
 
       const compiler = webpack(configs.hello());
       const manifest = new WebpackAssetsManifest({
-        writeToDisk: true
+        writeToDisk: true,
       });
 
       manifest.apply(compiler);
@@ -1103,7 +1108,7 @@ describe('WebpackAssetsManifest', function() {
     it('has error writing file', function(done) {
       const compiler = webpack(configs.hello());
       const manifest = new WebpackAssetsManifest({
-        writeToDisk: true
+        writeToDisk: true,
       });
 
       manifest.apply(compiler);
@@ -1183,7 +1188,7 @@ describe('WebpackAssetsManifest', function() {
       const compiler = makeCompiler(config);
       const manifest = new WebpackAssetsManifest({
         output: path.join( config.output.path, 'manifest.json' ),
-        writeToDisk: true
+        writeToDisk: true,
       });
 
       manifest.apply(compiler);
@@ -1211,7 +1216,7 @@ describe('WebpackAssetsManifest', function() {
       const config = configs.devServer();
       const compiler = makeCompiler(config);
       const manifest = new WebpackAssetsManifest({
-        writeToDisk: true
+        writeToDisk: true,
       });
 
       manifest.apply(compiler);
@@ -1248,10 +1253,7 @@ describe('WebpackAssetsManifest', function() {
       manifest.apply(makeCompiler(config));
 
       manifest.processAssetsByChunkName({
-        main: [
-          'main.123456.js',
-          '0.123456.hot-update.js'
-        ]
+        main: [ 'main.123456.js', '0.123456.hot-update.js' ],
       });
 
       assert.equal( manifest.assetNames.get('main.123456.js'), 'main.js' );

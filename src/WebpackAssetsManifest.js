@@ -39,12 +39,12 @@ class WebpackAssetsManifest
      * This is using hooks from {@link https://github.com/webpack/tapable Tapable}.
      */
     this.hooks = {
-      apply: new SyncHook(['manifest']),
-      customize: new SyncWaterfallHook(['entry', 'original', 'manifest', 'asset']),
-      transform: new SyncWaterfallHook(['assets', 'manifest']),
-      done: new SyncHook(['manifest', 'stats']),
-      options: new SyncWaterfallHook(['options']),
-      afterOptions: new SyncHook(['options']),
+      apply: new SyncHook([ 'manifest' ]),
+      customize: new SyncWaterfallHook([ 'entry', 'original', 'manifest', 'asset' ]),
+      transform: new SyncWaterfallHook([ 'assets', 'manifest' ]),
+      done: new SyncHook([ 'manifest', 'stats' ]),
+      options: new SyncWaterfallHook([ 'options' ]),
+      afterOptions: new SyncHook([ 'options' ]),
     };
 
     this.hooks.transform.tap(PLUGIN_NAME, assets => {
@@ -66,7 +66,7 @@ class WebpackAssetsManifest
         warn('contextRelativeKeys has been removed. Please use the customize hook instead.');
       }
 
-      ['apply', 'customize', 'transform', 'done'].forEach( hookName => {
+      [ 'apply', 'customize', 'transform', 'done' ].forEach( hookName => {
         if ( typeof this.options[ hookName ] === 'function' ) {
           this.hooks[ hookName ].tap(`${PLUGIN_NAME}.option.${hookName}`, this.options[ hookName ] );
         }
@@ -168,11 +168,7 @@ class WebpackAssetsManifest
 
       // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
       integrity: false,
-      integrityHashes: [
-        'sha256',
-        'sha384',
-        'sha512',
-      ],
+      integrityHashes: [ 'sha256', 'sha384', 'sha512' ],
     };
   }
 
@@ -413,7 +409,7 @@ class WebpackAssetsManifest
   {
     const files = Object.create(null);
 
-    for( const [ name, entrypoint ] of entrypoints ) {
+    for ( const [ name, entrypoint ] of entrypoints ) {
       entrypoint.getFiles().reduce( (files, file) => {
         const ext = this.getExtension(file).replace(/^\.+/, '').toLowerCase();
 
@@ -489,7 +485,7 @@ class WebpackAssetsManifest
    */
   getManifestPath(compilation, filename)
   {
-    return compilation.getPath( filename, { chunk: { name: 'manifest', }, filename: 'manifest.json' } );
+    return compilation.getPath( filename, { chunk: { name: 'manifest' }, filename: 'manifest.json' } );
   }
 
   /**
@@ -514,6 +510,7 @@ class WebpackAssetsManifest
         err => {
           if ( err ) {
             reject( err );
+
             return;
           }
 
@@ -586,7 +583,7 @@ class WebpackAssetsManifest
     if ( this.inDevServer() ) {
       let outputPath = get( this, 'compiler.options.devServer.outputPath', get( this, 'compiler.outputPath', '/' ) );
 
-      if( outputPath === '/' ) {
+      if ( outputPath === '/' ) {
         warn.once('Please use an absolute path in options.output when using webpack-dev-server.');
         outputPath = get( this, 'compiler.context', process.cwd() );
       }

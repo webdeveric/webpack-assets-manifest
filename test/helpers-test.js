@@ -27,7 +27,7 @@ describe('Helpers', function() {
 
   describe('maybeArrayWrap()', function() {
     it('returns input if it is an array', function() {
-      const input = ['input'];
+      const input = [ 'input' ];
 
       expect( maybeArrayWrap( input ) ).to.equal( input );
     });
@@ -52,7 +52,7 @@ describe('Helpers', function() {
 
   describe('getSRIHash()', function() {
     it('returns SRI hash', function() {
-      expect( getSRIHash(['sha256'], '') ).to.equal('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
+      expect( getSRIHash([ 'sha256' ], '') ).to.equal('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
     });
 
     it('starts with hash algorithm', function() {
@@ -68,11 +68,11 @@ describe('Helpers', function() {
 
   describe('filterHashes()', function() {
     it('Valid values are returned', function() {
-      expect( filterHashes( ['sha256'] ) ).to.be.an('array').that.includes('sha256');
+      expect( filterHashes( [ 'sha256' ] ) ).to.be.an('array').that.includes('sha256');
     });
 
     it('Invalid values are filtered', function() {
-      expect( filterHashes( ['some-fake-algorithm'] ) ).to.be.an('array').that.does.not.include('some-fake-algorithm');
+      expect( filterHashes( [ 'some-fake-algorithm' ] ) ).to.be.an('array').that.does.not.include('some-fake-algorithm');
     });
   });
 
@@ -93,11 +93,12 @@ describe('Helpers', function() {
   describe('varType()', function() {
     it('returns var data type', function() {
       const types = new Map();
+
       types.set( {}, 'Object' );
       types.set( Object.create(null), 'Object' );
-      types.set( new (function(){}), 'Object' );
+      types.set( new (function(){})(), 'Object' );
       types.set( [], 'Array' );
-      types.set( new Int8Array, 'Int8Array' );
+      types.set( new Int8Array(), 'Int8Array' );
       types.set( new Buffer(''), 'Uint8Array' );
       types.set( void 0, 'Undefined' );
       types.set( null, 'Null' );
