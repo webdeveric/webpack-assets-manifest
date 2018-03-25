@@ -3,12 +3,23 @@
   "description": "Webpack Assets Manifest options",
   "type": "object",
   "properties": {
+    "assets": {
+      "type": "object",
+      "default": {}
+    },
     "output": {
       "type": "string",
       "default": "manifest.json"
     },
     "replacer": {
-      "$ref": "#/definitions/functionOrNull"
+      "oneOf": [
+        {
+          "$ref": "#/definitions/functionOrNull"
+        },
+        {
+          "type": "array"
+        }
+      ]
     },
     "space": {
       "type": "integer",
@@ -21,7 +32,6 @@
       "default": false
     },
     "fileExtRegex": {
-      "default": "entrypoints",
       "oneOf": [
         {
           "instanceof": "RegExp"
@@ -30,10 +40,7 @@
           "type": "null"
         },
         {
-          "type": "boolean",
-          "enum": [
-            false
-          ]
+          "const": false
         }
       ]
     },
@@ -55,10 +62,7 @@
           "type": "boolean"
         },
         {
-          "type": "string",
-          "enum": [
-            "customize"
-          ]
+          "const": "customize"
         }
       ]
     },
@@ -102,10 +106,7 @@
           "type": "string"
         },
         {
-          "type": "boolean",
-          "enum": [
-            false
-          ]
+          "const": false
         }
       ]
     },
