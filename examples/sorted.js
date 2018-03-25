@@ -2,7 +2,7 @@ const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 const manifest = new WebpackAssetsManifest({
   output: 'sorted-manifest.json',
-  sortManifest: function(a, b) {
+  sortManifest(a, b) {
     // `this` is the manifest instance.
     const extA = this.getExtension(a);
     const extB = this.getExtension(b);
