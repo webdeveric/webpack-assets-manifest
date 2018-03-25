@@ -448,8 +448,10 @@ describe('WebpackAssetsManifest', function() {
         });
 
         manifest1.set('main.js', 'main.js');
-
         manifest2.set('subpage.js', 'subpage.js');
+
+        manifest1.apply( makeCompiler( configs.hello() ) );
+        manifest2.apply( makeCompiler( configs.client() ) );
 
         assert.equal(manifest1.toString(), manifest2.toString());
       });

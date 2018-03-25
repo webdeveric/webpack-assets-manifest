@@ -62,6 +62,10 @@ class WebpackAssetsManifest
 
       validateOptions(optionsSchema, this.options, PLUGIN_NAME);
 
+      // Copy over any entries that may have been added to the manifest before apply() was called.
+      // If the same key exists in assets and options.assets, options.assets should be used.
+      this.assets = Object.assign(this.options.assets, this.assets, this.options.assets);
+
       if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
         warn('contextRelativeKeys has been removed. Please use the customize hook instead.');
       }
@@ -76,7 +80,7 @@ class WebpackAssetsManifest
     this.options = Object.assign( this.defaultOptions, options );
 
     // This is what gets JSON stringified
-    this.assets = options.assets || Object.create(null);
+    this.assets = this.options.assets;
 
     // hashed filename : original filename
     this.assetNames = new Map();
@@ -147,6 +151,7 @@ class WebpackAssetsManifest
   get defaultOptions()
   {
     return {
+      assets: Object.create(null),
       output: 'manifest.json',
       replacer: null, // Its easier to use the transform hook instead.
       space: 2,
@@ -322,7 +327,7 @@ class WebpackAssetsManifest
    * Delete an item from the manifest.
    *
    * @param {string} key
-   * @return {boolen}
+   * @return {boolean}
    */
   delete(key)
   {
@@ -627,7 +632,7 @@ class WebpackAssetsManifest
    * Get a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler|Proxy} for the manifest.
    * This allows you to use `[]` to manage entries.
    *
-   * @param {boolean} raw - Shoud the proxy use `setRaw` instead of `set`?
+   * @param {boolean} raw - Should the proxy use `setRaw` instead of `set`?
    * @return {Proxy}
    */
   getProxy(raw = false)
