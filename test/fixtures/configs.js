@@ -18,7 +18,7 @@ function randomString(length)
   let str = '';
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
-  while(length--) {
+  while (length--) {
     str += chars[ Math.floor( Math.random() * chars.length ) ];
   }
 
@@ -37,8 +37,8 @@ function hello()
     entry: path.resolve(__dirname, './hello.js'),
     output: {
       path: tmpDirPath(),
-      filename: 'bundle.js'
-    }
+      filename: 'bundle.js',
+    },
   };
 }
 
@@ -48,20 +48,20 @@ function client()
     mode: 'development',
     target: 'web',
     entry: {
-      client: path.resolve(__dirname, './client.js')
+      client: path.resolve(__dirname, './client.js'),
     },
     output: {
       path: tmpDirPath(),
-      filename: '[name].js'
+      filename: '[name].js',
     },
     module: {
       rules: [
         {
           test: /\.jpg$/i,
-          loader: 'file-loader?name=images/[name].[ext]'
-        }
-      ]
-    }
+          loader: 'file-loader?name=images/[name].[ext]',
+        },
+      ],
+    },
   };
 }
 
@@ -71,12 +71,12 @@ function server()
     mode: 'development',
     target: 'node',
     entry: {
-      server: path.resolve(__dirname, './server.js')
+      server: path.resolve(__dirname, './server.js'),
     },
     output: {
       path: tmpDirPath(),
-      filename: '[name].js'
-    }
+      filename: '[name].js',
+    },
   };
 }
 
@@ -85,6 +85,7 @@ function devServer( outputPath )
   outputPath = outputPath || '/';
 
   const config = server();
+
   config.devServer = { outputPath: outputPath };
   config.output.path = outputPath;
 
@@ -109,5 +110,5 @@ module.exports = {
   multi: multi,
   getTmpDir: getTmpDir,
   tmpDirPath: tmpDirPath,
-  getWorkspace: getWorkspace
+  getWorkspace: getWorkspace,
 };

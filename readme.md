@@ -21,232 +21,21 @@ If you're using Webpack 3 or below, you'll need to install version 1.
 npm install webpack-assets-manifest@1 --save-dev
 ```
 
+## New in version 3
+
+* Added [hooks](#hooks).
+* Added [examples](examples/).
+* Added options:
+  * [`integrity`](#integrity)
+  * [`integrityHashes`](#integrityhashes)
+  * [`entrypoints`](#entrypoints)
+  * [`entrypointsKey`](#entrypointskey)
+* Updated `customize` callback arguments. See [customized](examples/customized.js) example.
+* Removed `contextRelativeKeys` option.
+
 ## Usage
 
 In your webpack config, require the plugin then add an instance to the `plugins` array.
-
-```js
-new WebpackAssetsManifest({
-  // Options go here
-});
-```
-
-## Options
-
-| option | type | default | description |
-| ------ | ---- | ------- | ----------- |
-| `assets` | `object` | `{}` | Data is stored in this object. |
-| `output` | `string` | `manifest.json` | Where to save the manifest file relative to your webpack `output.path`. |
-| `replacer` | `null`, `function`, or `array` | `null` | [Replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter) |
-| `space` | `int` | `2` | Number of spaces to use for pretty printing. |
-| `writeToDisk` | `boolean` | `false` | Write the manifest to disk using `fs` during `after-emit` |
-| `fileExtRegex` | `regex` | `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i` | The regular expression used to find file extensions. You'll probably never need to change this. |
-| `sortManifest` | `boolean`, `function` | `true` | Should the manifest be sorted? If a function is provided, it will be used as the comparison function. |
-| `merge` | `boolean`, `string` | `false` | If the output file already exists, should the data be merged with it? If merge is set to `customize`, the customize callback will be used during merge. |
-| `publicPath` | `string`, `function`, `boolean` | `null` | Value prefix or callback to customize the value. If `true`, your webpack config `output.publicPath` will be used as the prefix. |
-| `customize` | `function` | `null` | Callback to customize the `key` and/or `value`. If `false` is returned, that item is not added to the manifest. |
-| `contextRelativeKeys` | `boolean` | `false` | Should the `key` be relative to you compiler context? |
-
-### Using `webpack-dev-server`
-
-If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development, you should set `writeToDisk` to `true` and provide an absolute path in `output` so the manifest file is actually written to disk and not kept only in memory.
-
-### Sharing data
-
-You can share data between instances by passing in your own object in the `assets` option.
-This is useful in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler).
-
-```js
-const data = Object.create(null);
-
-const manifest1 = new WebpackAssetsManifest({
-  assets: data
-});
-
-const manifest2 = new WebpackAssetsManifest({
-  assets: data
-});
-```
-
-### Merging data
-
-If you have a `json` file you'd like to add to, you can do that with the `merge` option.
-If your `json` file is not in `${output.path}/manifest.json`, you should specify where the file is with the `output` option.
-
-By default, the existing keys/values are copied over without modification.
-
-```js
-new WebpackAssetsManifest({
-  output: '/path/to/manifest.json',
-  merge: true
-});
-```
-
-If you need to customize during merge, use `merge: 'customize'`. 
-
-If you want to know if [`customize`](#customize-callback) was called when merging with an existing manifest, you can check `manifest.isMerging`.
-
-```js
-new WebpackAssetsManifest({
-  merge: 'customize',
-  customize: function(key, value, originalValue, manifest) {
-    if ( manifest.isMerging ) {
-      // Do something
-    }
-  },
-}),
-```
-
-### Sorting the manifest
-
-The manifest is sorted alphabetically by default. You can turn off sorting by setting `sortManifest` to `false`.
-
-If you want more control over how the manifest is sorted, you can provide your own comparison function.
-In the example below, the manifest will be sorted by file extension then alphabetically.
-
-```js
-new WebpackAssetsManifest({
-  output: 'manifest.json',
-  space: 2,
-  sortManifest: function(a, b) {
-    const extA = this.getExtension(a);
-    const extB = this.getExtension(b);
-
-    if ( extA > extB ) {
-      return 1;
-    }
-
-    if ( extA < extB ) {
-      return -1;
-    }
-
-    return a.localeCompare(b);
-  }
-});
-```
-
-### Add your CDN
-
-You can customize the value that gets saved to the manifest by using `publicPath`.
-
-One common use is to prefix your __CDN URL__ to the value.
-
-```js
-const manifest = new WebpackAssetsManifest({
-  publicPath: '//cdn.example.com'
-});
-```
-
-If you'd like to have more control, use a function.
-The example below shows how you can prefix a different CDN based on the file extension.
-
-```js
-const manifest = new WebpackAssetsManifest({
-  publicPath: function(val, manifest) {
-    switch( manifest.getExtension( val ).substr(1).toLowerCase() ) {
-      case 'jpg': case 'jpeg': case 'gif': case 'png': case 'svg':
-        return '//img-cdn.example.com' + val;
-        break;
-      case 'css':
-        return '//css-cdn.example.com' + val;
-        break;
-      case 'js':
-        return '//js-cdn.example.com' + val;
-        break;
-      default:
-        return '//cdn.example.com' + val;
-    }
-  }
-});
-```
-
----
-
-## Customizing the manifest
-
-You can customize the manifest by adding your own event listeners. The manifest is passed as the first argument so you can do whatever you need to with it.
-
-You can use `has(key)`, `get(key)`, `set(key, value)`, and `delete(key)` methods on manifest plugin instance to manage what goes into the manifest.
-
-```js
-const manifest = new WebpackAssetsManifest();
-
-manifest.on('apply', function(manifest) {
-  manifest.set('some-key', 'some-value');
-});
-
-manifest.on('done', function(manifest, stats) {
-  console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
-  console.log(stats); // Compilation stats
-});
-```
-
-These event listeners can also be set by passing them in the constructor options.
-
-```js
-new WebpackAssetsManifest({
-  done: function(manifest, stats) {
-    console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
-    console.log(stats); // Compilation stats
-  }
-});
-```
-
-### Events
-
-| name | listener signature |
-| ---- | --------- |
-| `apply` | `function(manifest){}` |
-| `moduleAsset` | `function(manifest, key, hashedFile, module){}` |
-| `processAssets` | `function(manifest, assets){}` |
-| `done` | `function(manifest, stats){}` |
-
-### `customize` callback
-
-If you want more control over exactly what gets added to your manifest, then use the `customize` option.
-
-> Be aware that keys and/or values may have been modified if you're using the `publicPath` or `contextRelativeKeys` options.
-
-```js
-new WebpackAssetsManifest({
-  customize: function(key, value, originalValue, manifest) {
-    // currently merging with an existing manifest file.
-    if ( manifest.isMerging ) {
-      // Do something
-    }
-
-    // You can prevent adding items to the manifest by returning false.
-    if ( key.toLowerCase().endsWith('.map') ) {
-      return false;
-    }
-
-    // The manifest instance is available if you need it.
-    if ( manifest.options.publicPath ) {
-      // Do something
-    }
-
-    // originalValue is the value before the publicPath option was applied.
-    if ( originalValue ) {
-      // Do something
-    }
-
-    // To alter the key/value, return an object with a key/value property.
-    // The key should be a string and the value can be anything that can be JSON stringified.
-    // If something else (or nothing) is returned, this callback will have no affect and the
-    // manifest will add the entry normally.
-    return {
-      key: key,
-      value: value,
-    };
-  },
-}),
-```
-
----
-
-## Example config
-
-In this example, `manifest.json` will be saved in the folder defined in `output.path`.
 
 ```js
 const path = require('path');
@@ -254,27 +43,23 @@ const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 module.exports = {
   entry: {
-    main: "./your-main-file",
+    // Your entry points
   },
-
   output: {
-    path: path.join( __dirname, 'public', 'assets' ),
+    path: path.join( __dirname, 'dist' ),
     filename: '[name]-[hash].js',
-    chunkFilename: '[id]-[hash].js',
-    publicPath: 'assets/'
+    chunkFilename: '[id]-[chunkhash].js',
   },
-
   module: {
     // Your loader rules go here.
   },
-
   plugins: [
-    new WebpackAssetsManifest()
-  ]
+    new WebpackAssetsManifest({
+      // Options go here
+    }),
+ ],
 };
 ```
-
----
 
 ## Sample output
 
@@ -285,3 +70,309 @@ module.exports = {
   "images/logo.svg": "images/logo-b111da4f34cefce092b965ebc1078ee3.svg"
 }
 ```
+
+---
+
+## Options ([read the schema](src/options-schema.json))
+
+### `output`
+
+Type: `string`
+
+Default: `manifest.json`
+
+This is where to save the manifest file relative to your webpack `output.path`.
+
+### `assets`
+
+Type: `object`
+
+Default: `{}`
+
+Data is stored in this object.
+
+#### Sharing data
+
+You can share data between instances by passing in your own object in the `assets` option.
+
+This is useful in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler).
+
+```js
+const data = Object.create(null);
+
+const manifest1 = new WebpackAssetsManifest({
+  assets: data,
+});
+
+const manifest2 = new WebpackAssetsManifest({
+  assets: data,
+});
+```
+
+### `space`
+
+Type: `int`
+
+Default: `2`
+
+Number of spaces to use for pretty printing.
+
+### `replacer`
+
+Type: `null`, `function`, or `array`
+
+Default: `null`
+
+[Replacer reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#The_replacer_parameter)
+
+You'll probably want to use the `transform` hook instead.
+
+### `fileExtRegex`
+
+Type: `regex`
+
+Default: `/\.\w{2,4}\.(?:map|gz)$|\.\w+$/i`
+
+This is the regular expression used to find file extensions. You'll probably never need to change this.
+
+### `writeToDisk`
+
+Type: `boolean`
+
+Default: `false`
+
+Write the manifest to disk using `fs` during `afterEmit`.
+
+:warning: If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development,
+you should set `writeToDisk: true` and provide an absolute path in `output` so the manifest file is actually written to disk and not kept only in memory.
+
+### `sortManifest`
+
+Type: `boolean`, `function`
+
+Default: `true`
+
+The manifest is sorted alphabetically by default. You can turn off sorting by setting `sortManifest: false`.
+
+If you want more control over how the manifest is sorted, you can provide your own
+[comparison function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Parameters).
+See the [sorted](examples/sorted.js) example.
+
+```js
+new WebpackAssetsManifest({
+  sortManifest(a, b) {
+    // Return -1, 0, or 1
+  }
+});
+```
+
+### `merge`
+
+Type: `boolean`, `string`
+
+Default: `false`
+
+If the `output` file already exists and you'd like to add to it, use `merge: true`.
+The default behavior is to use the existing keys/values without modification.
+
+```js
+new WebpackAssetsManifest({
+  output: '/path/to/manifest.json',
+  merge: true
+});
+```
+
+If you need to customize during merge, use `merge: 'customize'`. 
+
+If you want to know if `customize` was called when merging with an existing manifest, you can check `manifest.isMerging`.
+
+```js
+new WebpackAssetsManifest({
+  merge: 'customize',
+  customize(entry, original, manifest, asset) {
+    if ( manifest.isMerging ) {
+      // Do something
+    }
+  },
+}),
+```
+
+### `publicPath`
+
+Type: `string`, `function`, `boolean`,
+
+Default: `null`
+
+When using `publicPath: true`, your webpack config `output.publicPath` will be used as the value prefix.
+
+```js
+const manifest = new WebpackAssetsManifest({
+  publicPath: true,
+});
+```
+
+When using a string, it will be the value prefix. One common use is to prefix your CDN URL.
+
+```js
+const manifest = new WebpackAssetsManifest({
+  publicPath: '//cdn.example.com',
+});
+```
+
+If you'd like to have more control, use a function. See the [custom CDN](examples/custom-cdn.js) example.
+
+```js
+const manifest = new WebpackAssetsManifest({
+  publicPath(filename, manifest)
+  {
+    // customize filename here
+    return filename;
+  }
+});
+```
+
+### `entrypoints`
+
+Type: `boolean`
+
+Default: `false`
+
+Include `compilation.entrypoints` in the manifest file.
+
+### `entrypointsKey`
+
+Type: `string`, `boolean`
+
+Default: `entrypoints`
+
+If this is set to `false`, the `entrypoints` will be added to the root of the manifest.
+
+### `integrity`
+
+Type: `boolean`
+
+Default: `false`
+
+Include the [subresource integrity hash](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity).
+
+### `integrityHashes`
+
+Type: `array`
+
+Default: `[ 'sha256', 'sha384', 'sha512' ]`
+
+Hash algorithms to use when generating SRI. For browsers, the currently the allowed integrity hashes are `sha256`, `sha384`, and `sha512`.
+
+Other hash algorithms can be used if your target environment is not a browser.
+If you were to create a tool to audit your S3 buckets for
+[data integrity](https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/),
+you could use something like this [example](examples/aws-s3-data-integrity.js) to record the `md5` hashes.
+
+### `integrityPropertyName`
+
+Type: `string`
+
+Default: `integrity`
+
+This is the property that will be set on each entry in `compilation.assets`, which will then be available during `customize`.
+It is customizable so that you can have multiple instances of this plugin and not have them overwrite the `currentAsset.integrity` property.
+
+You'll probably only need to change this if you're using multiple instances of this plugin to create different manifests.
+
+### `apply`
+
+Type: `function`
+
+Default: `null`
+
+Callback to run after setup is complete.
+
+### `customize`
+
+Type: `function`
+
+Default: `null`
+
+Callback to customize each entry in the manifest.
+
+### `transform`
+
+Type: `function`
+
+Default: `null`
+
+Callback to transform the entire manifest.
+
+### `done`
+
+Type: `function`
+
+Default: `null`
+
+Callback to run after the compilation is done and the manifest has been written.
+
+---
+
+### Hooks
+
+This plugin is using hooks from [Tapable](https://github.com/webpack/tapable/).
+
+The `apply`, `customize`, `transform`, and `done` options are automatically tapped into the appropriate hook.
+
+| Name | Type | Callback signature |
+| ---- | ---- | --------- |
+| `apply` | `SyncHook` | `function(manifest){}` |
+| `customize` | `SyncWaterfallHook` | `function(entry, original, manifest, asset){}` |
+| `transform` | `SyncWaterfallHook` | `function(assets, manifest){}` |
+| `done` | `SyncHook` | `function(manifest, stats){}` |
+| `options` | `SyncWaterfallHook` | `function(options){}` |
+| `afterOptions` | `SyncHook` | `function(options){}` |
+
+#### Tapping into hooks
+
+Tap into a hook by calling the `tap` method on the hook as shown below.
+
+If you want more control over exactly what gets added to your manifest, then use the `customize` and `transform` hooks.
+See the [customized](examples/customized.js) and [transformed](examples/transformed.js) examples.
+
+```js
+const manifest = new WebpackAssetsManifest();
+
+manifest.hooks.apply.tap('YourPluginName', function(manifest) {
+  // Do something here
+  manifest.set('some-key', 'some-value');
+});
+
+manifest.hooks.customize.tap('YourPluginName', function(entry, original, manifest, asset) {
+  // customize entry here
+  return entry;
+});
+
+manifest.hooks.transform.tap('YourPluginName', function(assets, manifest) {
+  // customize assets here
+  return assets;
+});
+
+manifest.hooks.options.tap('YourPluginName', function(options) {
+  // customize options here
+  return options;
+});
+
+manifest.hooks.done.tap('YourPluginName', function(manifest, stats) {
+  console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
+  console.log(`${manifest}`);
+});
+```
+
+These hooks can also be set by passing them in the constructor options.
+
+```js
+new WebpackAssetsManifest({
+  done(manifest, stats) {
+    console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
+    console.log(`${manifest}`);
+  }
+});
+```
+
+If the manifest instance is passed to a hook, you can use `has(key)`, `get(key)`, `set(key, value)`, `setRaw(key, value)`,and `delete(key)` methods to manage what goes into the manifest.
