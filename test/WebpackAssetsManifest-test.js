@@ -762,6 +762,32 @@ describe('WebpackAssetsManifest', function() {
       });
     });
 
+    describe('integrityPropertyName', function() {
+      it('Assigns SRI hashes to currentAsset[ integrityPropertyName ]', function(done) {
+        const compiler = makeCompiler(configs.hello());
+        const manifest = new WebpackAssetsManifest({
+          integrity: true,
+          integrityHashes: [ 'md5' ],
+          integrityPropertyName: 'sri',
+          customize(entry, original, manifest, asset) {
+            return {
+              value: asset.sri,
+            };
+          },
+        });
+
+        manifest.apply(compiler);
+
+        compiler.run(function( err ) {
+          assert.isNull(err, 'Error found in compiler.run');
+
+          assert.equal( manifest.get('main.js'), 'md5-3D0zIZaBr8n5hmGQMYhqxQ==' );
+
+          done();
+        });
+      });
+    });
+
     describe('entrypoints', function() {
       it('entrypoints are included in manifest', function(done) {
         const compiler = makeCompiler(configs.hello());

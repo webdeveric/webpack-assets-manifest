@@ -124,6 +124,11 @@
         "sha384",
         "sha512"
       ]
+    },
+    "integrityPropertyName": {
+      "type": "string",
+      "minLength": 1,
+      "default": "integrity"
     }
   },
   "definitions": {

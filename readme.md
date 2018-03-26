@@ -268,6 +268,17 @@ If you were to create a tool to audit your S3 buckets for
 [data integrity](https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/),
 you could use something like this [example](examples/aws-s3-data-integrity.js) to record the `md5` hashes.
 
+### `integrityPropertyName`
+
+Type: `string`
+
+Default: `integrity`
+
+This is the property that will be set on each entry in `compilation.assets`, which will then be available during `customize`.
+It is customizable so that you can have multiple instances of this plugin and not have them overwrite the `currentAsset.integrity` property.
+
+You'll probably only need to change this if you're using multiple instances of this plugin to create different manifests.
+
 ### `apply`
 
 Type: `function`

@@ -174,6 +174,7 @@ class WebpackAssetsManifest
       // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
       integrity: false,
       integrityHashes: [ 'sha256', 'sha384', 'sha512' ],
+      integrityPropertyName: 'integrity',
     };
   }
 
@@ -288,7 +289,7 @@ class WebpackAssetsManifest
       if ( value === publicPath && this.options.integrity ) {
         value = {
           src: value,
-          integrity: get(this, 'currentAsset.integrity', ''),
+          integrity: get(this, `currentAsset.${this.options.integrityPropertyName}`, ''),
         };
       }
 
@@ -446,8 +447,8 @@ class WebpackAssetsManifest
 
       // `integrity` may have already been set by another plugin, like `webpack-subresource-integrity`.
       // Only generate the SRI hash if `integrity` is not found.
-      if ( this.options.integrity && this.currentAsset && ! this.currentAsset.integrity ) {
-        this.currentAsset.integrity = getSRIHash( this.options.integrityHashes, this.currentAsset.source() );
+      if ( this.options.integrity && this.currentAsset && ! this.currentAsset[ this.options.integrityPropertyName ] ) {
+        this.currentAsset[ this.options.integrityPropertyName ] = getSRIHash( this.options.integrityHashes, this.currentAsset.source() );
       }
 
       this.set( filename, hashedFile );
