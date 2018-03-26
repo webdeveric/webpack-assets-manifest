@@ -420,7 +420,7 @@ class WebpackAssetsManifest
 
         files[ name ] = files[ name ] || Object.create(null);
         files[ name ][ ext ] = files[ name ][ ext ] || [];
-        files[ name ][ ext ].push(file);
+        files[ name ][ ext ].push( this.getPublicPath( file ) );
 
         return files;
       }, files );
