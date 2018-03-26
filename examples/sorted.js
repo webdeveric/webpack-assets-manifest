@@ -16,5 +16,5 @@ const manifest = new WebpackAssetsManifest({
     }
 
     return a.localeCompare(b);
-  }
+  },
 });

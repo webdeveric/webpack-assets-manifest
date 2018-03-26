@@ -21,7 +21,7 @@ If you're using Webpack 3 or below, you'll need to install version 1.
 npm install webpack-assets-manifest@1 --save-dev
 ```
 
-## :new: in version 3
+## New in version 3
 
 * Added [hooks](#hooks).
 * Added [examples](examples/).
@@ -261,7 +261,12 @@ Type: `array`
 
 Default: `[ 'sha256', 'sha384', 'sha512' ]`
 
-Hash algorithms to use when generating SRI.
+Hash algorithms to use when generating SRI. For browsers, the currently the allowed integrity hashes are `sha256`, `sha384`, and `sha512`.
+
+Other hash algorithms can be used if your target environment is not a browser.
+If you were to create a tool to audit your S3 buckets for
+[data integrity](https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/),
+you could use something like this [example](examples/aws-s3-data-integrity.js) to record the `md5` hashes.
 
 ### `apply`
 
