@@ -504,6 +504,9 @@ class WebpackAssetsManifest
    */
   handleAfterEmit(compilation)
   {
+    // Reset the internal mapping of hashed name to original name after every compilation.
+    this.assetNames.clear();
+
     if ( ! this.options.writeToDisk ) {
       return Promise.resolve();
     }
