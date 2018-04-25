@@ -99,7 +99,7 @@ describe('Helpers', function() {
       types.set( new (function(){})(), 'Object' );
       types.set( [], 'Array' );
       types.set( new Int8Array(), 'Int8Array' );
-      types.set( new Buffer(''), 'Uint8Array' );
+      types.set( Buffer.from(''), 'Uint8Array' );
       types.set( void 0, 'Undefined' );
       types.set( null, 'Null' );
       types.set( true, 'Boolean' );
