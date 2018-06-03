@@ -764,15 +764,18 @@ describe('WebpackAssetsManifest', function() {
 
     describe('integrityPropertyName', function() {
       it('Assigns SRI hashes to currentAsset[ integrityPropertyName ]', function(done) {
+        const integrityPropertyName = 'sri';
         const compiler = makeCompiler(configs.hello());
         const manifest = new WebpackAssetsManifest({
           integrity: true,
           integrityHashes: [ 'md5' ],
-          integrityPropertyName: 'sri',
+          integrityPropertyName,
           customize(entry, original, manifest, asset) {
-            return {
-              value: asset.sri,
-            };
+            assert.containsAllKeys(
+              asset,
+              [ integrityPropertyName ],
+              `asset is missing ${integrityPropertyName} property`
+            );
           },
         });
 
@@ -780,8 +783,6 @@ describe('WebpackAssetsManifest', function() {
 
         compiler.run(function( err ) {
           assert.isNull(err, 'Error found in compiler.run');
-
-          assert.equal( manifest.get('main.js'), 'md5-3D0zIZaBr8n5hmGQMYhqxQ==' );
 
           done();
         });
