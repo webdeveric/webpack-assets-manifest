@@ -56,17 +56,17 @@
   "devDependencies": {
     "chai": "^4.0",
     "chai-spies": "^1.0.0",
-    "eslint": "^4.19.1",
+    "eslint": "^5.1.0",
     "eslint-config-webdeveric": "^0.3",
     "file-loader": "^1.1.11",
-    "fs-extra": "^6.0",
+    "fs-extra": "^7.0.0",
     "istanbul": "^0.4",
     "jsdoc": "^3.0",
     "memory-fs": "^0.4.1",
     "mocha": "^5.2.0",
     "rimraf": "^2.0",
     "superagent": "^3.8.3",
-    "webpack": "^4.10.2",
+    "webpack": "^4.16.1",
     "webpack-dev-server": "^3.1.4"
   }
 }
