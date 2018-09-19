@@ -12,6 +12,8 @@
   },
   "homepage": "https://github.com/webdeveric/webpack-assets-manifest",
   "keywords": [
+    "webpack-assets-manifest",
+    "webpack-plugin",
     "webpack",
     "plugin",
     "assets",
