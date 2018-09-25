@@ -530,24 +530,27 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Record module asset names
+   * Record asset names
    *
+   * @param  {object} loaderContext
    * @param  {object} module
-   * @param  {string} hashedFile
    */
-  handleModuleAsset(module, hashedFile)
+  handleNormalModuleLoader(loaderContext, module)
   {
-    if ( this.isHMR( hashedFile ) ) {
-      return false;
-    }
+    const { emitFile } = loaderContext;
 
-    return this.assetNames.set(
-      hashedFile,
-      path.join(
-        path.dirname(hashedFile),
-        path.basename(module.userRequest)
-      )
-    ).has( hashedFile );
+    loaderContext.emitFile = (name, content, sourceMap) => {
+      if ( ! this.assetNames.has( name ) ) {
+        const originalName = path.join(
+          path.dirname(name),
+          path.basename(module.userRequest)
+        );
+
+        this.assetNames.set(name, originalName);
+      }
+
+      return emitFile.call(module, name, content, sourceMap);
+    };
   }
 
   /**
@@ -557,7 +560,7 @@ class WebpackAssetsManifest
    */
   handleCompilation(compilation)
   {
-    compilation.hooks.moduleAsset.tap(PLUGIN_NAME, this.handleModuleAsset.bind(this));
+    compilation.hooks.normalModuleLoader.tap(PLUGIN_NAME, this.handleNormalModuleLoader.bind(this));
   }
 
   /**
