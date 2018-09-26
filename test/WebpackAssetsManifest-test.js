@@ -1290,16 +1290,6 @@ describe('WebpackAssetsManifest', function() {
       assert.isFalse( manifest.assetNames.has('0.123456.hot-update.js') );
     });
 
-    it('Should ignore HMR module assets', function() {
-      const compiler = makeCompiler(configs.client());
-      const manifest = new WebpackAssetsManifest();
-
-      manifest.apply(compiler);
-      manifest.handleModuleAsset({ userRequest: '' }, '0.123456.hot-update.js');
-
-      assert.isFalse( manifest.assetNames.has('0.123456.hot-update.js') );
-    });
-
     it('isHMR should return false when hotUpdateChunkFilename is ambiguous', function() {
       const manifest = new WebpackAssetsManifest();
       const config = configs.client();
@@ -1310,6 +1300,28 @@ describe('WebpackAssetsManifest', function() {
 
       assert.isFalse( manifest.isHMR('main.js') );
       assert.isFalse( manifest.isHMR('0.123456.hot-update.js') );
+    });
+  });
+
+  describe('Works with css files', function() {
+    it('Correct filenames are used', function(done) {
+      const manifest = new WebpackAssetsManifest({
+        space: 0,
+      });
+      const compiler = makeCompiler( configs.styles() );
+
+      manifest.apply( compiler );
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        assert.equal(
+          '{"images/Ginger.jpg":"images/Ginger.jpg","styles.css":"styles.css","styles.js":"styles.js"}',
+          manifest.toString()
+        );
+
+        done();
+      });
     });
   });
 });

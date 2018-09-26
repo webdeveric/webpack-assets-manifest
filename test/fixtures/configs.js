@@ -65,6 +65,43 @@ function client()
   };
 }
 
+function styles()
+{
+  const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+  return {
+    mode: 'development',
+    target: 'web',
+    entry: {
+      styles: path.resolve(__dirname, './styles.js'),
+    },
+    output: {
+      path: tmpDirPath(),
+      filename: '[name].js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.jpg$/i,
+          loader: 'file-loader?name=images/[name].[ext]',
+        },
+        {
+          test: /\.css$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+          ],
+        },
+      ],
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: '[name].css',
+      }),
+    ],
+  };
+}
+
 function server()
 {
   return {
@@ -103,12 +140,13 @@ function multi()
 }
 
 module.exports = {
-  hello: hello,
-  client: client,
-  server: server,
-  devServer: devServer,
-  multi: multi,
-  getTmpDir: getTmpDir,
-  tmpDirPath: tmpDirPath,
-  getWorkspace: getWorkspace,
+  hello,
+  client,
+  server,
+  devServer,
+  multi,
+  getTmpDir,
+  tmpDirPath,
+  getWorkspace,
+  styles,
 };

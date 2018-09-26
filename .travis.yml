@@ -5,7 +5,7 @@ node_js:
   - "10"
   - "node"
 env:
-  - WEBPACK_VERSION=4.0 DEVSERVER_VERSION=3.0
+  - WEBPACK_VERSION=4.4 DEVSERVER_VERSION=3.0
   - WEBPACK_VERSION=latest DEVSERVER_VERSION=latest
 matrix:
   fast_finish: true
