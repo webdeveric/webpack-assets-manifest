@@ -414,17 +414,21 @@ class WebpackAssetsManifest
   getEntrypointFilesGroupedByExtension( entrypoints )
   {
     const files = Object.create(null);
+    const removeHMR = f => ! this.isHMR(f);
+    const groupFilesByExtension = (files, file) => {
+      const ext = this.getExtension(file).replace(/^\.+/, '').toLowerCase();
+
+      files[ ext ] = files[ ext ] || [];
+      files[ ext ].push( this.getPublicPath( file ) );
+
+      return files;
+    };
 
     for ( const [ name, entrypoint ] of entrypoints ) {
-      entrypoint.getFiles().reduce( (files, file) => {
-        const ext = this.getExtension(file).replace(/^\.+/, '').toLowerCase();
-
-        files[ name ] = files[ name ] || Object.create(null);
-        files[ name ][ ext ] = files[ name ][ ext ] || [];
-        files[ name ][ ext ].push( this.getPublicPath( file ) );
-
-        return files;
-      }, files );
+      files[ name ] = entrypoint
+        .getFiles()
+        .filter( removeHMR )
+        .reduce( groupFilesByExtension, Object.create(null) );
     }
 
     return files;
