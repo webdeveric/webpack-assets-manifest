@@ -442,7 +442,10 @@ class WebpackAssetsManifest
    */
   handleEmit(compilation, callback)
   {
-    this.stats = compilation.getStats().toJson();
+    this.stats = compilation.getStats().toJson({
+      all: false,
+      assets: true,
+    });
 
     this.processAssetsByChunkName( this.stats.assetsByChunkName );
 
