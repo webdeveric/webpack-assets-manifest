@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "chalk": "^2.0",
+    "loader-utils": "^1.2.3",
     "lodash.get": "^4.0",
     "lodash.has": "^4.0",
     "mkdirp": "^0.5",

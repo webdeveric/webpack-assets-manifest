@@ -14,6 +14,7 @@ const has = require('lodash.has');
 const validateOptions = require('schema-utils');
 const { SyncHook, SyncWaterfallHook } = require('tapable');
 const { RawSource } = require('webpack-sources');
+const loaderUtils = require('loader-utils');
 const optionsSchema = require('./options-schema.json');
 const {
   maybeArrayWrap,
@@ -160,6 +161,7 @@ class WebpackAssetsManifest
       sortManifest: true,
       merge: false,
       publicPath: null,
+      usePathBasedKeys: false,
 
       // Hooks
       apply: null,     // After setup is complete
@@ -544,14 +546,29 @@ class WebpackAssetsManifest
    */
   handleNormalModuleLoader(loaderContext, module)
   {
-    const { emitFile } = loaderContext;
+    const { emitFile, rootContext } = loaderContext;
 
     loaderContext.emitFile = (name, content, sourceMap) => {
       if ( ! this.assetNames.has( name ) ) {
-        const originalName = path.join(
+        let originalName = path.join(
           path.dirname(name),
           path.basename(module.userRequest)
         );
+
+        if (this.options.usePathBasedKeys) {
+          // If the option is enabled, attempt to prefix the keys in our
+          // manifest with [path]
+          const pathVariable = loaderUtils.interpolateName(
+            loaderContext,
+            '[path]',
+            { context: rootContext },
+          );
+
+          // Don't prefix any keys that already start with [path]
+          if (!originalName.startsWith(pathVariable)) {
+            originalName = path.join(pathVariable, originalName);
+          }
+        }
 
         this.assetNames.set(name, originalName);
       }

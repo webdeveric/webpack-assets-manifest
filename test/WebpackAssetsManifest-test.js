@@ -1315,8 +1315,71 @@ describe('WebpackAssetsManifest', function() {
       compiler.run(function( err ) {
         assert.isNull(err, 'Error found in compiler.run');
 
+        const expected = JSON.stringify({
+          'images/Ginger.jpg': 'images/Ginger.jpg',
+          'images/Ginger2.jpg': 'images/Ginger2.jpg',
+          'styles.css': 'styles.css',
+          'styles.js': 'styles.js',
+        });
+
         assert.equal(
-          '{"images/Ginger.jpg":"images/Ginger.jpg","styles.css":"styles.css","styles.js":"styles.js"}',
+          expected,
+          manifest.toString()
+        );
+
+        done();
+      });
+    });
+  });
+
+  describe('usePathBasedKeys option', function() {
+    it('sets [path] in keys', function(done) {
+      const manifest = new WebpackAssetsManifest({
+        space: 0,
+        usePathBasedKeys: true,
+      });
+      const compiler = makeCompiler( configs.styles() );
+
+      manifest.apply( compiler );
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const expected = JSON.stringify({
+          'styles.css': 'styles.css',
+          'styles.js': 'styles.js',
+          'test/fixtures/images/Ginger.jpg': 'images/Ginger.jpg',
+          'test/fixtures/my/nested/images/Ginger2.jpg': 'images/Ginger2.jpg',
+        });
+
+        assert.equal(
+          expected,
+          manifest.toString()
+        );
+
+        done();
+      });
+    });
+
+    it('does not set [path] if already present', function(done) {
+      const manifest = new WebpackAssetsManifest({
+        space: 0,
+        usePathBasedKeys: true,
+      });
+      const compiler = makeCompiler( configs.includesPaths() );
+
+      manifest.apply( compiler );
+
+      compiler.run(function( err ) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const expected = JSON.stringify({
+          'includesPaths.js': 'includesPaths.js',
+          'test/fixtures/my/nested/Ginger2.jpg': 'test/fixtures/my/nested/Ginger2.jpg',
+        });
+
+        assert.equal(
+          expected,
           manifest.toString()
         );
 

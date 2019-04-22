@@ -83,6 +83,10 @@
         }
       ]
     },
+    "usePathBasedKeys": {
+      "type": "boolean",
+      "default": "false"
+    },
     "apply": {
       "$ref": "#/definitions/functionOrNull"
     },
