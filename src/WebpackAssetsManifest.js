@@ -556,12 +556,16 @@ class WebpackAssetsManifest
         );
 
         if (this.options.usePathBasedKeys) {
+          const options = loaderUtils.getOptions(loaderContext);
+
           // If the option is enabled, attempt to prefix the keys in our
           // manifest with [path]
           const pathVariable = loaderUtils.interpolateName(
             loaderContext,
             '[path]',
-            { context: rootContext },
+            // Use any custom context we've been given, otherwise just use
+            // the root context
+            { context: options && options.context ? options.context : rootContext },
           );
 
           // Don't prefix any keys that already start with [path]

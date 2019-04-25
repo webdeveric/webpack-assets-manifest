@@ -143,6 +143,32 @@ function includesPaths()
   };
 }
 
+function customContext() {
+  return {
+    mode: 'development',
+    target: 'node',
+    entry: {
+      includesPaths: path.resolve(__dirname, './paths.js'),
+    },
+    output: {
+      path: tmpDirPath(),
+      filename: '[name].js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.jpg$/i,
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            context: path.resolve(__dirname, 'fixtures'),
+          },
+        },
+      ],
+    },
+  };
+}
+
 function devServer( outputPath )
 {
   outputPath = outputPath || '/';
@@ -171,6 +197,7 @@ module.exports = {
   server,
   devServer,
   includesPaths,
+  customContext,
   multi,
   getTmpDir,
   tmpDirPath,

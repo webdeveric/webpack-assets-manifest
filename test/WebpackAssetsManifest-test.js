@@ -1386,5 +1386,31 @@ describe('WebpackAssetsManifest', function() {
         done();
       });
     });
+
+    it('uses custom context if provided', function(done) {
+      const manifest = new WebpackAssetsManifest({
+        space: 0,
+        usePathBasedKeys: true,
+      });
+      const compiler = makeCompiler(configs.customContext());
+
+      manifest.apply(compiler);
+
+      compiler.run(function(err) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        const expected = JSON.stringify({
+          '_/my/nested/Ginger2.jpg': 'Ginger2.jpg',
+          'includesPaths.js': 'includesPaths.js',
+        });
+
+        assert.equal(
+          expected,
+          manifest.toString()
+        );
+
+        done();
+      });
+    });
   });
 });
