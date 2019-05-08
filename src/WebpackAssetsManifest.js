@@ -565,7 +565,7 @@ class WebpackAssetsManifest
             '[path]',
             // Use any custom context we've been given, otherwise just use
             // the root context
-            { context: options && options.context ? options.context : rootContext },
+            { context: options && options.context ? options.context : rootContext }
           );
 
           // Don't prefix any keys that already start with [path]
