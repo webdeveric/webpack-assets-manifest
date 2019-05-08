@@ -231,6 +231,24 @@ const manifest = new WebpackAssetsManifest({
 });
 ```
 
+### `usePathBasedKeys`
+
+Type: `boolean`
+
+Default: `false`
+
+Whether to automatically prefix manifest keys with `[path]` if not already present. This is useful if you want to preserve the physical location in the key, but use a different structure for the real assets.
+
+For example, this would allow you to use a loader output filename such as `[name].[hash].[ext]`, which would produce the following example `manifest.json` with this option enabled:
+
+```json
+{
+  "img/my/animation.gif": "animation.9e64d33f308cb1c2d85baba9fabb2019.gif"
+}
+```
+
+With `usePathBasedKeys` set to `false`, the included `img/my` prefix would be stripped from the key.
+
 ### `entrypoints`
 
 Type: `boolean`
