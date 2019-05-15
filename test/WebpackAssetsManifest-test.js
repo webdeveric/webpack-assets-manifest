@@ -8,6 +8,7 @@ const chai = require('chai');
 const spies = require('chai-spies');
 const rimraf = require('rimraf');
 const webpack = require('webpack');
+const semver = require('semver');
 const superagent = require('superagent');
 const configs = require('./fixtures/configs');
 const makeCompiler = require('./fixtures/makeCompiler');
@@ -20,7 +21,9 @@ chai.use(spies);
 const _444 = parseInt('0444', 8);
 const _777 = parseInt('0777', 8);
 
-console.log( chalk`Webpack version: {blueBright.bold %s}`, require('webpack/package.json').version );
+const webpackVersion = require('webpack/package.json').version;
+
+console.log( chalk`Webpack version: {blueBright.bold %s}`, webpackVersion );
 console.log( chalk`Webpack dev server version: {blueBright.bold %s}`, require('webpack-dev-server/package.json').version );
 
 describe('WebpackAssetsManifest', function() {
@@ -782,8 +785,8 @@ describe('WebpackAssetsManifest', function() {
     });
 
     describe('entrypoints', function() {
-      it('entrypoints are included in manifest', function(done) {
-        const compiler = makeCompiler(configs.hello());
+      it('all initial assets are included in manifest', function(done) {
+        const compiler = makeCompiler(configs.entrypoints());
         const manifest = new WebpackAssetsManifest({
           entrypoints: true,
         });
@@ -796,6 +799,31 @@ describe('WebpackAssetsManifest', function() {
           const entrypoints = manifest.get('entrypoints');
 
           assert.typeOf(entrypoints, 'object');
+
+          const expectedEntrypoints = {
+            main: {
+              css: [ 'main.css' ],
+              js: [ 'main.js' ],
+            },
+          };
+
+          if (semver.gte(webpackVersion, '4.7.0')) {
+            Object.assign(
+              expectedEntrypoints.main,
+              {
+                preload: {
+                  js: [ 'preload-css.js', 'preload-js.js' ],
+                  css: [ 'preload-css.css' ],
+                },
+                prefetch: {
+                  js: [ 'prefetch-css.js', 'prefetch-js.js' ],
+                  css: [ 'prefetch-css.css' ],
+                },
+              }
+            );
+          }
+
+          expect(entrypoints).to.deep.equal(expectedEntrypoints);
 
           done();
         });

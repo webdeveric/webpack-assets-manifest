@@ -429,6 +429,24 @@ class WebpackAssetsManifest
         .getFiles()
         .filter( removeHMR )
         .reduce( groupFilesByExtension, Object.create(null) );
+
+      /* istanbul ignore if: getting coverage requires testing on an older version of Webpack */
+      if (typeof this.stats.namedChunkGroups === 'undefined') {
+        warn.once('Omitting pre-assets from entrypoints, because stats.namedChunkGroups is undefined. Update to Webpack>=4.7.0 to enable this feature.');
+        continue;
+      }
+
+      const chunkGroup = this.stats.namedChunkGroups[name];
+
+      if (chunkGroup.childAssets.preload) {
+        files[ name ].preload = chunkGroup.childAssets.preload
+          .reduce( groupFilesByExtension, Object.create(null) );
+      }
+
+      if (chunkGroup.childAssets.prefetch) {
+        files[ name ].prefetch = chunkGroup.childAssets.prefetch
+          .reduce( groupFilesByExtension, Object.create(null) );
+      }
     }
 
     return files;
@@ -445,6 +463,7 @@ class WebpackAssetsManifest
     this.stats = compilation.getStats().toJson({
       all: false,
       assets: true,
+      chunkGroups: this.options.entrypoints,
     });
 
     this.processAssetsByChunkName( this.stats.assetsByChunkName );

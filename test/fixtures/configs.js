@@ -139,8 +139,43 @@ function multi()
   return [ c, s ];
 }
 
+function entrypoints()
+{
+  const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+  return {
+    mode: 'development',
+    entry: path.resolve(__dirname, './entrypoints.js'),
+    output: {
+      path: tmpDirPath(),
+      filename: '[name].js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.jpg$/i,
+          loader: 'file-loader?name=images/[name].[ext]',
+        },
+        {
+          test: /\.css$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+          ],
+        },
+      ],
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: '[name].css',
+      }),
+    ],
+  };
+}
+
 module.exports = {
   hello,
+  entrypoints,
   client,
   server,
   devServer,
