@@ -475,7 +475,10 @@ class WebpackAssetsManifest
           this.setRaw( key, entrypoints[ key ] );
         }
       } else {
-        this.setRaw( this.options.entrypointsKey, entrypoints );
+        const existingEntrypoints = this.assets[ this.options.entrypointsKey ];
+        const mergedEntrypoints = Object.assign({}, existingEntrypoints || {}, entrypoints);
+
+        this.setRaw( this.options.entrypointsKey, mergedEntrypoints);
       }
     }
 

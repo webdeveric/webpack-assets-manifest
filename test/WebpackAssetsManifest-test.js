@@ -1102,35 +1102,76 @@ describe('WebpackAssetsManifest', function() {
       });
     });
 
-    it('should support multi compiler mode', function(done) {
-      let manifestPath = null;
-      const assets = Object.create(null);
-      const multiConfig = configs.multi().map(function(config) {
-        config.plugins = [
-          new WebpackAssetsManifest({
-            assets,
-          }),
-        ];
+    describe('multi compiler mode', function() {
+      it('should support with default config', function(done) {
+        let manifestPath = null;
+        const assets = Object.create(null);
+        const multiConfig = configs.multi().map(function(config) {
+          config.plugins = [
+            new WebpackAssetsManifest({
+              assets,
+            }),
+          ];
 
-        manifestPath = path.join( config.output.path, 'manifest.json' );
+          manifestPath = path.join( config.output.path, 'manifest.json' );
 
-        return config;
+          return config;
+        });
+
+        webpack(multiConfig, function( err ) {
+          assert.isNull(err, 'Error found in compiler.run');
+
+          fs.readFile(
+            manifestPath,
+            function(err, content) {
+              assert.isNull(err, 'Error found reading manifest.json');
+              assert.include(content.toString(), 'client.js');
+              assert.include(content.toString(), 'server.js');
+              assert.include(content.toString(), 'images/Ginger.jpg');
+
+              done();
+            }
+          );
+        });
       });
 
-      webpack(multiConfig, function( err ) {
-        assert.isNull(err, 'Error found in compiler.run');
+      it('should support with enabled entrypoints', function(done) {
+        let manifestPath = null;
+        const assets = Object.create(null);
+        const multiConfig = configs.multi().map(function(config) {
+          config.plugins = [
+            new WebpackAssetsManifest({
+              assets,
+              entrypoints: true,
+            }),
+          ];
 
-        fs.readFile(
-          manifestPath,
-          function(err, content) {
-            assert.isNull(err, 'Error found reading manifest.json');
-            assert.include(content.toString(), 'client.js');
-            assert.include(content.toString(), 'server.js');
-            assert.include(content.toString(), 'images/Ginger.jpg');
+          manifestPath = path.join( config.output.path, 'manifest.json' );
 
-            done();
-          }
-        );
+          return config;
+        });
+
+        webpack(multiConfig, function( err ) {
+          assert.isNull(err, 'Error found in compiler.run');
+
+          fs.readFile(
+            manifestPath,
+            function(err, content) {
+              assert.isNull(err, 'Error found reading manifest.json');
+              assert.include(content.toString(), 'client.js');
+              assert.include(content.toString(), 'server.js');
+              assert.include(content.toString(), 'images/Ginger.jpg');
+
+              const entrypoints = JSON.parse(content).entrypoints;
+
+              expect(entrypoints).to.contain.keys('server', 'client');
+              expect(entrypoints.server.js).contain('server.js');
+              expect(entrypoints.client.js).contain('client.js');
+
+              done();
+            }
+          );
+        });
       });
     });
   });
