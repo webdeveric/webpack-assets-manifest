@@ -1,0 +1,35 @@
+{
+  "file_from_main.js": "/packs/dashboard_tiles-f155098dd3626b5f40c3.js",
+  "entrypoints": {
+    "main/main": {
+      "js": [
+        "/packs/runtime-main-f9a9558341ddb1dbef8e.js",
+        "/packs/vendors-e5b496ed001ca7b8dc29.js",
+        "/packs/accounts/accounts_edit-34d7479ed80d9a23cb64.js"
+      ],
+      "js.map": [
+        "/packs/runtime-main-f9a9558341ddb1dbef8e.js.map",
+        "/packs/vendors-e5b496ed001ca7b8dc29.js.map",
+        "/packs/accounts/accounts_edit-34d7479ed80d9a23cb64.js.map"
+      ],
+      "css": [
+        "/packs/css/vendors-24de378c.chunk.css"
+      ]
+    },
+    "application": {
+      "js": [
+        "/packs/runtime-main-f9a9558341ddb1dbef8e.js",
+        "/packs/vendors-e5b496ed001ca7b8dc29.js",
+        "/packs/application-866e5814acb1ccf281fd.js"
+      ],
+      "js.map": [
+        "/packs/runtime-main-f9a9558341ddb1dbef8e.js.map",
+        "/packs/vendors-e5b496ed001ca7b8dc29.js.map",
+        "/packs/application-866e5814acb1ccf281fd.js.map"
+      ],
+      "css": [
+        "/packs/css/vendors-24de378c.chunk.css"
+      ]
+    }
+  }
+}

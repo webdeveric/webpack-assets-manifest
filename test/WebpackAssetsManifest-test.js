@@ -459,7 +459,7 @@ describe('WebpackAssetsManifest', function() {
 
     describe('merge', function() {
 
-      function setupManifest(compiler, manifest)
+      function setupManifest(compiler, manifest, filePath = 'fixtures/sample-manifest.json')
       {
         return new Promise( (resolve, reject) => {
           manifest.apply(compiler);
@@ -474,7 +474,7 @@ describe('WebpackAssetsManifest', function() {
               }
 
               try {
-                fs.copySync( path.resolve(__dirname, 'fixtures/sample-manifest.json'), manifest.getOutputPath());
+                fs.copySync( path.resolve(__dirname, filePath), manifest.getOutputPath());
                 resolve({ compiler, manifest });
               } catch (err) {
                 reject(err);
@@ -483,6 +483,28 @@ describe('WebpackAssetsManifest', function() {
           );
         });
       }
+
+      it('should merge two manifests with entrypoints', function(done) {
+        const compiler = makeCompiler(configs.hello());
+        const manifest = new WebpackAssetsManifest({
+          merge: true,
+          space: 0,
+          assets: require('./fixtures/sample-manifest-lite.json'),
+        });
+
+        setupManifest(compiler, manifest, 'fixtures/sample-manifest-main.json').then(() => {
+          compiler.run(function( err ) {
+            assert.isNull(err, 'Error found in compiler.run');
+            const entrypoints = manifest.get('entrypoints');
+
+            assert.isTrue( manifest.has('file_from_lite.js') );
+            assert.isTrue( manifest.has('file_from_main.js') );
+            expect(entrypoints).to.contain.keys('lite/lite', 'main/main');
+
+            done();
+          });
+        });
+      });
 
       it('should merge data if output file exists', function(done) {
         const compiler = makeCompiler(configs.hello());

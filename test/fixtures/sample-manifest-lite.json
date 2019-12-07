@@ -1,0 +1,18 @@
+{
+  "file_from_lite.js": "/packs/dropzone-dd25772d733b2fbbfb23.js",
+  "entrypoints": {
+    "lite/lite": {
+      "js": [
+        "/packs/runtime-lite-796953eedafd71e1b438.js",
+        "/packs/lite-common-d3216b904b271a4b7f3f.js",
+        "/packs/lite/lite-8a7dca11678dafa8003d.js"
+      ],
+      "css": [
+        "/packs/css/lite-common-df7b0d45.chunk.css"
+      ],
+      "js.map": [
+        "/packs/lite-common-d3216b904b271a4b7f3f.js.map"
+      ]
+    }
+  }
+}
