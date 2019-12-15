@@ -478,7 +478,7 @@ class WebpackAssetsManifest
         const existingEntrypoints = this.assets[ this.options.entrypointsKey ];
         const mergedEntrypoints = Object.assign({}, existingEntrypoints || {}, entrypoints);
 
-        this.setRaw( this.options.entrypointsKey, mergedEntrypoints);
+        this.setRaw( this.options.entrypointsKey, mergedEntrypoints );
       }
     }
 
