@@ -20,5 +20,6 @@ install:
   - npm ci
   - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$DEVSERVER_VERSION
 script:
-  - npm run test:coverage
+  - npm test
+  - npm run lcov
   - codecov
