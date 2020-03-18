@@ -521,18 +521,9 @@ class WebpackAssetsManifest
     return new Promise( (resolve, reject) => {
       const output = this.getManifestPath( compilation, this.getOutputPath() );
 
-      require('mkdirp')(
-        path.dirname(output),
-        err => {
-          if ( err ) {
-            reject( err );
-
-            return;
-          }
-
-          fs.writeFile( output, this.toString(), resolve );
-        }
-      );
+      require('mkdirp')(path.dirname(output))
+        .then(() => fs.writeFile( output, this.toString(), resolve ))
+        .catch(reject);
     });
   }
 
