@@ -83,7 +83,7 @@ function getSRIHash( hashes, content )
  */
 function varType( v )
 {
-  const [ , type ] = Object.prototype.toString.call( v ).match(/\[object\s(\w+)\]/);
+  const [ , type ] = Object.prototype.toString.call( v ).match(/^\[object (\w+)\]$/);
 
   return type;
 }

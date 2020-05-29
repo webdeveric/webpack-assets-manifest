@@ -60,13 +60,13 @@ class WebpackAssetsManifest
       this.options = Object.assign( this.defaultOptions, options );
       this.options.integrityHashes = filterHashes( this.options.integrityHashes );
 
-      validateOptions(optionsSchema, this.options, PLUGIN_NAME);
+      validateOptions(optionsSchema, this.options, { name: PLUGIN_NAME });
 
       // Copy over any entries that may have been added to the manifest before apply() was called.
       // If the same key exists in assets and options.assets, options.assets should be used.
       this.assets = Object.assign(this.options.assets, this.assets, this.options.assets);
 
-      if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
+      if ( has( this.options, 'contextRelativeKeys' ) ) {
         warn('contextRelativeKeys has been removed. Please use the customize hook instead.');
       }
 
@@ -521,18 +521,9 @@ class WebpackAssetsManifest
     return new Promise( (resolve, reject) => {
       const output = this.getManifestPath( compilation, this.getOutputPath() );
 
-      require('mkdirp')(
-        path.dirname(output),
-        err => {
-          if ( err ) {
-            reject( err );
-
-            return;
-          }
-
-          fs.writeFile( output, this.toString(), resolve );
-        }
-      );
+      require('mkdirp')(path.dirname(output))
+        .then(() => fs.writeFile( output, this.toString(), resolve ))
+        .catch(reject);
     });
   }
 
@@ -546,7 +537,11 @@ class WebpackAssetsManifest
   {
     const { emitFile } = loaderContext;
 
-    loaderContext.emitFile = (name, content, sourceMap) => {
+    // Webpack 5 added the assetInfo  argument.
+    // Capture all args so it'll work in Webpack 4+.
+    loaderContext.emitFile = (...args) => {
+      const [ name ] = args;
+
       if ( ! this.assetNames.has( name ) ) {
         const originalName = path.join(
           path.dirname(name),
@@ -556,7 +551,7 @@ class WebpackAssetsManifest
         this.assetNames.set(name, originalName);
       }
 
-      return emitFile.call(module, name, content, sourceMap);
+      return emitFile.apply(module, args);
     };
   }
 

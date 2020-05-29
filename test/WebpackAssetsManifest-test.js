@@ -34,13 +34,9 @@ describe('WebpackAssetsManifest', function() {
   });
 
   before('set up', function(done) {
-    mkdirp(configs.getWorkspace(), _777, function(err) {
-      if (err) {
-        throw err;
-      }
-
-      done();
-    });
+    mkdirp(configs.getWorkspace(), _777)
+      .then(() => done())
+      .catch(err => { throw err; });
   });
 
   after('clean up', function(done) {
@@ -461,26 +457,19 @@ describe('WebpackAssetsManifest', function() {
 
       function setupManifest(compiler, manifest)
       {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           manifest.apply(compiler);
 
-          mkdirp(
-            path.dirname(manifest.getOutputPath()),
-            err => {
-              if ( err ) {
-                reject( err );
-
-                return;
-              }
-
+          mkdirp(path.dirname(manifest.getOutputPath()))
+            .then( () => {
               try {
                 fs.copySync( path.resolve(__dirname, 'fixtures/sample-manifest.json'), manifest.getOutputPath());
                 resolve({ compiler, manifest });
               } catch (err) {
                 reject(err);
               }
-            }
-          );
+            })
+            .catch(reject);
         });
       }
 
@@ -492,18 +481,19 @@ describe('WebpackAssetsManifest', function() {
           space: 0,
         });
 
-        setupManifest(compiler, manifest).then( () => {
-          compiler.run(function( err ) {
-            assert.isNull(err, 'Error found in compiler.run');
+        setupManifest(compiler, manifest)
+          .then(() => {
+            compiler.run(function( err ) {
+              assert.isNull(err, 'Error found in compiler.run');
 
-            assert.equal(
-              '{"Ginger.jpg":"images/Ginger.jpg","main.js":"bundle.js"}',
-              manifest.toString()
-            );
+              assert.equal(
+                '{"Ginger.jpg":"images/Ginger.jpg","main.js":"bundle.js"}',
+                manifest.toString()
+              );
 
-            done();
+              done();
+            });
           });
-        });
       });
 
       it('can customize during merge', function(done) {
@@ -518,15 +508,16 @@ describe('WebpackAssetsManifest', function() {
           },
         });
 
-        setupManifest(compiler, manifest).then( () => {
-          compiler.run(function( err ) {
-            assert.isNull(err, 'Error found in compiler.run');
-            assert.isTrue( mergingResults.some( r => r === true ) );
-            assert.isTrue( mergingResults.some( r => r === false ) );
+        setupManifest(compiler, manifest)
+          .then(() => {
+            compiler.run(function( err ) {
+              assert.isNull(err, 'Error found in compiler.run');
+              assert.isTrue( mergingResults.some( r => r === true ) );
+              assert.isTrue( mergingResults.some( r => r === false ) );
 
-            done();
+              done();
+            });
           });
-        });
       });
 
       it('merge skips customize()', function(done) {
@@ -541,14 +532,15 @@ describe('WebpackAssetsManifest', function() {
           },
         });
 
-        setupManifest(compiler, manifest).then( () => {
-          compiler.run(function( err ) {
-            assert.isNull(err, 'Error found in compiler.run');
-            assert.isFalse( customizeCalled );
+        setupManifest(compiler, manifest)
+          .then(() => {
+            compiler.run(function( err ) {
+              assert.isNull(err, 'Error found in compiler.run');
+              assert.isFalse( customizeCalled );
 
-            done();
+              done();
+            });
           });
-        });
       });
     });
 
