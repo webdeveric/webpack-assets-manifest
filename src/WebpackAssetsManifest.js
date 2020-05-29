@@ -537,7 +537,11 @@ class WebpackAssetsManifest
   {
     const { emitFile } = loaderContext;
 
-    loaderContext.emitFile = (name, content, sourceMap) => {
+    // Webpack 5 added the assetInfo  argument.
+    // Capture all args so it'll work in Webpack 4+.
+    loaderContext.emitFile = (...args) => {
+      const [ name ] = args;
+
       if ( ! this.assetNames.has( name ) ) {
         const originalName = path.join(
           path.dirname(name),
@@ -547,7 +551,7 @@ class WebpackAssetsManifest
         this.assetNames.set(name, originalName);
       }
 
-      return emitFile.call(module, name, content, sourceMap);
+      return emitFile.apply(module, args);
     };
   }
 
