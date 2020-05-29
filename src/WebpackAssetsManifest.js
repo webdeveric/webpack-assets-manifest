@@ -60,13 +60,13 @@ class WebpackAssetsManifest
       this.options = Object.assign( this.defaultOptions, options );
       this.options.integrityHashes = filterHashes( this.options.integrityHashes );
 
-      validateOptions(optionsSchema, this.options, PLUGIN_NAME);
+      validateOptions(optionsSchema, this.options, { name: PLUGIN_NAME });
 
       // Copy over any entries that may have been added to the manifest before apply() was called.
       // If the same key exists in assets and options.assets, options.assets should be used.
       this.assets = Object.assign(this.options.assets, this.assets, this.options.assets);
 
-      if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
+      if ( has( this.options, 'contextRelativeKeys' ) ) {
         warn('contextRelativeKeys has been removed. Please use the customize hook instead.');
       }
 

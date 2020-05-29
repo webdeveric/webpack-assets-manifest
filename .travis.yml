@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-  - "6.11.5"
-  - "8"
   - "10"
+  - "12"
+  - "14"
   - "node"
 env:
   - WEBPACK_VERSION=4.4 DEVSERVER_VERSION=3.0
