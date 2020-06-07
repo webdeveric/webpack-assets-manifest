@@ -411,7 +411,7 @@ class WebpackAssetsManifest
   /**
    * @param {object} entrypoints from a compilation
    */
-  getEntrypointFilesGroupedByExtension( entrypoints )
+  getChunkGroupFilesGroupedByExtension( chunkGroups )
   {
     const files = Object.create(null);
     const removeHMR = f => ! this.isHMR(f);
@@ -424,8 +424,8 @@ class WebpackAssetsManifest
       return files;
     };
 
-    for ( const [ name, entrypoint ] of entrypoints ) {
-      files[ name ] = entrypoint
+    for ( const [ name, chunkGroup ] of chunkGroups ) {
+      files[ name ] = chunkGroup
         .getFiles()
         .filter( removeHMR )
         .reduce( groupFilesByExtension, Object.create(null) );
@@ -464,7 +464,7 @@ class WebpackAssetsManifest
     }
 
     if ( this.options.entrypoints ) {
-      const entrypoints = this.getEntrypointFilesGroupedByExtension( compilation.entrypoints );
+      const entrypoints = this.getChunkGroupFilesGroupedByExtension( compilation.entrypoints );
 
       if ( this.options.entrypointsKey === false ) {
         for ( const key in entrypoints ) {
