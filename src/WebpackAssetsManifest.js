@@ -429,8 +429,8 @@ class WebpackAssetsManifest
     };
 
     for ( const [ name, chunkGroup ] of chunkGroups ) {
-      files[ name ] = chunkGroup
-        .getFiles()
+      files[ name ] = this
+        .getChunkGroupFiles( chunkGroup )
         .filter( removeHMR )
         .reduce( groupFilesByExtension, Object.create(null) );
     }
@@ -678,6 +678,27 @@ class WebpackAssetsManifest
         return target.delete(property);
       },
     });
+  }
+
+  /**
+   * Get all files for a chunkGroup in webpack <= 4.4.1
+   *
+   * @param  {object} chunkGroup
+   * @return {Array}
+   */
+  getChunkGroupFiles(chunkGroup)
+  {
+    if (chunkGroup.getFiles) return chunkGroup.getFiles();
+
+    const files = new Set();
+
+    chunkGroup.chunks.forEach( chunkGroup => {
+      chunkGroup.files.forEach( file => {
+        files.add(file);
+      });
+    });
+
+    return Array.from(files);
   }
 }
 
