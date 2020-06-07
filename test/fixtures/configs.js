@@ -42,6 +42,18 @@ function hello()
   };
 }
 
+function dynamicImport()
+{
+  return {
+    mode: 'development',
+    entry: path.resolve(__dirname, './dynamicImport.js'),
+    output: {
+      path: tmpDirPath(),
+      filename: 'bundle.js',
+    },
+  };
+}
+
 function client()
 {
   return {
@@ -141,6 +153,7 @@ function multi()
 
 module.exports = {
   hello,
+  dynamicImport,
   client,
   server,
   devServer,

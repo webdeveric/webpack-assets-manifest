@@ -30,6 +30,8 @@ npm install webpack-assets-manifest@1 --save-dev
   * [`integrityHashes`](#integrityhashes)
   * [`entrypoints`](#entrypoints)
   * [`entrypointsKey`](#entrypointskey)
+  * [`namedChunkGroups`](#namedchunkgroups)
+  * [`namedChunkGroupsKey`](#namedchunkgroupskey)
 * Updated `customize` callback arguments. See [customized](examples/customized.js) example.
 * Removed `contextRelativeKeys` option.
 
@@ -246,6 +248,22 @@ Type: `string`, `boolean`
 Default: `entrypoints`
 
 If this is set to `false`, the `entrypoints` will be added to the root of the manifest.
+
+### `namedChunkGroups`
+
+Type: `boolean`
+
+Default: `false`
+
+Include `compilation.namedChunkGroups` in the manifest file.
+
+### `namedChunkGroupsKey`
+
+Type: `string`, `boolean`
+
+Default: `namedChunkGroups`
+
+If this is set to `false`, the `namedChunkGroups` will be added to the root of the manifest.
 
 ### `integrity`
 

@@ -171,6 +171,10 @@ class WebpackAssetsManifest
       entrypoints: false,
       entrypointsKey: 'entrypoints',
 
+      // Include `compilation.namedChunkGroups` in the manifest file
+      namedChunkGroups: false,
+      namedChunkGroupsKey: 'namedChunkGroups',
+
       // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
       integrity: false,
       integrityHashes: [ 'sha256', 'sha384', 'sha512' ],
@@ -472,6 +476,18 @@ class WebpackAssetsManifest
         }
       } else {
         this.setRaw( this.options.entrypointsKey, entrypoints );
+      }
+    }
+
+    if ( this.options.namedChunkGroups ) {
+      const namedChunkGroups = this.getChunkGroupFilesGroupedByExtension( compilation.namedChunkGroups );
+
+      if ( this.options.namedChunkGroupsKey === false ) {
+        for ( const key in namedChunkGroups ) {
+          this.setRaw( key, namedChunkGroups[ key ] );
+        }
+      } else {
+        this.setRaw( this.options.namedChunkGroupsKey, namedChunkGroups );
       }
     }
 

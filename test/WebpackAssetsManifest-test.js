@@ -844,6 +844,69 @@ describe('WebpackAssetsManifest', function() {
       });
     });
 
+    describe('namedChunkGroups', function() {
+      it('namedChunkGroups are included in manifest', function(done) {
+        const compiler = makeCompiler(configs.dynamicImport());
+        const manifest = new WebpackAssetsManifest({
+          namedChunkGroups: true,
+        });
+
+        manifest.apply(compiler);
+
+        compiler.run(function( err ) {
+          assert.isNull(err, 'Error found in compiler.run');
+
+          const namedChunkGroups = manifest.get('namedChunkGroups');
+
+          assert.typeOf(namedChunkGroups.foo, 'object');
+
+          done();
+        });
+      });
+    });
+
+    describe('namedChunkGroupsKey', function() {
+      it('customize the key used for namedChunkGroups', function(done) {
+        const compiler = makeCompiler(configs.dynamicImport());
+        const manifest = new WebpackAssetsManifest({
+          namedChunkGroups: true,
+          namedChunkGroupsKey: 'myNamedChunkGroups',
+        });
+
+        manifest.apply(compiler);
+
+        compiler.run(function( err ) {
+          assert.isNull(err, 'Error found in compiler.run');
+
+          const namedChunkGroups = manifest.get('myNamedChunkGroups');
+
+          assert.typeOf(namedChunkGroups, 'object');
+
+          done();
+        });
+      });
+
+      it('can be false', function(done) {
+        const compiler = makeCompiler(configs.dynamicImport());
+        const manifest = new WebpackAssetsManifest({
+          namedChunkGroups: true,
+          namedChunkGroupsKey: false,
+        });
+
+        manifest.apply(compiler);
+
+        compiler.run(function( err ) {
+          assert.isNull(err, 'Error found in compiler.run');
+
+          const namedChunkGroup = manifest.get('main');
+
+          assert.typeOf(namedChunkGroup, 'object');
+
+          done();
+        });
+      });
+    });
+
     describe('done', function() {
       it('is called when compilation is done', function(done) {
         const compiler = makeCompiler(configs.hello());
