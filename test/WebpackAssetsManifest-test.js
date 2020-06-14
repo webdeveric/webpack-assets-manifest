@@ -1064,7 +1064,13 @@ describe('WebpackAssetsManifest', function() {
           function(err, content) {
             assert.isNull(err, 'Error found reading manifest.json');
 
-            assert.include(content.toString(), 'images/Ginger.jpg');
+            const manifest = JSON.parse(content.toString());
+            const manifestKeys = Object.keys(manifest);
+
+            // despite being emitted to the same file, both image names should appear in manifest
+            assert.equal(manifest['images/Ginger.jpg'], manifest['images/Ginger-duplicate.jpg']);
+            assert.include(manifestKeys, 'images/Ginger.jpg');
+            assert.include(manifestKeys, 'images/Ginger-duplicate.jpg');
 
             done();
           }
@@ -1277,9 +1283,9 @@ describe('WebpackAssetsManifest', function() {
         main: [ 'main.123456.js', '0.123456.hot-update.js' ],
       });
 
-      assert.equal( manifest.assetNames.get('main.123456.js'), 'main.js' );
+      assert.equal( manifest.assetNames.get('main.js'), 'main.123456.js' );
 
-      assert.isFalse( manifest.assetNames.has('0.123456.hot-update.js') );
+      assert.notInclude( Object.values(manifest.assetNames), '0.123456.hot-update.js' );
     });
 
     it('isHMR should return false when hotUpdateChunkFilename is ambiguous', function() {

@@ -58,7 +58,7 @@ function client()
       rules: [
         {
           test: /\.jpg$/i,
-          loader: 'file-loader?name=images/[name].[ext]',
+          loader: 'file-loader?name=images/[hash].[ext]',
         },
       ],
     },
