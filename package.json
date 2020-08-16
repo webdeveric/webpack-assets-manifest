@@ -69,6 +69,7 @@
     "rimraf": "^3.0.2",
     "superagent": "^6.0.0",
     "webpack": "^4.44.1",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "websocket-extensions": ">=0.1.4"
   }
 }
