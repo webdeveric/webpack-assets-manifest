@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "alwaysStrict": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "lib": [
+      "es2017"
+    ],
+    "module": "commonjs",
+    "noEmit": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "strict": false,
+    "target": "ES2017",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/*"
+  ]
+}
