@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const chalk = require('chalk');
+const escapeRegExp = require('lodash.escaperegexp');
 
 /**
  * Display a warning message.
@@ -69,7 +70,7 @@ function filterHashes( hashes )
 function getSRIHash( hashes, content )
 {
   return Array.isArray( hashes ) ? hashes.map( hash => {
-    const integrity = crypto.createHash(hash).update(content, 'utf-8').digest('base64');
+    const integrity = crypto.createHash(hash).update(content, 'utf8').digest('base64');
 
     return `${hash}-${integrity}`;
   }).join(' ') : '';
@@ -92,7 +93,7 @@ function varType( v )
  * Get an object sorted by keys.
  *
  * @param  {object} object
- * @param {function} compareFunction
+ * @param  {(a: string, b: string) => number} compareFunction
  * @return {object}
  */
 function getSortedObject(object, compareFunction)
@@ -107,6 +108,25 @@ function getSortedObject(object, compareFunction)
   );
 }
 
+/**
+ * Build a RegExp instance based on the input string, which can contain place holders like [hash] and [id].
+ *
+ * @param {string} input
+ * @param {string|undefined} flags
+ *
+ * @returns {RegExp}
+ */
+function templateStringToRegExp(input, flags = undefined)
+{
+  return new RegExp(
+    escapeRegExp(input).replace(
+      /\\\[(?<name>[a-z]+)(?::(?<length>\d+))?\\\]/gi, // This replaces \[hash\] or \[hash:6\]
+      (match, p1, p2, offset, str, { name, length = '1,' }) => `(?<${name}>.{${length}})`
+    ) + '$',
+    flags
+  );
+}
+
 module.exports = {
   maybeArrayWrap,
   filterHashes,
@@ -114,4 +134,5 @@ module.exports = {
   warn,
   varType,
   getSortedObject,
+  templateStringToRegExp,
 };

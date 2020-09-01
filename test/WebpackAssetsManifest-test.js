@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
@@ -24,7 +22,6 @@ console.log( chalk`Webpack version: {blueBright.bold %s}`, require('webpack/pack
 console.log( chalk`Webpack dev server version: {blueBright.bold %s}`, require('webpack-dev-server/package.json').version );
 
 describe('WebpackAssetsManifest', function() {
-
   beforeEach(() => {
     chai.spy.on(console, 'warn', () => {});
   });
@@ -50,7 +47,6 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('Methods', function() {
-
     describe('getExtension()', function() {
       const manifest = new WebpackAssetsManifest();
 
@@ -228,8 +224,8 @@ describe('WebpackAssetsManifest', function() {
         assert.equal(defaultValue, manifest.get('dog.gif', defaultValue));
       });
 
-      it('returns empty string when no default value is provided', function() {
-        assert.equal('', manifest.get('dog.gif'));
+      it('returns undefined when no default value is provided', function() {
+        assert.equal(undefined, manifest.get('dog.gif'));
       });
     });
 
@@ -291,15 +287,15 @@ describe('WebpackAssetsManifest', function() {
 
           assert.instanceOf(proxy, WebpackAssetsManifest);
 
-          proxy['test'] = 'test';
+          proxy[ 'test' ] = 'test';
 
           assert.isTrue( 'test' in proxy );
 
-          assert.equal( 'test', proxy['test'] );
+          assert.equal( 'test', proxy[ 'test' ] );
 
-          delete proxy['test'];
+          delete proxy[ 'test' ];
 
-          assert.isUndefined( proxy['test'] );
+          assert.isUndefined( proxy[ 'test' ] );
           assert.isFalse( 'test' in proxy );
         });
       });
@@ -454,7 +450,6 @@ describe('WebpackAssetsManifest', function() {
     });
 
     describe('merge', function() {
-
       function setupManifest(compiler, manifest)
       {
         return new Promise((resolve, reject) => {
@@ -557,7 +552,7 @@ describe('WebpackAssetsManifest', function() {
         });
 
         manifest.set('hello', 'world');
-        assert.equal( manifest.get('hello') , 'assets/world' );
+        assert.equal( manifest.get('hello'), 'assets/world' );
       });
 
       it('can be true', function(done) {
