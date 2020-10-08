@@ -52,7 +52,7 @@
     "mkdirp": "^1.0",
     "schema-utils": "^2.0",
     "tapable": "^1.0",
-    "webpack-sources": "^1.0"
+    "webpack-sources": "^2.0"
   },
   "peerDependencies": {
     "webpack": ">=4.4.0"
