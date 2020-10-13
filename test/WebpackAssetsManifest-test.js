@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
@@ -24,7 +22,6 @@ console.log( chalk`Webpack version: {blueBright.bold %s}`, require('webpack/pack
 console.log( chalk`Webpack dev server version: {blueBright.bold %s}`, require('webpack-dev-server/package.json').version );
 
 describe('WebpackAssetsManifest', function() {
-
   beforeEach(() => {
     chai.spy.on(console, 'warn', () => {});
   });
@@ -34,13 +31,9 @@ describe('WebpackAssetsManifest', function() {
   });
 
   before('set up', function(done) {
-    mkdirp(configs.getWorkspace(), _777, function(err) {
-      if (err) {
-        throw err;
-      }
-
-      done();
-    });
+    mkdirp(configs.getWorkspace(), _777)
+      .then(() => done())
+      .catch(err => { throw err; });
   });
 
   after('clean up', function(done) {
@@ -54,7 +47,6 @@ describe('WebpackAssetsManifest', function() {
   });
 
   describe('Methods', function() {
-
     describe('getExtension()', function() {
       const manifest = new WebpackAssetsManifest();
 
@@ -232,8 +224,8 @@ describe('WebpackAssetsManifest', function() {
         assert.equal(defaultValue, manifest.get('dog.gif', defaultValue));
       });
 
-      it('returns empty string when no default value is provided', function() {
-        assert.equal('', manifest.get('dog.gif'));
+      it('returns undefined when no default value is provided', function() {
+        assert.equal(undefined, manifest.get('dog.gif'));
       });
     });
 
@@ -295,15 +287,15 @@ describe('WebpackAssetsManifest', function() {
 
           assert.instanceOf(proxy, WebpackAssetsManifest);
 
-          proxy['test'] = 'test';
+          proxy[ 'test' ] = 'test';
 
           assert.isTrue( 'test' in proxy );
 
-          assert.equal( 'test', proxy['test'] );
+          assert.equal( 'test', proxy[ 'test' ] );
 
-          delete proxy['test'];
+          delete proxy[ 'test' ];
 
-          assert.isUndefined( proxy['test'] );
+          assert.isUndefined( proxy[ 'test' ] );
           assert.isFalse( 'test' in proxy );
         });
       });
@@ -458,29 +450,21 @@ describe('WebpackAssetsManifest', function() {
     });
 
     describe('merge', function() {
-
       function setupManifest(compiler, manifest, filePath = 'fixtures/sample-manifest.json')
       {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           manifest.apply(compiler);
 
-          mkdirp(
-            path.dirname(manifest.getOutputPath()),
-            err => {
-              if ( err ) {
-                reject( err );
-
-                return;
-              }
-
+          mkdirp(path.dirname(manifest.getOutputPath()))
+            .then( () => {
               try {
                 fs.copySync( path.resolve(__dirname, filePath), manifest.getOutputPath());
                 resolve({ compiler, manifest });
               } catch (err) {
                 reject(err);
               }
-            }
-          );
+            })
+            .catch(reject);
         });
       }
 
@@ -514,18 +498,19 @@ describe('WebpackAssetsManifest', function() {
           space: 0,
         });
 
-        setupManifest(compiler, manifest).then( () => {
-          compiler.run(function( err ) {
-            assert.isNull(err, 'Error found in compiler.run');
+        setupManifest(compiler, manifest)
+          .then(() => {
+            compiler.run(function( err ) {
+              assert.isNull(err, 'Error found in compiler.run');
 
-            assert.equal(
-              '{"Ginger.jpg":"images/Ginger.jpg","main.js":"bundle.js"}',
-              manifest.toString()
-            );
+              assert.equal(
+                '{"Ginger.jpg":"images/Ginger.jpg","main.js":"bundle.js"}',
+                manifest.toString()
+              );
 
-            done();
+              done();
+            });
           });
-        });
       });
 
       it('can customize during merge', function(done) {
@@ -540,15 +525,16 @@ describe('WebpackAssetsManifest', function() {
           },
         });
 
-        setupManifest(compiler, manifest).then( () => {
-          compiler.run(function( err ) {
-            assert.isNull(err, 'Error found in compiler.run');
-            assert.isTrue( mergingResults.some( r => r === true ) );
-            assert.isTrue( mergingResults.some( r => r === false ) );
+        setupManifest(compiler, manifest)
+          .then(() => {
+            compiler.run(function( err ) {
+              assert.isNull(err, 'Error found in compiler.run');
+              assert.isTrue( mergingResults.some( r => r === true ) );
+              assert.isTrue( mergingResults.some( r => r === false ) );
 
-            done();
+              done();
+            });
           });
-        });
       });
 
       it('merge skips customize()', function(done) {
@@ -563,14 +549,15 @@ describe('WebpackAssetsManifest', function() {
           },
         });
 
-        setupManifest(compiler, manifest).then( () => {
-          compiler.run(function( err ) {
-            assert.isNull(err, 'Error found in compiler.run');
-            assert.isFalse( customizeCalled );
+        setupManifest(compiler, manifest)
+          .then(() => {
+            compiler.run(function( err ) {
+              assert.isNull(err, 'Error found in compiler.run');
+              assert.isFalse( customizeCalled );
 
-            done();
+              done();
+            });
           });
-        });
       });
     });
 
@@ -587,7 +574,7 @@ describe('WebpackAssetsManifest', function() {
         });
 
         manifest.set('hello', 'world');
-        assert.equal( manifest.get('hello') , 'assets/world' );
+        assert.equal( manifest.get('hello'), 'assets/world' );
       });
 
       it('can be true', function(done) {

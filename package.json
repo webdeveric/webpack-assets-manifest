@@ -29,14 +29,15 @@
   ],
   "scripts": {
     "lint": "eslint --fix src test",
-    "doc": "jsdoc -c ./jsdoc.json",
-    "test": "mocha --colors",
-    "test:report": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
-    "test:coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec",
-    "prepublishOnly": "npm run lint && npm test"
+    "typecheck": "tsc",
+    "spellcheck": "cspell \"./{.github,src,test}/**/*.{js,json}\" \"./*.{md,js}\" \"./package.json\"",
+    "test": "nyc mocha --colors",
+    "test:report": "nyc --reporter=lcov mocha --colors",
+    "lcov": "nyc report --reporter=text-lcov > coverage.lcov",
+    "prepublishOnly": "npm run spellcheck && npm run lint && npm test"
   },
   "engines": {
-    "node": ">=6.11.5"
+    "node": ">=10.13.0"
   },
   "author": {
     "email": "eric@webdeveric.com",
@@ -44,33 +45,42 @@
     "url": "http://webdeveric.com/"
   },
   "dependencies": {
-    "chalk": "^2.0",
+    "chalk": "^4.0",
+    "lodash.escaperegexp": "^4.0",
     "lodash.get": "^4.0",
     "lodash.has": "^4.0",
-    "mkdirp": "^0.5",
-    "schema-utils": "^1.0.0",
-    "tapable": "^1.0.0",
-    "webpack-sources": "^1.0.0"
+    "mkdirp": "^1.0",
+    "schema-utils": "^2.0",
+    "tapable": "^1.0",
+    "webpack-sources": "^1.0"
   },
   "peerDependencies": {
     "webpack": ">=4.4.0"
   },
   "devDependencies": {
+    "@types/lodash.escaperegexp": "^4.1.6",
+    "@types/lodash.get": "^4.4.6",
+    "@types/lodash.has": "^4.5.6",
+    "@types/node": "^14.11.7",
+    "@types/tapable": "^1.0.6",
+    "@types/webpack-sources": "^1.4.3",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
-    "css-loader": "^2.0.0",
-    "eslint": "^5.12.1",
-    "eslint-config-webdeveric": "^0.3",
-    "file-loader": "^3.0.0",
-    "fs-extra": "^7.0.1",
-    "istanbul": "^0.4",
-    "jsdoc": "^3.0",
-    "memory-fs": "^0.4.1",
-    "mini-css-extract-plugin": "^0.5.0",
-    "mocha": "^5.2.0",
-    "rimraf": "^2.6.3",
-    "superagent": "^4.0.0",
-    "webpack": "^4.29.0",
-    "webpack-dev-server": "^3.1.14"
+    "cspell": "^4.1.0",
+    "css-loader": "^4.3.0",
+    "eslint": "^7.10.0",
+    "eslint-config-webdeveric": "^0.7.0",
+    "file-loader": "^6.1.0",
+    "fs-extra": "^9.0.1",
+    "memory-fs": "^0.5.0",
+    "mini-css-extract-plugin": "^0.12.0",
+    "mocha": "^8.1.3",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "superagent": "^6.1.0",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-dev-server": "^3.11.0",
+    "websocket-extensions": ">=0.1.4"
   }
 }

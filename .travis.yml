@@ -1,12 +1,12 @@
 language: node_js
 node_js:
-  - "6.11.5"
-  - "8"
   - "10"
+  - "12"
+  - "14"
   - "node"
 env:
-  - WEBPACK_VERSION=4.4 DEVSERVER_VERSION=3.0
-  - WEBPACK_VERSION=latest DEVSERVER_VERSION=latest
+  - WEBPACK_VERSION=4.4 DEVSERVER_VERSION=3.0 CSS_LOADER_VERSION=3.5
+  - WEBPACK_VERSION=latest DEVSERVER_VERSION=latest CSS_LOADER_VERSION=latest
 matrix:
   fast_finish: true
 cache:
@@ -18,7 +18,8 @@ before_install:
 install:
   - npm install -g codecov
   - npm ci
-  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$DEVSERVER_VERSION
+  - npm install webpack@$WEBPACK_VERSION webpack-dev-server@$DEVSERVER_VERSION css-loader@$CSS_LOADER_VERSION
 script:
-  - npm run test:coverage
+  - npm test
+  - npm run lcov
   - codecov

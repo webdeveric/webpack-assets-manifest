@@ -4,8 +4,6 @@
  * @author Eric King <eric@webdeveric.com>
  */
 
-'use strict';
-
 const fs = require('fs');
 const url = require('url');
 const path = require('path');
@@ -14,6 +12,7 @@ const has = require('lodash.has');
 const validateOptions = require('schema-utils');
 const { SyncHook, SyncWaterfallHook } = require('tapable');
 const { RawSource } = require('webpack-sources');
+/** @type {object} */
 const optionsSchema = require('./options-schema.json');
 const {
   maybeArrayWrap,
@@ -22,6 +21,7 @@ const {
   warn,
   varType,
   getSortedObject,
+  templateStringToRegExp,
 } = require('./helpers.js');
 
 const IS_MERGING = Symbol('isMerging');
@@ -60,13 +60,13 @@ class WebpackAssetsManifest
       this.options = Object.assign( this.defaultOptions, options );
       this.options.integrityHashes = filterHashes( this.options.integrityHashes );
 
-      validateOptions(optionsSchema, this.options, PLUGIN_NAME);
+      validateOptions(optionsSchema, this.options, { name: PLUGIN_NAME });
 
       // Copy over any entries that may have been added to the manifest before apply() was called.
       // If the same key exists in assets and options.assets, options.assets should be used.
       this.assets = Object.assign(this.options.assets, this.assets, this.options.assets);
 
-      if ( this.options.hasOwnProperty('contextRelativeKeys') ) {
+      if ( has( this.options, 'contextRelativeKeys' ) ) {
         warn('contextRelativeKeys has been removed. Please use the customize hook instead.');
       }
 
@@ -119,12 +119,7 @@ class WebpackAssetsManifest
     const { output: { filename, hotUpdateChunkFilename } } = compiler.options;
 
     if ( filename !== hotUpdateChunkFilename && typeof hotUpdateChunkFilename === 'string' ) {
-      this.hmrRegex = new RegExp(
-        hotUpdateChunkFilename
-          .replace(/\./g, '\\.')
-          .replace(/\[[a-z]+(:\d+)?\]/gi, (m, n) => (n ? `.{${n.substr(1)}}` : '.+')) + '$',
-        'i'
-      );
+      this.hmrRegex = templateStringToRegExp( hotUpdateChunkFilename, 'i' );
     }
 
     // compilation.assets contains the results of the build
@@ -200,7 +195,7 @@ class WebpackAssetsManifest
       return '';
     }
 
-    filename = filename.split(/[?#]/)[0];
+    filename = filename.split(/[?#]/)[ 0 ];
 
     if (this.options.fileExtRegex) {
       const ext = filename.match(this.options.fileExtRegex);
@@ -319,7 +314,7 @@ class WebpackAssetsManifest
    * @param {string} defaultValue - Defaults to empty string
    * @return {*}
    */
-  get(key, defaultValue = '')
+  get(key, defaultValue = undefined)
   {
     return this.assets[ key ] || this.assets[ this.fixKey(key) ] || defaultValue;
   }
@@ -394,7 +389,7 @@ class WebpackAssetsManifest
       try {
         this[ IS_MERGING ] = true;
 
-        const data = JSON.parse(fs.readFileSync(this.getOutputPath()));
+        const data = JSON.parse( fs.readFileSync( this.getOutputPath(), { encoding: 'utf8' } ) );
 
         for ( const key in data ) {
           if ( ! this.has(key) ) {
@@ -528,18 +523,9 @@ class WebpackAssetsManifest
     return new Promise( (resolve, reject) => {
       const output = this.getManifestPath( compilation, this.getOutputPath() );
 
-      require('mkdirp')(
-        path.dirname(output),
-        err => {
-          if ( err ) {
-            reject( err );
-
-            return;
-          }
-
-          fs.writeFile( output, this.toString(), resolve );
-        }
-      );
+      require('mkdirp')(path.dirname(output))
+        .then(() => fs.writeFile( output, this.toString(), resolve ))
+        .catch(reject);
     });
   }
 
@@ -553,7 +539,11 @@ class WebpackAssetsManifest
   {
     const { emitFile } = loaderContext;
 
-    loaderContext.emitFile = (name, content, sourceMap) => {
+    // Webpack 5 added the assetInfo  argument.
+    // Capture all args so it'll work in Webpack 4+.
+    loaderContext.emitFile = (...args) => {
+      const [ name ] = args;
+
       if ( ! this.assetNames.has( name ) ) {
         const originalName = path.join(
           path.dirname(name),
@@ -563,7 +553,7 @@ class WebpackAssetsManifest
         this.assetNames.set(name, originalName);
       }
 
-      return emitFile.call(module, name, content, sourceMap);
+      return emitFile.apply(module, args);
     };
   }
 
@@ -623,7 +613,7 @@ class WebpackAssetsManifest
   /**
    * Get the public path for the filename
    *
-   * @param  {string} filePath
+   * @param  {string} filename
    */
   getPublicPath(filename)
   {
@@ -660,12 +650,12 @@ class WebpackAssetsManifest
   {
     const setMethod = raw ? 'setRaw' : 'set';
 
-    return new Proxy(this, {
+    const handler = {
       has(target, property) {
         return target.has(property);
       },
       get(target, property) {
-        return target.get(property) || undefined;
+        return target.get(property);
       },
       set(target, property, value) {
         return target[ setMethod ](property, value).has(property);
@@ -673,7 +663,9 @@ class WebpackAssetsManifest
       deleteProperty(target, property) {
         return target.delete(property);
       },
-    });
+    };
+
+    return new Proxy(this, handler);
   }
 }
 
