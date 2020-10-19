@@ -360,6 +360,23 @@ class WebpackAssetsManifest
   }
 
   /**
+   * Process compilation assets without a chunk name.
+   *
+   * @param  {object} assets - All assets
+   * @return {object}
+   */
+  processAssetsWithoutChunkNames(assets)
+  {
+    assets.filter(asset => asset.chunkNames.length === 0).map(asset => {
+      const { name } = asset;
+
+      this.assetNames.set( name, name);
+    });
+
+    return this.assetNames;
+  }
+
+  /**
    * Get the data for `JSON.stringify()`.
    *
    * @return {object}
@@ -440,9 +457,11 @@ class WebpackAssetsManifest
     this.stats = compilation.getStats().toJson({
       all: false,
       assets: true,
+      cachedAssets: true,
     });
 
     this.processAssetsByChunkName( this.stats.assetsByChunkName );
+    this.processAssetsWithoutChunkNames(this.stats.assets);
 
     for ( const [ hashedFile, filename ] of this.assetNames ) {
       this.currentAsset = compilation.assets[ hashedFile ];

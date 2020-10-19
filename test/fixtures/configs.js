@@ -137,6 +137,16 @@ function multi()
   return [ c, s ];
 }
 
+function bare()
+{
+  return {
+    mode: 'development',
+    output: {
+      path: tmpDirPath(),
+    },
+  };
+}
+
 module.exports = {
   hello,
   client,
@@ -147,4 +157,5 @@ module.exports = {
   tmpDirPath,
   getWorkspace,
   styles,
+  bare,
 };

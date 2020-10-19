@@ -1311,4 +1311,34 @@ describe('WebpackAssetsManifest', function() {
       });
     });
   });
+
+  describe('Works with assets without a chunk name', () => {
+    it('Assets show up in manifest', function(done) {
+      const CopyPlugin = require('./mocks/CopyPluginMock');
+      const copy = new CopyPlugin([
+        {
+          targetPath: 'test.txt',
+          data: Buffer.from('test', 'utf-8'),
+        },
+      ]);
+      const manifest = new WebpackAssetsManifest({
+        space: 0,
+      });
+      const compiler = makeCompiler(configs.bare());
+
+      copy.apply(compiler);
+      manifest.apply(compiler);
+
+      compiler.run(function(err) {
+        assert.isNull(err, 'Error found in compiler.run');
+
+        assert.equal(
+          '{"test.txt":"test.txt"}',
+          manifest.toString()
+        );
+
+        done();
+      });
+    });
+  });
 });
