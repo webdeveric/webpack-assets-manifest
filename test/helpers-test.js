@@ -1,3 +1,5 @@
+'use strict';
+
 const chai = require('chai');
 const spies = require('chai-spies');
 const { expect } = chai;
@@ -10,8 +12,11 @@ const {
   filterHashes,
   warn,
   varType,
+  isObject,
   getSortedObject,
   templateStringToRegExp,
+  findMapKeysByValue,
+  group,
 } = require('../src/helpers.js');
 
 describe('Helpers', function() {
@@ -114,6 +119,18 @@ describe('Helpers', function() {
     });
   });
 
+  describe('isObject()', function() {
+    it('returns true when given an object', () => {
+      expect( isObject( {} ) ).to.equal(true);
+      expect( isObject( Object.create(null) ) ).to.equal(true);
+      expect( isObject( new (class {})() ) ).to.equal(true);
+    });
+
+    it('returns false when given null', () => {
+      expect( isObject( null ) ).to.equal(false);
+    });
+  });
+
   describe('getSortedObject()', function() {
     it('returns a sorted object', function() {
       const obj = {
@@ -151,6 +168,63 @@ describe('Helpers', function() {
 
       expect( caseInsensitive.test('demo.abc123.js') ).to.equal(true);
       expect( caseInsensitive.test('DEMO.abc123.js') ).to.equal(true);
+    });
+  });
+
+  describe('findMapKeysByValue()', function() {
+    it('finds all keys that have the corresponding value', () => {
+      const data = new Map();
+
+      data.set('Ginger', 'Eric');
+      data.set('Wilson', 'Eric');
+      data.set('Oliver', 'Amy');
+      data.set('Andy', 'Amy');
+      data.set('Francis', 'Amy');
+
+      const findPetsFor = findMapKeysByValue( data );
+
+      expect( findPetsFor ).to.be.a('function');
+      expect( findPetsFor('Eric') ).to.be.an('array').that.include('Ginger', 'Wilson').and.to.have.lengthOf(2);
+      expect( findPetsFor('Amy') ).to.be.an('array').that.include('Oliver', 'Andy', 'Francis').and.to.have.lengthOf(3);
+      expect( findPetsFor('None') ).to.be.an('array').and.to.have.lengthOf(0);
+    });
+  });
+
+  describe('group()', () => {
+    it('group items from an array based on a callback return value', () => {
+      const grouped = group(
+        [ 'cat', 'dog', 'dinosaur' ],
+        word => word[ 0 ],
+      );
+
+      expect( grouped ).to.deep.equal({
+        c: [ 'cat' ],
+        d: [ 'dog', 'dinosaur' ],
+      });
+    });
+
+    it('prevent item from being grouped', () => {
+      const grouped = group(
+        [ 'cat', 'dog', 'dinosaur' ],
+        word => word === 'cat' ? false : word[ 0 ],
+      );
+
+      expect( grouped ).to.deep.equal({
+        d: [ 'dog', 'dinosaur' ],
+      });
+    });
+
+    it('can modify items with a callback', () => {
+      const grouped = group(
+        [ 'cat', 'dog', 'dinosaur' ],
+        word => word[ 0 ],
+        (word, group) => `${word.toUpperCase()}-group-${group}`,
+      );
+
+      expect( grouped ).to.deep.equal({
+        c: [ 'CAT-group-c' ],
+        d: [ 'DOG-group-d', 'DINOSAUR-group-d' ],
+      });
     });
   });
 });

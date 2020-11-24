@@ -4,6 +4,9 @@
   "words": [
     "chunkhash",
     "codecov",
+    "deepmerge",
+    "devtool",
+    "downlevel",
     "entrypoint",
     "entrypoints",
     "entrypointskey",
@@ -11,6 +14,8 @@
     "instanceof",
     "integrityhashes",
     "lcov",
+    "prebuild",
+    "prefetch",
     "subpage",
     "subresource",
     "tapable",

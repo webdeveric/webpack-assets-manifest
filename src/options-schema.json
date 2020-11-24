@@ -3,6 +3,10 @@
   "description": "Webpack Assets Manifest options",
   "type": "object",
   "properties": {
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
     "assets": {
       "type": "object",
       "default": {}
@@ -28,8 +32,15 @@
       "default": 2
     },
     "writeToDisk": {
-      "type": "boolean",
-      "default": false
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "const": "auto"
+        }
+      ],
+      "default": "auto"
     },
     "fileExtRegex": {
       "oneOf": [
@@ -83,6 +94,10 @@
         }
       ]
     },
+    "contextRelativeKeys": {
+      "type": "boolean",
+      "default": false
+    },
     "apply": {
       "$ref": "#/definitions/functionOrNull"
     },
@@ -109,6 +124,10 @@
           "const": false
         }
       ]
+    },
+    "entrypointsUseAssets": {
+      "type": "boolean",
+      "default": true
     },
     "integrity": {
       "type": "boolean",

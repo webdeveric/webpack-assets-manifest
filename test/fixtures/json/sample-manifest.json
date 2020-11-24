@@ -1,0 +1,24 @@
+{
+  "Ginger.jpg": "images/Ginger.jpg",
+  "main.js": "main.js",
+  "entrypoints": {
+    "main": {
+      "assets": {
+        "css": [
+          "main.css"
+        ],
+        "js": [
+          "runtime.js",
+          "main.js"
+        ]
+      }
+    },
+    "demo": {
+      "assets": {
+        "js": [
+          "demo.js"
+        ]
+      }
+    }
+  }
+}
