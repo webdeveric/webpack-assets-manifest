@@ -57,7 +57,7 @@
     "webpack-sources": "^1.0"
   },
   "peerDependencies": {
-    "webpack": ">=4.40.0"
+    "webpack": "^4.40.0"
   },
   "devDependencies": {
     "@types/lodash.escaperegexp": "^4.1.6",
