@@ -3,7 +3,7 @@
 
 name: Node.js CI
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -13,8 +13,8 @@ jobs:
       matrix:
         node-version: [10.x, 12.x, 14.x]
         webpack-version: ['4.40', 4]
-        dev-server-version: [3.0, latest]
-        css-loader-version: [3.5, latest]
+        dev-server-version: ['3.6.0', latest]
+        css-loader-version: ['3.5.0', latest]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
