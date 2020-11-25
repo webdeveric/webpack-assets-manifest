@@ -1,6 +1,6 @@
 # Webpack Assets Manifest
 
-[![Build Status](https://travis-ci.org/webdeveric/webpack-assets-manifest.svg?branch=master)](https://travis-ci.org/webdeveric/webpack-assets-manifest)
+[![Build Status](https://github.com/webdeveric/webpack-assets-manifest/workflows/Node.js%20CI/badge.svg)](https://github.com/webdeveric/webpack-assets-manifest/actions)
 [![codecov](https://codecov.io/gh/webdeveric/webpack-assets-manifest/branch/master/graph/badge.svg)](https://codecov.io/gh/webdeveric/webpack-assets-manifest)
 [![dependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest)
 [![devDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/dev-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=dev)
