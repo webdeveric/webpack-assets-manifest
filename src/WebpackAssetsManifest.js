@@ -38,7 +38,6 @@ const {
 const optionsSchema = require('./options-schema.json');
 
 const IS_MERGING = Symbol('isMerging');
-const COMPILATION_COUNTER = Symbol('compilationCounter');
 const PLUGIN_NAME = 'WebpackAssetsManifest';
 
 class WebpackAssetsManifest
@@ -108,8 +107,6 @@ class WebpackAssetsManifest
 
     // Is a merge happening?
     this[ IS_MERGING ] = false;
-
-    this[ COMPILATION_COUNTER ] = 0;
   }
 
   /**
@@ -495,6 +492,10 @@ class WebpackAssetsManifest
     const { contextRelativeKeys } = this.options;
 
     for ( const asset of compilation.getAssets() ) {
+      if ( asset.info.assetsManifest ) {
+        continue;
+      }
+
       const sourceFilenames = findAssetKeys( asset.name );
 
       if ( ! sourceFilenames.length ) {
@@ -554,9 +555,7 @@ class WebpackAssetsManifest
       }
     }
 
-    if ( --this[ COMPILATION_COUNTER ] === 0 ) {
-      this.emitAssetsManifest(compilation);
-    }
+    this.emitAssetsManifest(compilation);
 
     callback();
   }
@@ -684,8 +683,6 @@ class WebpackAssetsManifest
    */
   handleCompilation(compilation)
   {
-    ++this[ COMPILATION_COUNTER ];
-
     compilation.hooks.normalModuleLoader.tap(
       PLUGIN_NAME,
       this.handleNormalModuleLoader.bind(this, compilation),
