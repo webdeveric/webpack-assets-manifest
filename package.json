@@ -63,7 +63,7 @@
     "@types/lodash.escaperegexp": "^4.1.6",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.has": "^4.5.6",
-    "@types/node": "^14.14.8",
+    "@types/node": "^14.14.10",
     "@types/tapable": "^1.0.6",
     "@types/webpack-sources": "^1.4.3",
     "@webdeveric/eslint-config": "^0.1.0",
