@@ -5,33 +5,33 @@
 [![dependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest)
 [![devDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/dev-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=dev)
 
-This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.
+This webpack plugin will generate a JSON file that matches the original filename with the hashed version.
 
 ## Installation
 
-:warning: Starting with version 2, this plugin works with Webpack 4+. Version 3.1 requires Webpack 4.4+.
+:warning:
+  - Version 4 works with webpack 4.40+ (webpack 4 branch only)
+  - Version 3.1 works with webpack 4.4+.
+  - Version 2 works with webpack 4+.
 
 ```shell
 npm install webpack-assets-manifest --save-dev
 ```
 
-If you're using Webpack 3 or below, you'll need to install version 1.
+If you're using webpack 3 or below, you'll need to install version 1.
 
 ```shell
 npm install webpack-assets-manifest@1 --save-dev
 ```
 
-## New in version 3
+## New in version 4
 
-* Added [hooks](#hooks).
-* Added [examples](examples/).
-* Added options:
-  * [`integrity`](#integrity)
-  * [`integrityHashes`](#integrityhashes)
-  * [`entrypoints`](#entrypoints)
-  * [`entrypointsKey`](#entrypointskey)
-* Updated `customize` callback arguments. See [customized](examples/customized.js) example.
-* Removed `contextRelativeKeys` option.
+* Requires Node 10+.
+* Compatible with webpack 4 only (4.40+ required).
+* Added options: [`enabled`](#enabled), [`entrypointsUseAssets`](#entrypointsUseAssets), [`contextRelativeKeys`](#contextRelativeKeys).
+* Updated [`writeToDisk`](#writeToDisk) option to default to `auto`.
+* Use lock files for various operations.
+* `done` hook is now an `AsyncSeriesHook`.
 
 ## Usage
 
@@ -75,6 +75,14 @@ module.exports = {
 
 ## Options ([read the schema](src/options-schema.json))
 
+### `enabled`
+
+Type: `boolean`
+
+Default: `true`
+
+Is the plugin enabled?
+
 ### `output`
 
 Type: `string`
@@ -109,6 +117,14 @@ const manifest2 = new WebpackAssetsManifest({
 });
 ```
 
+### `contextRelativeKeys`
+
+Type: `boolean`
+
+Default: `false`
+
+Keys are relative to the compiler context.
+
 ### `space`
 
 Type: `int`
@@ -137,11 +153,11 @@ This is the regular expression used to find file extensions. You'll probably nev
 
 ### `writeToDisk`
 
-Type: `boolean`
+Type: `boolean`, `string`
 
-Default: `false`
+Default: `'auto'`
 
-Write the manifest to disk using `fs` during `afterEmit`.
+Write the manifest to disk using `fs`.
 
 :warning: If you're using another language for your site and you're using `webpack-dev-server` to process your assets during development,
 you should set `writeToDisk: true` and provide an absolute path in `output` so the manifest file is actually written to disk and not kept only in memory.
@@ -247,6 +263,14 @@ Default: `entrypoints`
 
 If this is set to `false`, the `entrypoints` will be added to the root of the manifest.
 
+### `entrypointsUseAssets`
+
+Type: `boolean`
+
+Default: `true`
+
+Entrypoint data should use the value from `assets`, which means the values could be customized and not just a `string` file path.
+
 ### `integrity`
 
 Type: `boolean`
@@ -324,7 +348,7 @@ The `apply`, `customize`, `transform`, and `done` options are automatically tapp
 | `apply` | `SyncHook` | `function(manifest){}` |
 | `customize` | `SyncWaterfallHook` | `function(entry, original, manifest, asset){}` |
 | `transform` | `SyncWaterfallHook` | `function(assets, manifest){}` |
-| `done` | `SyncHook` | `function(manifest, stats){}` |
+| `done` | `AsyncSeriesHook` | `async function(manifest, stats){}` |
 | `options` | `SyncWaterfallHook` | `function(options){}` |
 | `afterOptions` | `SyncHook` | `function(options){}` |
 
@@ -362,6 +386,10 @@ manifest.hooks.done.tap('YourPluginName', function(manifest, stats) {
   console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
   console.log(`${manifest}`);
 });
+
+manifest.hooks.done.tapPromise('YourPluginName', async (manifest, stats) => {
+  await yourAsyncOperation();
+});
 ```
 
 These hooks can also be set by passing them in the constructor options.
@@ -375,4 +403,23 @@ new WebpackAssetsManifest({
 });
 ```
 
-If the manifest instance is passed to a hook, you can use `has(key)`, `get(key)`, `set(key, value)`, `setRaw(key, value)`,and `delete(key)` methods to manage what goes into the manifest.
+## Manifest methods
+
+If the manifest instance is passed to a hook, you can use the following methods to manage what goes into the manifest.
+
+- `has(key)`
+- `get(key)`
+- `set(key, value)`
+- `setRaw(key, value)`
+- `delete(key)`
+
+If you want to write the manifest to another location, you can use `writeTo(destination)`.
+
+```js
+new WebpackAssetsManifest({
+  async done(manifest) {
+    await manifest.writeTo('/some/other/path/assets-manifest.json');
+  }
+});
+```
+
