@@ -14,7 +14,7 @@ const util = require('util');
 const get = require('lodash.get');
 const has = require('lodash.has');
 const { validate } = require('schema-utils');
-const { SyncHook, SyncWaterfallHook } = require('tapable');
+const { AsyncSeriesHook, SyncHook, SyncWaterfallHook } = require('tapable');
 const { RawSource } = require('webpack-sources');
 
 const {
@@ -55,7 +55,7 @@ class WebpackAssetsManifest
       apply: new SyncHook([ 'manifest' ]),
       customize: new SyncWaterfallHook([ 'entry', 'original', 'manifest', 'asset' ]),
       transform: new SyncWaterfallHook([ 'assets', 'manifest' ]),
-      done: new SyncHook([ 'manifest', 'stats' ]),
+      done: new AsyncSeriesHook([ 'manifest', 'stats' ]),
       options: new SyncWaterfallHook([ 'options' ]),
       afterOptions: new SyncHook([ 'options' ]),
     });
@@ -150,7 +150,7 @@ class WebpackAssetsManifest
     compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
 
     // The compilation has finished
-    compiler.hooks.done.tap(PLUGIN_NAME, stats => this.hooks.done.call(this, stats));
+    compiler.hooks.done.tapPromise(PLUGIN_NAME, async stats => await this.hooks.done.promise(this, stats) );
 
     // Setup is complete.
     this.hooks.apply.call(this);

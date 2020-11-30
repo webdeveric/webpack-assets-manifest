@@ -898,19 +898,26 @@ describe('WebpackAssetsManifest', function() {
 
     describe('done', function() {
       it('is called when compilation is done', async () => {
-        const mock = chai.spy();
-        const { run } = create(
+        const mock1 = chai.spy( async () => true );
+        const mock2 = chai.spy( async () => true );
+        const mock3 = chai.spy();
+        const { manifest, run } = create(
           configs.hello(),
           {
-            done() {
-              mock();
+            async done() {
+              await mock1();
             },
           },
         );
 
+        manifest.hooks.done.tapPromise('test', async () => { await mock2(); });
+        manifest.hooks.done.tap('test', () => { mock3(); });
+
         await run();
 
-        expect( mock ).to.have.been.called;
+        expect( mock1 ).to.have.been.called;
+        expect( mock2 ).to.have.been.called;
+        expect( mock3 ).to.have.been.called;
       });
     });
 
