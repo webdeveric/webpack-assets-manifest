@@ -588,12 +588,21 @@ class WebpackAssetsManifest
     await unlock( destination );
   }
 
+  clear()
+  {
+    // Delete properties instead of setting to {} so that the variable reference
+    // is maintained incase the `assets` is being shared in multi-compiler mode.
+    Object.keys( this.assets ).forEach( key => delete this.assets[ key ] );
+
+    this.assetNames.clear();
+  }
+
   /**
    * Cleanup before running Webpack
    */
   handleBeforeRun()
   {
-    this.assetNames.clear();
+    this.clear();
   }
 
   /**

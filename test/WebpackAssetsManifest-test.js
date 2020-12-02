@@ -319,6 +319,22 @@ describe('WebpackAssetsManifest', function() {
         });
       });
     });
+
+    describe('clear()', function() {
+      it('clears data', async () => {
+        const { manifest, run } = create( configs.hello() );
+
+        expect( manifest.assets ).to.be.empty;
+
+        await run();
+
+        expect( manifest.assets ).to.not.be.empty;
+
+        manifest.clear();
+
+        expect( manifest.assets ).to.be.empty;
+      });
+    });
   });
 
   describe('Options', function() {
@@ -1122,6 +1138,11 @@ describe('WebpackAssetsManifest', function() {
         assert.isNull(err, 'Error found in compiler.run');
 
         const manifestPath = multiConfig[ 0 ].plugins[ 0 ].getOutputPath();
+
+        assert.strictEqual(
+          multiConfig[ 0 ].plugins[ 0 ].assets,
+          multiConfig[ 1 ].plugins[ 0 ].assets,
+        );
 
         fs.readFile(
           manifestPath,
