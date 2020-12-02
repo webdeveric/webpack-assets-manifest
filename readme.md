@@ -267,9 +267,10 @@ If this is set to `false`, the `entrypoints` will be added to the root of the ma
 
 Type: `boolean`
 
-Default: `true`
+Default: `false`
 
 Entrypoint data should use the value from `assets`, which means the values could be customized and not just a `string` file path.
+This new option defaults to `false` so the new behavior is opt-in.
 
 ### `integrity`
 

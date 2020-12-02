@@ -1169,6 +1169,7 @@ describe('WebpackAssetsManifest', function() {
             integrity: true,
             integrityHashes: [ 'md5' ],
             entrypoints: true,
+            entrypointsUseAssets: true,
             publicPath: true,
             contextRelativeKeys: false,
             customize(entry, original, manifest, asset) {

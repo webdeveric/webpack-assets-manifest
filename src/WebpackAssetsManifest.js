@@ -185,7 +185,7 @@ class WebpackAssetsManifest
       // Include `compilation.entrypoints` in the manifest file
       entrypoints: false,
       entrypointsKey: 'entrypoints',
-      entrypointsUseAssets: true,
+      entrypointsUseAssets: false,
 
       // https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
       integrity: false,
