@@ -1,3 +1,5 @@
+'use strict';
+
 const webpack = require('webpack');
 const MemoryFs = require('memory-fs');
 

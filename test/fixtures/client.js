@@ -1,3 +1,5 @@
+'use strict';
+
 console.log('Client');
 
-require('./Ginger.jpg');
+require('./images/Ginger.jpg');

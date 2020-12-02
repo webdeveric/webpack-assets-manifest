@@ -7,7 +7,7 @@ const manifest = new WebpackAssetsManifest({
   customize(entry, original, manifest, asset) {
     return {
       key: entry.value,
-      value: asset && asset.integrity,
+      value: asset && asset.info.integrity,
     };
   },
 });

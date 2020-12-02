@@ -1,5 +1,8 @@
 {
-  "extends": "webdeveric",
+  "extends": "@webdeveric/eslint-config",
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
   "env": {
     "browser": false,
     "es6": true,

@@ -1,6 +1,15 @@
+'use strict';
+
+const os = require('os');
+const path = require('path');
 const crypto = require('crypto');
+const util = require('util');
 const chalk = require('chalk');
 const escapeRegExp = require('lodash.escaperegexp');
+const lockfile = require('lockfile');
+
+const lfLock = util.promisify(lockfile.lock);
+const lfUnlock = util.promisify(lockfile.unlock);
 
 /**
  * Display a warning message.
@@ -9,16 +18,12 @@ const escapeRegExp = require('lodash.escaperegexp');
  */
 function warn( message )
 {
-  if ( message in warn.cache ) {
-    return;
-  }
-
   const prefix = chalk.hex('#CC4A8B')('WARNING:');
 
   console.warn(chalk`${prefix} ${message}`);
 }
 
-warn.cache = Object.create(null);
+warn.cache = new Set();
 
 /**
  * Display a warning message once.
@@ -26,8 +31,13 @@ warn.cache = Object.create(null);
  * @param {string} message
  */
 warn.once = function( message ) {
+  if ( warn.cache.has( message ) ) {
+    return;
+  }
+
   warn( message );
-  warn.cache[ message ] = true;
+
+  warn.cache.add( message );
 };
 
 /**
@@ -90,6 +100,16 @@ function varType( v )
 }
 
 /**
+ * Determine if the argument is an Object.
+ *
+ * @param {*} arg
+ */
+function isObject( arg )
+{
+  return varType( arg ) === 'Object';
+}
+
+/**
  * Get an object sorted by keys.
  *
  * @param  {object} object
@@ -98,13 +118,9 @@ function varType( v )
  */
 function getSortedObject(object, compareFunction)
 {
-  const keys = Object.keys(object);
-
-  keys.sort( compareFunction );
-
-  return keys.reduce(
+  return Object.keys( object ).sort( compareFunction ).reduce(
     (sorted, key) => (sorted[ key ] = object[ key ], sorted),
-    Object.create(null)
+    Object.create(null),
   );
 }
 
@@ -121,10 +137,114 @@ function templateStringToRegExp(input, flags = undefined)
   return new RegExp(
     escapeRegExp(input).replace(
       /\\\[(?<name>[a-z]+)(?::(?<length>\d+))?\\\]/gi, // This replaces \[hash\] or \[hash:6\]
-      (match, p1, p2, offset, str, { name, length = '1,' }) => `(?<${name}>.{${length}})`
+      (match, p1, p2, offset, str, { name, length = '1,' }) => `(?<${name}>.{${length}})`,
     ) + '$',
-    flags
+    flags,
   );
+}
+
+/**
+ * Find a Map entry key by the value
+ *
+ * @param {Map} map
+ */
+function findMapKeysByValue( map )
+{
+  const entries = [ ...map.entries() ];
+
+  return searchValue => entries
+    .filter( ([ , value ]) => value === searchValue )
+    .map( ([ name ]) => name );
+}
+
+/**
+ * Group items from an array based on a callback return value.
+ *
+ * @param {Array} arr
+ * @param {(item: any) => string} getGroup
+ * @param {(item: any, group: string) => any} mapper
+ */
+function group( arr, getGroup, mapper = item => item )
+{
+  return arr.reduce(
+    (obj, item) => {
+      const group = getGroup( item );
+
+      if ( group ) {
+        obj[ group ] = obj[ group ] || [];
+        obj[ group ].push( mapper( item, group ) );
+      }
+
+      return obj;
+    },
+    Object.create(null),
+  );
+}
+
+/**
+ * Build a file path to a lock file in the tmp directory
+ *
+ * @param {string} filename
+ */
+function getLockFilename( filename )
+{
+  const name = filename.replace(/[^\w]+/g, '-');
+
+  return path.join( os.tmpdir(), `${name}.lock` );
+}
+
+/**
+ * Create a lockfile (async)
+ *
+ * @param {string} filename
+ */
+async function lock( filename )
+{
+  await lfLock(
+    getLockFilename( filename ),
+    {
+      wait: 10000,
+      stale: 20000,
+      retries: 100,
+      retryWait: 100,
+    },
+  );
+}
+
+/**
+ * Create a lockfile
+ *
+ * @param {string} filename
+ */
+function lockSync( filename )
+{
+  return lockfile.lockSync(
+    getLockFilename( filename ),
+    {
+      stale: 20000,
+      retries: 200,
+    },
+  );
+}
+
+/**
+ * Remove a lockfile (async)
+ *
+ * @param {string} filename
+ */
+async function unlock( filename )
+{
+  await lfUnlock( getLockFilename( filename ) );
+}
+
+/**
+ * Remove a lockfile
+ *
+ * @param {string} filename
+ */
+function unlockSync( filename )
+{
+  return lockfile.unlockSync( getLockFilename( filename ) );
 }
 
 module.exports = {
@@ -133,6 +253,14 @@ module.exports = {
   getSRIHash,
   warn,
   varType,
+  isObject,
   getSortedObject,
   templateStringToRegExp,
+  findMapKeysByValue,
+  group,
+  getLockFilename,
+  lock,
+  lockSync,
+  unlock,
+  unlockSync,
 };

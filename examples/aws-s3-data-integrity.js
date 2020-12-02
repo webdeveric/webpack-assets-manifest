@@ -9,7 +9,7 @@ const manifest = new WebpackAssetsManifest({
   customize(entry, original, manifest, asset) {
     return {
       key: entry.value,
-      value: asset && asset.md5.substr(4),
+      value: asset && asset.info.md5.substr(4),
     };
   },
 });
