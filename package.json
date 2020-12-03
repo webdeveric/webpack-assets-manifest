@@ -32,7 +32,7 @@
     "typecheck": "tsc",
     "spellcheck": "cspell \"./{.github,src,test}/**/*.{js,json}\" \"./*.{md,js}\" \"./package.json\"",
     "test": "nyc mocha --colors",
-    "test:report": "nyc --reporter=lcov mocha --colors",
+    "test:report": "nyc --reporter=lcov --reporter=text mocha --colors",
     "lcov": "nyc report --reporter=text-lcov > coverage.lcov",
     "prepublishOnly": "npm run spellcheck && npm run lint && npm test"
   },
@@ -46,18 +46,16 @@
   },
   "dependencies": {
     "chalk": "^4.0",
-    "deepmerge": "^4.2.2",
-    "lockfile": "^1.0.4",
+    "deepmerge": "^4.0",
+    "lockfile": "^1.0",
     "lodash.escaperegexp": "^4.0",
     "lodash.get": "^4.0",
     "lodash.has": "^4.0",
-    "mkdirp": "^1.0",
     "schema-utils": "^3.0",
-    "tapable": "^1.0",
-    "webpack-sources": "^1.0"
+    "tapable": "^2.0"
   },
   "peerDependencies": {
-    "webpack": "^4.40.0"
+    "webpack": "^5.0.0"
   },
   "devDependencies": {
     "@types/lodash.escaperegexp": "^4.1.6",
@@ -65,11 +63,11 @@
     "@types/lodash.has": "^4.5.6",
     "@types/node": "^14.14.10",
     "@types/tapable": "^1.0.6",
-    "@types/webpack-sources": "^1.4.3",
+    "@types/webpack-sources": "^2.1.0",
     "@webdeveric/eslint-config": "^0.1.0",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
-    "compression-webpack-plugin": "^6.1.1",
+    "compression-webpack-plugin": "^7.0.0",
     "copy-webpack-plugin": "^6.3.2",
     "cspell": "^4.2.5",
     "css-loader": "^5.0.1",
@@ -78,12 +76,13 @@
     "fs-extra": "^9.0.1",
     "memory-fs": "^0.5.0",
     "mini-css-extract-plugin": "^1.3.1",
+    "mkdirp": "^1.0.4",
     "mocha": "^8.2.1",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
     "superagent": "^6.1.0",
     "typescript": "^4.1.0",
-    "webpack": "^4.44.2",
+    "webpack": "^5.9.0",
     "webpack-dev-server": "^3.11.0",
     "webpack-subresource-integrity": "^1.5.2"
   }
