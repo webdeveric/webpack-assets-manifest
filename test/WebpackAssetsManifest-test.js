@@ -959,6 +959,17 @@ describe('WebpackAssetsManifest', function() {
           );
         }).to.throw();
       });
+
+      it('Error is thrown when options has unknown property', function() {
+        expect(() => {
+          create(
+            configs.hello(),
+            {
+              someUnknownProperty: 'will fail',
+            },
+          );
+        }).to.throw();
+      });
     });
   });
 
@@ -1017,7 +1028,7 @@ describe('WebpackAssetsManifest', function() {
     describe('Options', function() {
       it('Options can be altered with a hook', function() {
         const mock = chai.spy( options => {
-          options.testing = true;
+          options.space = 0;
 
           return options;
         });
@@ -1032,7 +1043,7 @@ describe('WebpackAssetsManifest', function() {
 
         expect( mock ).to.have.been.called();
 
-        expect( manifest.options.testing ).to.be.true;
+        expect( manifest.options.space ).to.equal(0);
       });
     });
 

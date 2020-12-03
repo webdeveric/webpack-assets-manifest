@@ -2,6 +2,7 @@
   "title": "Webpack Assets Manifest options schema",
   "description": "Webpack Assets Manifest options",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "enabled": {
       "type": "boolean",
