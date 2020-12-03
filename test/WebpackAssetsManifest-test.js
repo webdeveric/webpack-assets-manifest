@@ -8,6 +8,7 @@ const chai = require('chai');
 const spies = require('chai-spies');
 const rimraf = require('rimraf');
 const webpack = require('webpack');
+const { mkdirp: webpack_mkdirp } = require('webpack/lib/util/fs');
 const superagent = require('superagent');
 const configs = require('./fixtures/configs');
 const makeCompiler = require('./fixtures/makeCompiler');
@@ -745,20 +746,6 @@ describe('WebpackAssetsManifest', function() {
         assert.isFalse( manifest.has('hello') );
         assert.deepEqual( {}, manifest.assets );
       });
-
-      it('manifest.stats returns an empty object', function() {
-        const { manifest } = create(
-          configs.hello(),
-          {
-            customize(entry, original, manifest) {
-              expect( manifest.stats ).to.be.an('object');
-              expect( manifest.stats ).to.be.empty;
-            },
-          },
-        );
-
-        manifest.set('key', 'value');
-      });
     });
 
     describe('integrityHashes', function() {
@@ -949,7 +936,7 @@ describe('WebpackAssetsManifest', function() {
         await run();
 
         expect( manifest.get('client.js') ).to.equal('client.js');
-        expect( manifest.get('test/fixtures/images/Ginger.jpg') ).to.equal('images/Ginger.jpg');
+        expect( manifest.get('test/fixtures/images/Ginger.asset.jpg') ).to.equal('images/Ginger.asset.jpg');
       });
     });
 
@@ -1122,6 +1109,14 @@ describe('WebpackAssetsManifest', function() {
       fs.chmodSync(configs.getWorkspace(), _777);
     });
 
+    it('finds module assets', async () => {
+      const { manifest, run } = create( configs.client( true ) );
+
+      await run();
+
+      assert.isTrue( manifest.has('images/Ginger.asset.jpg') );
+    });
+
     it('should support multi compiler mode', done => {
       const assets = Object.create(null);
       const multiConfig = configs.multi().map( config => {
@@ -1150,7 +1145,7 @@ describe('WebpackAssetsManifest', function() {
             assert.isNull(err, 'Error reading assets manifest');
             assert.include(content.toString(), 'client.js');
             assert.include(content.toString(), 'server.js');
-            assert.include(content.toString(), 'images/Ginger.jpg');
+            assert.include(content.toString(), 'images/Ginger.asset.jpg');
 
             done();
           },
@@ -1165,7 +1160,7 @@ describe('WebpackAssetsManifest', function() {
         const created = create(
           configs.complex(),
           {
-            output: './reports/manifest.json',
+            output: './reports/assets-manifest.json',
             integrity: true,
             integrityHashes: [ 'md5' ],
             entrypoints: true,
@@ -1268,7 +1263,7 @@ describe('WebpackAssetsManifest', function() {
 
         await run();
 
-        assert.isTrue( manifest.has('test/fixtures/images/Ginger.jpg') );
+        assert.isTrue( manifest.has('test/fixtures/images/Ginger.asset.jpg') );
       });
 
       it('contextRelativeKeys is off', async () => {
@@ -1284,7 +1279,7 @@ describe('WebpackAssetsManifest', function() {
 
         await run();
 
-        assert.isTrue( manifest.has('Ginger.jpg') );
+        assert.isTrue( manifest.has('Ginger.asset.jpg') );
       });
     });
   });
@@ -1316,19 +1311,22 @@ describe('WebpackAssetsManifest', function() {
         webpack,
       );
 
-      compiler.outputFileSystem.mkdirp(
+      webpack_mkdirp(
+        compiler.outputFileSystem,
         path.dirname(manifest.getOutputPath()),
-        function(err) {
-          assert.isNull(err, 'Error found when creating directory');
+        async err => {
+          assert.isUndefined(err, 'Error found when creating directory');
 
           fs.writeFileSync(manifest.getOutputPath(), '', { mode: _444 });
 
-          run().catch( err => {
-            assert.isNotNull(err, 'Permissions error not found');
-            assert.equal('EACCES', err.code);
+          const error = await run().catch( error => error );
 
-            fs.chmodSync(manifest.getOutputPath(), _777);
-          }).then( done );
+          assert.isNotNull(error, 'Permissions error not found');
+          assert.equal('EACCES', error.code);
+
+          fs.chmodSync(manifest.getOutputPath(), _777);
+
+          done();
         },
       );
     });
@@ -1383,7 +1381,7 @@ describe('WebpackAssetsManifest', function() {
 
       server.listen(8888, 'localhost', function() {
         superagent
-          .get('http://localhost:8888/assets/manifest.json')
+          .get('http://localhost:8888/assets/assets-manifest.json')
           .end(function(err, res) {
             server.close();
 
@@ -1441,7 +1439,7 @@ describe('WebpackAssetsManifest', function() {
 
       server.listen(8888, 'localhost', function() {
         superagent
-          .get('http://localhost:8888/assets/manifest.json')
+          .get('http://localhost:8888/assets/assets-manifest.json')
           .end(function(err) {
             if ( err ) {
               throw err;

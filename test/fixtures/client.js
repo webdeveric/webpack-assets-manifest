@@ -1,5 +1,6 @@
 'use strict';
 
-console.log('Client');
+require('./images/Ginger.asset.jpg');
+require('./images/Ginger.loader.jpg');
 
-require('./images/Ginger.jpg');
+console.log('Client');

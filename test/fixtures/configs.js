@@ -62,10 +62,17 @@ function client( hashed = false )
     module: {
       rules: [
         {
-          test: /\.jpg$/i,
+          test: /\.loader\.jpg$/i,
           loader: 'file-loader',
           options: {
             name: hashed ? 'images/[name]-[contenthash:6].[ext]' : 'images/[name].[ext]',
+          },
+        },
+        {
+          test: /\.asset\.jpg$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: hashed ? 'images/[name]-[contenthash:6][ext]' : 'images/[name][ext]',
           },
         },
       ],
@@ -183,10 +190,17 @@ function complex()
     module: {
       rules: [
         {
-          test: /\.jpg$/i,
+          test: /\.loader\.jpg$/i,
           loader: 'file-loader',
           options: {
             name: 'images/HASH.[ext]',
+          },
+        },
+        {
+          test: /\.asset\.jpg$/i,
+          type: 'asset/resource',
+          generator: {
+            filename: 'images/HASH[ext][query]',
           },
         },
         {

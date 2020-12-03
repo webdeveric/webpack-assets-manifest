@@ -13,7 +13,7 @@
     },
     "output": {
       "type": "string",
-      "default": "manifest.json"
+      "default": "assets-manifest.json"
     },
     "replacer": {
       "oneOf": [
