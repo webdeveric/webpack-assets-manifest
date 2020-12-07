@@ -16,6 +16,7 @@
     "lcov",
     "prebuild",
     "prefetch",
+    "preload",
     "subpage",
     "subresource",
     "tapable",

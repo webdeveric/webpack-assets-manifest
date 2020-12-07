@@ -9,20 +9,18 @@ This webpack plugin will generate a JSON file that matches the original filename
 
 ## Installation
 
-- Version 4 works with webpack 4.40+ (webpack 4 branch only)
-- Version 3.1 works with webpack 4.4+.
-- Version 2 works with webpack 4+.
-
 ```shell
 npm install webpack-assets-manifest --save-dev
 ```
 
-If you're using webpack 3 or below, you'll need to install version 1.
+## New in version 5
 
-```shell
-npm install webpack-assets-manifest@1 --save-dev
-```
-
+* Compatible with webpack 5 only (5.1+ required).
+* Supports finding [asset modules](https://webpack.js.org/guides/asset-modules/).
+* Updated options schema to prevent additional properties. This helps with catching typos in option names.
+* :warning: Updated default value of the `output` option to be `assets-manifest.json`.
+  This is to prevent confusion when working with [Web app manifests](https://developer.mozilla.org/en-US/docs/Web/Manifest) or [WebExtension manifests](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json).
+  
 ## New in version 4
 
 * Requires Node 10+.
@@ -31,6 +29,36 @@ npm install webpack-assets-manifest@1 --save-dev
 * Updated [`writeToDisk`](#writeToDisk) option to default to `auto`.
 * Use lock files for various operations.
 * `done` hook is now an `AsyncSeriesHook`.
+* :warning: The structure of the `entrypoints` data has been updated to include `preload` and `prefetch` assets. Assets for an entrypoint are now included in an `assets` property under the entrypoint.
+
+  Example:
+
+  ```json
+  {
+    "entrypoints": {
+      "main": {
+        "assets": {
+          "css": [
+            "main.css"
+          ],
+          "js": [
+            "main.js"
+          ]
+        },
+        "prefetch": {
+          "js": [
+            "prefetch.js"
+          ]
+        },
+        "preload": {
+          "js": [
+            "preload.js"
+          ]
+        }
+      }
+    }
+  }
+  ```
 
 ## Usage
 
@@ -86,7 +114,7 @@ Is the plugin enabled?
 
 Type: `string`
 
-Default: `manifest.json`
+Default: `assets-manifest.json`
 
 This is where to save the manifest file relative to your webpack `output.path`.
 
@@ -422,4 +450,3 @@ new WebpackAssetsManifest({
   }
 });
 ```
-
