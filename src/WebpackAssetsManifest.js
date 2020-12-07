@@ -9,13 +9,12 @@
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const util = require('util');
 
 const get = require('lodash.get');
 const has = require('lodash.has');
 const { validate } = require('schema-utils');
 const { AsyncSeriesHook, SyncHook, SyncWaterfallHook } = require('tapable');
-const { RawSource } = require('webpack-sources');
+const { Compilation, NormalModule, sources: { RawSource } } = require('webpack');
 
 const {
   maybeArrayWrap,
@@ -134,17 +133,15 @@ class WebpackAssetsManifest
       this.hmrRegex = templateStringToRegExp( hotUpdateChunkFilename, 'i' );
     }
 
-    compiler.hooks.beforeRun.tap(PLUGIN_NAME, this.handleBeforeRun.bind(this));
+    const handleBeforeRun = this.handleBeforeRun.bind(this);
 
-    compiler.hooks.watchRun.tap(PLUGIN_NAME, this.handleBeforeRun.bind(this));
+    compiler.hooks.beforeRun.tap(PLUGIN_NAME, handleBeforeRun);
+
+    compiler.hooks.watchRun.tap(PLUGIN_NAME, handleBeforeRun);
 
     compiler.hooks.compilation.tap(PLUGIN_NAME, this.handleCompilation.bind(this));
 
-    if ( this.options.integrity ) {
-      compiler.hooks.emit.tap(PLUGIN_NAME, this.recordSubresourceIntegrity.bind(this));
-    }
-
-    compiler.hooks.emit.tapAsync(PLUGIN_NAME, this.handleEmit.bind(this));
+    compiler.hooks.thisCompilation.tap(PLUGIN_NAME, this.handleThisCompilation.bind(this));
 
     // Use fs to write the manifest.json to disk if `options.writeToDisk` is true
     compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
@@ -166,7 +163,7 @@ class WebpackAssetsManifest
     return {
       enabled: true,
       assets: Object.create(null),
-      output: 'manifest.json',
+      output: 'assets-manifest.json',
       replacer: null, // Its easier to use the transform hook instead.
       space: 2,
       writeToDisk: 'auto',
@@ -458,7 +455,7 @@ class WebpackAssetsManifest
 
     compilation.emitAsset(
       output,
-      new RawSource(this.toString()),
+      new RawSource(this.toString(), false),
       {
         assetsManifest: true,
       },
@@ -470,12 +467,51 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Handle the `emit` event
+   * Record details of Asset Modules
    *
-   * @param  {object} compilation - the Webpack compilation object
-   * @param  {Function} callback
+   * @param {*} compilation
    */
-  handleEmit(compilation, callback)
+  handleProcessAssetsAnalyse( compilation /* , assets */ )
+  {
+    const { contextRelativeKeys } = this.options;
+
+    for ( const chunk of compilation.chunks ) {
+      const modules = compilation.chunkGraph.getChunkModulesIterableBySourceType(
+        chunk,
+        'asset',
+      );
+
+      if ( modules ) {
+        for ( const module of modules ) {
+          const { assetInfo, filename } = module.buildInfo;
+
+          const info = Object.assign(
+            {
+              sourceFilename: path.relative( compilation.compiler.context, module.userRequest ),
+              userRequest: module.userRequest,
+            },
+            assetInfo,
+          );
+
+          compilation.assetsInfo.set(filename, info);
+
+          this.assetNames.set(
+            contextRelativeKeys ?
+              info.sourceFilename :
+              path.join( path.dirname(filename), path.basename(module.userRequest) ),
+            filename,
+          );
+        }
+      }
+    }
+  }
+
+  /**
+   * Gather asset details
+   *
+   * @param {object} compilation
+   */
+  handleAfterProcessAssets( compilation /* , assets */ )
   {
     // Look in DefaultStatsPresetPlugin.js for options
     const stats = compilation.getStats().toJson({
@@ -556,8 +592,6 @@ class WebpackAssetsManifest
     }
 
     this.emitAssetsManifest(compilation);
-
-    callback();
   }
 
   /**
@@ -569,7 +603,7 @@ class WebpackAssetsManifest
    */
   getManifestPath(compilation, filename)
   {
-    return compilation.getPath( filename, { chunk: { name: 'manifest' }, filename: 'manifest.json' } );
+    return compilation.getPath( filename, { chunk: { name: 'assets-manifest' }, filename: 'assets-manifest.json' } );
   }
 
   /**
@@ -669,7 +703,7 @@ class WebpackAssetsManifest
   /**
    * Add the SRI hash to the assetsInfo map
    *
-   * @param  {object} compilation - the Webpack compilation object
+   * @param {object} compilation
    */
   recordSubresourceIntegrity( compilation )
   {
@@ -686,15 +720,43 @@ class WebpackAssetsManifest
   }
 
   /**
-   * Hook into the compilation object
+   * Hook into compilation objects
    *
    * @param  {object} compilation - the Webpack compilation object
    */
   handleCompilation(compilation)
   {
-    compilation.hooks.normalModuleLoader.tap(
+    NormalModule.getCompilationHooks(compilation).loader.tap(
       PLUGIN_NAME,
       this.handleNormalModuleLoader.bind(this, compilation),
+    );
+  }
+
+  /**
+   * Hook into the compilation object
+   *
+   * @param  {object} compilation - the Webpack compilation object
+   */
+  handleThisCompilation(compilation)
+  {
+    compilation.hooks.processAssets.tap(
+      {
+        name: PLUGIN_NAME,
+        stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+      },
+      this.handleProcessAssetsAnalyse.bind(this, compilation),
+    );
+
+    if ( this.options.integrity ) {
+      compilation.hooks.afterProcessAssets.tap(
+        PLUGIN_NAME,
+        this.recordSubresourceIntegrity.bind(this, compilation),
+      );
+    }
+
+    compilation.hooks.afterProcessAssets.tap(
+      PLUGIN_NAME,
+      this.handleAfterProcessAssets.bind(this, compilation),
     );
   }
 
@@ -797,16 +859,5 @@ class WebpackAssetsManifest
     return new Proxy(this, handler);
   }
 }
-
-/**
- * The stats object is no longer kept around for memory usage reasons.
- * Warn the user just in case they're using manifest.stats in the customize hook.
- * Stats are still available in the done hook.
- *
- * @todo remove this in the next major version.
- */
-Object.defineProperty(WebpackAssetsManifest.prototype, 'stats', {
-  get: util.deprecate(() => ({}), 'manifest.stats has been removed. Please use the done hook instead.'),
-});
 
 module.exports = WebpackAssetsManifest;

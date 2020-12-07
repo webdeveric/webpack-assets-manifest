@@ -2,6 +2,7 @@
   "title": "Webpack Assets Manifest options schema",
   "description": "Webpack Assets Manifest options",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "enabled": {
       "type": "boolean",
@@ -13,7 +14,7 @@
     },
     "output": {
       "type": "string",
-      "default": "manifest.json"
+      "default": "assets-manifest.json"
     },
     "replacer": {
       "oneOf": [
