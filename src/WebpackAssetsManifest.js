@@ -133,11 +133,7 @@ class WebpackAssetsManifest
       this.hmrRegex = templateStringToRegExp( hotUpdateChunkFilename, 'i' );
     }
 
-    const handleBeforeRun = this.handleBeforeRun.bind(this);
-
-    compiler.hooks.beforeRun.tap(PLUGIN_NAME, handleBeforeRun);
-
-    compiler.hooks.watchRun.tap(PLUGIN_NAME, handleBeforeRun);
+    compiler.hooks.watchRun.tap(PLUGIN_NAME, this.handleWatchRun.bind(this));
 
     compiler.hooks.compilation.tap(PLUGIN_NAME, this.handleCompilation.bind(this));
 
@@ -626,14 +622,12 @@ class WebpackAssetsManifest
     // Delete properties instead of setting to {} so that the variable reference
     // is maintained incase the `assets` is being shared in multi-compiler mode.
     Object.keys( this.assets ).forEach( key => delete this.assets[ key ] );
-
-    this.assetNames.clear();
   }
 
   /**
    * Cleanup before running Webpack
    */
-  handleBeforeRun()
+  handleWatchRun()
   {
     this.clear();
   }
