@@ -1217,6 +1217,8 @@ describe('WebpackAssetsManifest', function() {
       it('asset names point to the same file due to module.rules config', () => {
         const { assets } = manifest.toJSON();
 
+        expect( assets[ 'images/Ginger.asset.jpg' ], 'assets: images/Ginger.asset.jpg is undefined' ).to.not.be.undefined;
+        expect( assets[ 'images/Ginger.loader.jpg' ], 'assets: images/Ginger.loader.jpg is undefined' ).to.not.be.undefined;
         expect( assets[ 'images/Ginger.asset.jpg' ] ).to.deep.equal( assets[ 'images/Ginger.loader.jpg' ] );
       });
 

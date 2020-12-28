@@ -488,7 +488,6 @@ class WebpackAssetsManifest
           const info = Object.assign(
             {
               sourceFilename: path.relative( compilation.compiler.context, module.userRequest ),
-              userRequest: module.userRequest,
             },
             assetInfo,
           );
@@ -730,6 +729,14 @@ class WebpackAssetsManifest
       PLUGIN_NAME,
       this.handleNormalModuleLoader.bind(this, compilation),
     );
+
+    compilation.hooks.processAssets.tap(
+      {
+        name: PLUGIN_NAME,
+        stage: Compilation.PROCESS_ASSETS_STAGE_REPORT,
+      },
+      this.handleProcessAssetsAnalyse.bind(this, compilation),
+    );
   }
 
   /**
@@ -739,14 +746,6 @@ class WebpackAssetsManifest
    */
   handleThisCompilation(compilation)
   {
-    compilation.hooks.processAssets.tap(
-      {
-        name: PLUGIN_NAME,
-        stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
-      },
-      this.handleProcessAssetsAnalyse.bind(this, compilation),
-    );
-
     if ( this.options.integrity ) {
       compilation.hooks.afterProcessAssets.tap(
         PLUGIN_NAME,
