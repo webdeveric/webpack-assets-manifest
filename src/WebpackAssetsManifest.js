@@ -550,9 +550,13 @@ class WebpackAssetsManifest
     if ( this.options.entrypoints ) {
       const removeHMR = file => ! this.isHMR(file);
       const getExtensionGroup = file => this.getExtension(file).substring(1).toLowerCase();
-      const getAssetOrFilename = this.options.entrypointsUseAssets ?
-        file => this.assets[ findAssetKeys( file ).pop() ] || this.assets[ file ] || file :
-        undefined;
+      const getAssetOrFilename = file => {
+        const asset = this.options.entrypointsUseAssets ?
+          this.assets[ findAssetKeys( file ).pop() ] || this.assets[ file ] :
+          undefined;
+
+        return asset ? asset : this.getPublicPath( file );
+      };
 
       const entrypoints = Object.create(null);
 
