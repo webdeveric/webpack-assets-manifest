@@ -876,6 +876,27 @@ describe('WebpackAssetsManifest', function() {
           },
         });
       });
+
+      it('entrypoints are prefixed with publicPath when entrypointsUseAssets is false', async () => {
+        const { manifest, run } = create(
+          configs.hello(),
+          {
+            entrypoints: true,
+            entrypointsUseAssets: false,
+            publicPath: 'https://example.com/',
+          },
+        );
+
+        await run();
+
+        expect( manifest.get('entrypoints') ).to.deep.equal({
+          main: {
+            assets: {
+              js: [ 'https://example.com/main.js' ],
+            },
+          },
+        });
+      });
     });
 
     describe('entrypointsKey', function() {
@@ -1224,8 +1245,8 @@ describe('WebpackAssetsManifest', function() {
         const { entrypoints } = manifest.toJSON();
 
         expect( entrypoints.main.assets ).to.deep.equal({
-          css: [ 'main-HASH.css' ],
-          js: [ 'main-HASH.js' ],
+          css: [ 'https://assets.example.com/main-HASH.css' ],
+          js: [ 'https://assets.example.com/main-HASH.js' ],
         });
       });
     });

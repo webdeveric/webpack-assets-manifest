@@ -134,9 +134,7 @@ class WebpackAssetsManifest
       this.hmrRegex = templateStringToRegExp( hotUpdateChunkFilename, 'i' );
     }
 
-    compiler.hooks.beforeRun.tap(PLUGIN_NAME, this.handleBeforeRun.bind(this));
-
-    compiler.hooks.watchRun.tap(PLUGIN_NAME, this.handleBeforeRun.bind(this));
+    compiler.hooks.watchRun.tap(PLUGIN_NAME, this.handleWatchRun.bind(this));
 
     compiler.hooks.compilation.tap(PLUGIN_NAME, this.handleCompilation.bind(this));
 
@@ -519,9 +517,13 @@ class WebpackAssetsManifest
     if ( this.options.entrypoints ) {
       const removeHMR = file => ! this.isHMR(file);
       const getExtensionGroup = file => this.getExtension(file).substring(1).toLowerCase();
-      const getAssetOrFilename = this.options.entrypointsUseAssets ?
-        file => this.assets[ findAssetKeys( file ).pop() ] || this.assets[ file ] || file :
-        undefined;
+      const getAssetOrFilename = file => {
+        const asset = this.options.entrypointsUseAssets ?
+          this.assets[ findAssetKeys( file ).pop() ] || this.assets[ file ] :
+          undefined;
+
+        return asset ? asset : this.getPublicPath( file );
+      };
 
       const entrypoints = Object.create(null);
 
@@ -593,14 +595,12 @@ class WebpackAssetsManifest
     // Delete properties instead of setting to {} so that the variable reference
     // is maintained incase the `assets` is being shared in multi-compiler mode.
     Object.keys( this.assets ).forEach( key => delete this.assets[ key ] );
-
-    this.assetNames.clear();
   }
 
   /**
    * Cleanup before running Webpack
    */
-  handleBeforeRun()
+  handleWatchRun()
   {
     this.clear();
   }
