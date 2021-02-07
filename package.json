@@ -61,11 +61,11 @@
     "@types/lodash.escaperegexp": "^4.1.6",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.has": "^4.5.6",
-    "@types/node": "^14.14.22",
+    "@types/node": "^14.14.25",
     "@types/tapable": "^1.0.6",
     "@types/webpack-sources": "^2.1.0",
     "@webdeveric/eslint-config": "^0.1.0",
-    "chai": "^4.2.0",
+    "chai": "^4.3.0",
     "chai-spies": "^1.0.0",
     "compression-webpack-plugin": "^7.1.2",
     "copy-webpack-plugin": "^7.0.0",
@@ -82,7 +82,7 @@
     "rimraf": "^3.0.2",
     "superagent": "^6.1.0",
     "typescript": "^4.1.3",
-    "webpack": "^5.19.0",
+    "webpack": "^5.21.2",
     "webpack-dev-server": "^3.11.2",
     "webpack-subresource-integrity": "^1.5.2"
   }
