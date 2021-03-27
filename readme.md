@@ -347,6 +347,22 @@ Default: `null`
 
 Callback to customize each entry in the manifest.
 
+You can use this to customize entry names for example. In the sample below, we adjust `img` keys so that it's easier to use them with a template engine:
+
+```javascript
+new WebpackAssetsManifest({
+  customize: (o) => {
+    if (o.key.startsWith('img/')) {
+      return { key: o.key.split('img/')[1], value: o.value };
+    }
+
+    return o;
+  }
+}
+```
+
+The function is called per each entry and provides you a way to intercept and rewrite each object. The result is then merged into a whole manifest.
+
 ### `transform`
 
 Type: `function`
