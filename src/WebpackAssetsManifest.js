@@ -502,6 +502,29 @@ class WebpackAssetsManifest
   }
 
   /**
+   * When using webpack 5 persistent cache, loaderContext.emitFile sometimes doesn't
+   * get called and so the asset names are not recorded. To work around this, lets
+   * loops over the stats.assets and record the asset names.
+   *
+   * @param {Object[]} assets
+   */
+  processStatsAssets(assets)
+  {
+    const { contextRelativeKeys } = this.options;
+
+    assets.forEach( asset => {
+      if ( asset.name && asset.info.sourceFilename ) {
+        this.assetNames.set(
+          contextRelativeKeys ?
+            asset.info.sourceFilename :
+            path.join( path.dirname(asset.name), path.basename(asset.info.sourceFilename) ),
+          asset.name,
+        );
+      }
+    });
+  }
+
+  /**
    * Gather asset details
    *
    * @param {object} compilation
@@ -512,9 +535,13 @@ class WebpackAssetsManifest
     const stats = compilation.getStats().toJson({
       all: false,
       assets: true,
+      cachedAssets: true,
+      cachedModules: true,
       chunkGroups: this.options.entrypoints,
       chunkGroupChildren: this.options.entrypoints,
     });
+
+    this.processStatsAssets( stats.assets );
 
     this.processAssetsByChunkName( stats.assetsByChunkName );
 
