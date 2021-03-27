@@ -1535,7 +1535,7 @@ describe('WebpackAssetsManifest', function() {
 
       await run();
 
-      expect( manifest.get('readme.md') ).to.equal('readme.md');
+      expect( manifest.get('readme.md') ).to.equal('readme-copied.md');
     });
   });
 

@@ -133,7 +133,7 @@ function copy()
       patterns: [
         {
           from: path.join(__dirname, 'readme.md'),
-          // to: './readme-copied.md',
+          to: './readme-copied.md',
         },
       ],
     }),
