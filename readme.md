@@ -351,9 +351,9 @@ You can use this to customize entry names for example. In the sample below, we a
 
 ```javascript
 new WebpackAssetsManifest({
-  customize: (o) => {
-    if (o.key.startsWith('img/')) {
-      return { key: o.key.split('img/')[1], value: o.value };
+  customize(entry) {
+    if (entry.key.startsWith('img/')) {
+      return { key: entry.key.split('img/')[1], value: entry.value };
     }
 
     return o;
@@ -362,6 +362,8 @@ new WebpackAssetsManifest({
 ```
 
 The function is called per each entry and provides you a way to intercept and rewrite each object. The result is then merged into a whole manifest.
+
+[View the example](examples/customized.js) to see what else you can do with this function.
 
 ### `transform`
 
