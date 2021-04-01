@@ -23,5 +23,9 @@
     "typecheck",
     "webdeveric"
   ],
-  "flagWords": []
+  "flagWords": [],
+  "ignorePaths": [
+    "package-lock.json",
+    "node_modules"
+  ]
 }

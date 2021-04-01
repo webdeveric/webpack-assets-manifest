@@ -30,11 +30,17 @@
   "scripts": {
     "lint": "eslint --fix src test",
     "typecheck": "tsc",
-    "spellcheck": "cspell --no-progress \"./{.github,src,test}/**/*.{js,json}\" \"./*.{md,js}\" \"./package.json\"",
+    "spellcheck": "cspell --no-progress './{.github,src,test}/**/*.{js,json}' './*.{md,js}' './package.json'",
     "test": "nyc mocha --colors",
     "test:report": "nyc --reporter=lcov --reporter=text mocha --colors",
     "lcov": "nyc report --reporter=text-lcov > coverage.lcov",
+    "pre-commit": "lint-staged",
+    "prepare": "husky install",
     "prepublishOnly": "npm run spellcheck && npm run lint && npm test"
+  },
+  "lint-staged": {
+    "*.{js,json,md}": "cspell lint --no-progress --no-summary --no-must-find-files",
+    "*.js": "eslint --fix"
   },
   "engines": {
     "node": ">=10.13.0"
@@ -74,6 +80,8 @@
     "eslint": "^7.19.0",
     "file-loader": "^6.2.0",
     "fs-extra": "^9.1.0",
+    "husky": "^6.0.0",
+    "lint-staged": "^10.5.4",
     "memory-fs": "^0.5.0",
     "mini-css-extract-plugin": "^1.3.6",
     "mkdirp": "^1.0.4",
@@ -82,7 +90,7 @@
     "rimraf": "^3.0.2",
     "superagent": "^6.1.0",
     "typescript": "^4.1.5",
-    "webpack": "^5.21.2",
+    "webpack": "^5.30.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-subresource-integrity": "^1.5.2"
   }
