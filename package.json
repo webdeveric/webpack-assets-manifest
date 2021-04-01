@@ -62,7 +62,7 @@
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.has": "^4.5.6",
     "@types/node": "^14.14.27",
-    "@types/tapable": "^2.2.0",
+    "@types/tapable": "^2.2.2",
     "@types/webpack-sources": "^2.1.0",
     "@webdeveric/eslint-config": "^0.1.0",
     "chai": "^4.3.0",
