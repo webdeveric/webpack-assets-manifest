@@ -275,26 +275,54 @@ describe('WebpackAssetsManifest', function() {
     });
 
     describe('inDevServer()', function() {
-      let originalEnv;
+      let originalArgv;
 
-      before(() => {
-        originalEnv = { ...process.env };
+      beforeEach(() => {
+        originalArgv = process.argv.slice(0);
       });
 
-      after(() => {
-        process.env = originalEnv;
+      afterEach(() => {
+        process.argv = originalArgv;
       });
 
-      it('Identifies webpack-dev-server from process.env', function() {
+      it('Identifies `webpack serve` from argv', function() {
         const manifest = new WebpackAssetsManifest();
 
-        delete process.env.WEBPACK_DEV_SERVER;
+        assert.isFalse(manifest.inDevServer());
 
-        assert.isFalse( manifest.inDevServer() );
+        process.argv = [
+          originalArgv[ 0 ],
+          path.join(
+            path.dirname( originalArgv[ 1 ] ),
+            'webpack',
+          ),
+          'serve',
+        ];
 
-        process.env.WEBPACK_DEV_SERVER = true;
+        assert.isTrue(manifest.inDevServer());
+      });
 
-        assert.isTrue( manifest.inDevServer() );
+      it('Identifies webpack-dev-server from argv', function() {
+        const manifest = new WebpackAssetsManifest();
+
+        assert.isFalse(manifest.inDevServer());
+
+        process.argv.push('webpack-dev-server');
+
+        assert.isTrue(manifest.inDevServer());
+      });
+
+      it('Identifies webpack-dev-server from outputFileSystem', function() {
+        const config = configs.hello();
+
+        config.output.path = '/';
+
+        const compiler = makeCompiler(config);
+        const manifest = new WebpackAssetsManifest();
+
+        manifest.apply(compiler);
+
+        assert.isTrue(manifest.inDevServer());
       });
     });
 
@@ -958,6 +986,51 @@ describe('WebpackAssetsManifest', function() {
 
         expect( manifest.get('client.js') ).to.equal('client.js');
         expect( manifest.get('test/fixtures/images/Ginger.asset.jpg') ).to.equal('images/Ginger.asset.jpg');
+      });
+    });
+
+    describe('writeToDisk', function() {
+      it('Uses webpack config options.devServer.writeToDisk when available', async () => {
+        const { manifest } = create(
+          configs.devServer(),
+          {
+            writeToDisk: 'auto',
+          },
+        );
+
+        const mockCompilation = {
+          options: {
+            devServer: {
+              writeToDisk: true,
+            },
+          },
+        };
+
+        // The plugin shouldn't write to disk if the dev server is configured to do it.
+        expect( manifest.shouldWriteToDisk( mockCompilation ) ).to.be.false;
+      });
+
+      it('Calls options.devServer.writeToDisk() with manifest path', async () => {
+        const { manifest } = create(
+          configs.devServer( __dirname ),
+          {
+            writeToDisk: 'auto',
+          },
+        );
+
+        const mockCompilation = {
+          getPath: filename => filename,
+          options: {
+            devServer: {
+              writeToDisk(filePath) {
+                return manifest.getOutputPath() === filePath;
+              },
+            },
+          },
+        };
+
+        // The plugin shouldn't write to disk if the dev server is configured to do it.
+        expect( manifest.shouldWriteToDisk( mockCompilation ) ).to.be.false;
       });
     });
 
