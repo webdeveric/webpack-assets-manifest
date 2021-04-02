@@ -16,11 +16,16 @@
     "lcov",
     "prebuild",
     "prefetch",
+    "preload",
     "subpage",
     "subresource",
     "tapable",
     "typecheck",
     "webdeveric"
   ],
-  "flagWords": []
+  "flagWords": [],
+  "ignorePaths": [
+    "package-lock.json",
+    "node_modules"
+  ]
 }
