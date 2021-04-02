@@ -933,6 +933,26 @@ describe('WebpackAssetsManifest', function() {
       });
     });
 
+    describe('entrypoints and assets', () => {
+      it('entrypoints in shared assets get merged', async () => {
+        const options = {
+          assets: Object.create(null),
+          entrypoints: true,
+        };
+
+        const { manifest, run: run1 } = create( configs.hello(), options );
+
+        const { run: run2 } = create( configs.client(), options );
+
+        await Promise.all([ run1(), run2() ]);
+
+        const entrypointsKeys = Object.keys( manifest.get('entrypoints') );
+
+        expect( entrypointsKeys ).to.contain('main');
+        expect( entrypointsKeys ).to.contain('client');
+      });
+    });
+
     describe('done', function() {
       it('is called when compilation is done', async () => {
         const mock1 = chai.spy( async () => true );

@@ -553,7 +553,13 @@ class WebpackAssetsManifest
           this.setRaw( key, entrypoints[ key ] );
         }
       } else {
-        this.setRaw( this.options.entrypointsKey, entrypoints );
+        this.setRaw(
+          this.options.entrypointsKey,
+          {
+            ...this.get( this.options.entrypointsKey ),
+            ...entrypoints,
+          },
+        );
       }
     }
 
