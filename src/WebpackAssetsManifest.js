@@ -613,7 +613,13 @@ class WebpackAssetsManifest
           this.setRaw( key, entrypoints[ key ] );
         }
       } else {
-        this.setRaw( this.options.entrypointsKey, entrypoints );
+        this.setRaw(
+          this.options.entrypointsKey,
+          {
+            ...this.get( this.options.entrypointsKey ),
+            ...entrypoints,
+          },
+        );
       }
     }
 
@@ -672,12 +678,24 @@ class WebpackAssetsManifest
   shouldWriteToDisk(compilation)
   {
     if ( this.options.writeToDisk === 'auto' ) {
-      // Return true if using webpack-dev-server and the manifest output is above the compiler outputPath.
-      return this.inDevServer() &&
-        path.relative(
-          this.compiler.outputPath,
-          this.getManifestPath( compilation, this.getOutputPath() ),
-        ).startsWith('..');
+      if ( this.inDevServer() ) {
+        const wdsWriteToDisk = get( compilation, 'options.devServer.writeToDisk' );
+
+        if ( wdsWriteToDisk === true ) {
+          return false;
+        }
+
+        const manifestPath = this.getManifestPath( compilation, this.getOutputPath() );
+
+        if ( typeof wdsWriteToDisk === 'function' && wdsWriteToDisk( manifestPath ) === true ) {
+          return false;
+        }
+
+        // Return true if the manifest output is above the compiler outputPath.
+        return path.relative( this.compiler.outputPath, manifestPath ).startsWith('..');
+      }
+
+      return false;
     }
 
     return this.options.writeToDisk;
@@ -787,13 +805,24 @@ class WebpackAssetsManifest
   /**
    * Determine if webpack-dev-server is being used
    *
-   * The WEBPACK_DEV_SERVER env var was added in webpack-dev-server 3.4.1
+   * The WEBPACK_DEV_SERVER / WEBPACK_SERVE env vars cannot be relied upon.
+   * See issue {@link https://github.com/webdeveric/webpack-assets-manifest/issues/125|#125}
    *
    * @return {boolean}
    */
   inDevServer()
   {
-    return !! process.env.WEBPACK_DEV_SERVER;
+    const [ , webpackPath, serve ] = process.argv;
+
+    if ( serve === 'serve' && webpackPath && path.basename(webpackPath) === 'webpack' ) {
+      return true;
+    }
+
+    if ( process.argv.some( arg => arg.includes('webpack-dev-server') ) ) {
+      return true;
+    }
+
+    return has(this, 'compiler.outputFileSystem') && this.compiler.outputFileSystem.constructor.name === 'MemoryFileSystem';
   }
 
   /**
