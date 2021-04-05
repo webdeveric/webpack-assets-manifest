@@ -24,7 +24,6 @@ const {
   varType,
   isObject,
   getSortedObject,
-  templateStringToRegExp,
   group,
   findMapKeysByValue,
   lock,
@@ -101,9 +100,6 @@ class WebpackAssetsManifest
     // The Webpack compiler instance
     this.compiler = null;
 
-    // This is used to identify hot module replacement files
-    this.hmrRegex = null;
-
     // Is a merge happening?
     this[ IS_MERGING ] = false;
   }
@@ -126,12 +122,6 @@ class WebpackAssetsManifest
 
     // Ensure options contain defaults and are valid
     this.hooks.afterOptions.call(this.options);
-
-    const { output: { filename, hotUpdateChunkFilename } } = compiler.options;
-
-    if ( filename !== hotUpdateChunkFilename && typeof hotUpdateChunkFilename === 'string' ) {
-      this.hmrRegex = templateStringToRegExp( hotUpdateChunkFilename, 'i' );
-    }
 
     compiler.hooks.watchRun.tap(PLUGIN_NAME, this.handleWatchRun.bind(this));
 
@@ -228,16 +218,6 @@ class WebpackAssetsManifest
   fixKey(key)
   {
     return typeof key === 'string' ? key.replace( /\\/g, '/' ) : key;
-  }
-
-  /**
-   * Determine if the filename matches the HMR filename pattern.
-   *
-   * @return {boolean}
-   */
-  isHMR(filename)
-  {
-    return this.hmrRegex ? this.hmrRegex.test( filename ) : false;
   }
 
   /**
@@ -358,13 +338,14 @@ class WebpackAssetsManifest
    * Process compilation assets.
    *
    * @param  {object} assets - Assets by chunk name
+   * @param  {Set} hmrFiles - Set of HMR files
    * @return {object}
    */
-  processAssetsByChunkName(assets)
+  processAssetsByChunkName( assets, hmrFiles = new Set() )
   {
     Object.keys(assets).forEach( chunkName => {
       maybeArrayWrap( assets[ chunkName ] )
-        .filter( f => ! this.isHMR(f) ) // Remove hot module replacement files
+        .filter( filename => ! hmrFiles.has( filename ) ) // Remove hot module replacement files
         .forEach( filename => {
           this.assetNames.set( chunkName + this.getExtension( filename ), filename );
         });
@@ -525,11 +506,39 @@ class WebpackAssetsManifest
   }
 
   /**
+   * Get assets and hot module replacement files from a compilation object
+   *
+   * @param {*} compilation
+   *
+   * @returns {object}
+   */
+  getCompilationAssets( compilation ) {
+    const hmrFiles = new Set();
+
+    const assets = compilation.getAssets().filter(
+      asset => {
+        if ( asset.info.hotModuleReplacement ) {
+          hmrFiles.add( asset.name );
+
+          return false;
+        }
+
+        return ! asset.info.assetsManifest;
+      },
+    );
+
+    return {
+      assets,
+      hmrFiles,
+    };
+  }
+
+  /**
    * Gather asset details
    *
    * @param {object} compilation
    */
-  handleAfterProcessAssets( compilation /* , assets */ )
+  handleAfterProcessAssets( compilation )
   {
     // Look in DefaultStatsPresetPlugin.js for options
     const stats = compilation.getStats().toJson({
@@ -541,19 +550,17 @@ class WebpackAssetsManifest
       chunkGroupChildren: this.options.entrypoints,
     });
 
+    const { assets, hmrFiles } = this.getCompilationAssets( compilation );
+
     this.processStatsAssets( stats.assets );
 
-    this.processAssetsByChunkName( stats.assetsByChunkName );
+    this.processAssetsByChunkName( stats.assetsByChunkName, hmrFiles );
 
     const findAssetKeys = findMapKeysByValue( this.assetNames );
 
     const { contextRelativeKeys } = this.options;
 
-    for ( const asset of compilation.getAssets() ) {
-      if ( asset.info.assetsManifest ) {
-        continue;
-      }
-
+    for ( const asset of assets ) {
       const sourceFilenames = findAssetKeys( asset.name );
 
       if ( ! sourceFilenames.length ) {
@@ -575,7 +582,7 @@ class WebpackAssetsManifest
     }
 
     if ( this.options.entrypoints ) {
-      const removeHMR = file => ! this.isHMR(file);
+      const removeHMR = file => ! hmrFiles.has(file);
       const getExtensionGroup = file => this.getExtension(file).substring(1).toLowerCase();
       const getAssetOrFilename = file => {
         const asset = this.options.entrypointsUseAssets ?
