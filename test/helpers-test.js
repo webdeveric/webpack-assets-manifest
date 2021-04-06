@@ -14,7 +14,6 @@ const {
   varType,
   isObject,
   getSortedObject,
-  templateStringToRegExp,
   findMapKeysByValue,
   group,
 } = require('../src/helpers.js');
@@ -140,34 +139,6 @@ describe('Helpers', function() {
 
       expect( JSON.stringify( getSortedObject( obj ) ) ).to.equal('{"a":"a","b":"b"}');
       expect( JSON.stringify( getSortedObject( obj, (l, r) => l > r ? -1 : l < r ? 1 : 0 ) ) ).to.equal('{"b":"b","a":"a"}');
-    });
-  });
-
-  describe('templateStringToRegExp()', function() {
-    it('Builds a RegExp instance', function() {
-      const regex = templateStringToRegExp('[name]-[id].[hash].js');
-
-      expect(regex.test('demo-0.abc123.js')).to.equal(true);
-    });
-
-    it('RegExp instance has named capture groups', function() {
-      const regex = templateStringToRegExp('[name]-[id].[hash].js');
-
-      const { groups } = 'demo-0.abc123.js'.match(regex);
-
-      expect(groups).to.include({ name: 'demo', id: '0', hash: 'abc123' });
-    });
-
-    it('Accepts a flags parameter', function() {
-      const caseSensitive = templateStringToRegExp('demo.[hash].js');
-
-      expect( caseSensitive.test('demo.abc123.js') ).to.equal(true);
-      expect( caseSensitive.test('DEMO.abc123.js') ).to.equal(false);
-
-      const caseInsensitive = templateStringToRegExp('demo.[hash].js', 'i');
-
-      expect( caseInsensitive.test('demo.abc123.js') ).to.equal(true);
-      expect( caseInsensitive.test('DEMO.abc123.js') ).to.equal(true);
     });
   });
 

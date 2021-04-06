@@ -1588,27 +1588,48 @@ describe('WebpackAssetsManifest', function() {
     it('Should ignore HMR files', function() {
       const config = configs.hello();
 
-      config.output.hotUpdateChunkFilename = '[id].[hash:6].hot-update.js';
-
       const { manifest } = create( config );
 
-      manifest.processAssetsByChunkName({
-        main: [ 'main.123456.js', '0.123456.hot-update.js' ],
-      });
+      manifest.processAssetsByChunkName(
+        {
+          main: [ 'main.123456.js', '0.123456.hot-update.js' ],
+        },
+        new Set([ '0.123456.hot-update.js' ]),
+      );
 
       assert.equal( manifest.assetNames.get('main.js'), 'main.123456.js' );
       assert.isFalse( [ ...manifest.assetNames.values() ].includes('0.123456.hot-update.js') );
     });
 
-    it('isHMR should return false when hotUpdateChunkFilename is ambiguous', function() {
-      const config = configs.client();
+    it('getCompilationAssets() returns assets and HMR Set', () => {
+      const manifest = new WebpackAssetsManifest();
 
-      config.output.hotUpdateChunkFilename = config.output.filename;
+      const mainAsset = {
+        name: 'main.js',
+        info: {},
+      };
 
-      const { manifest } = create( config );
+      const hmrFilename = '0.123456.hot-update.js';
 
-      assert.isFalse( manifest.isHMR('main.js') );
-      assert.isFalse( manifest.isHMR('0.123456.hot-update.js') );
+      const mockCompilation = chai.spy.interface({
+        getAssets() {
+          return [
+            mainAsset,
+            {
+              name: hmrFilename,
+              info: {
+                hotModuleReplacement: true,
+              },
+            },
+          ];
+        },
+      });
+
+      const { assets, hmrFiles } = manifest.getCompilationAssets( mockCompilation );
+
+      expect( mockCompilation.getAssets ).to.have.been.called;
+      expect( assets ).to.be.an('array').that.does.include( mainAsset ).and.to.have.lengthOf(1);
+      expect( hmrFiles.has( hmrFilename ) ).to.be.true;
     });
   });
 
