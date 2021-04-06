@@ -5,7 +5,6 @@ const path = require('path');
 const crypto = require('crypto');
 const util = require('util');
 const chalk = require('chalk');
-const escapeRegExp = require('lodash.escaperegexp');
 const lockfile = require('lockfile');
 
 const lfLock = util.promisify(lockfile.lock);
@@ -125,25 +124,6 @@ function getSortedObject(object, compareFunction)
 }
 
 /**
- * Build a RegExp instance based on the input string, which can contain place holders like [hash] and [id].
- *
- * @param {string} input
- * @param {string|undefined} flags
- *
- * @returns {RegExp}
- */
-function templateStringToRegExp(input, flags = undefined)
-{
-  return new RegExp(
-    escapeRegExp(input).replace(
-      /\\\[(?<name>[a-z]+)(?::(?<length>\d+))?\\\]/gi, // This replaces \[hash\] or \[hash:6\]
-      (match, p1, p2, offset, str, { name, length = '1,' }) => `(?<${name}>.{${length}})`,
-    ) + '$',
-    flags,
-  );
-}
-
-/**
  * Find a Map entry key by the value
  *
  * @param {Map} map
@@ -255,7 +235,6 @@ module.exports = {
   varType,
   isObject,
   getSortedObject,
-  templateStringToRegExp,
   findMapKeysByValue,
   group,
   getLockFilename,

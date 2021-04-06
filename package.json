@@ -54,7 +54,6 @@
     "chalk": "^4.0",
     "deepmerge": "^4.0",
     "lockfile": "^1.0",
-    "lodash.escaperegexp": "^4.0",
     "lodash.get": "^4.0",
     "lodash.has": "^4.0",
     "mkdirp": "^1.0",
