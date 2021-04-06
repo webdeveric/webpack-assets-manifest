@@ -65,7 +65,6 @@
     "webpack": "^4.40.0"
   },
   "devDependencies": {
-    "@types/lodash.escaperegexp": "^4.1.6",
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.has": "^4.5.6",
     "@types/node": "^14.14.37",
