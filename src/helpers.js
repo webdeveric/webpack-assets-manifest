@@ -170,7 +170,7 @@ function getLockFilename( filename )
 {
   const name = filename.replace(/[^\w]+/g, '-');
 
-  return path.join( os.tmpdir(), `${name}.lock` );
+  return path.join( os.tmpdir(), `${name}-${process.pid}.lock` );
 }
 
 /**
