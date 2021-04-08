@@ -60,7 +60,7 @@
     "tapable": "^2.0"
   },
   "peerDependencies": {
-    "webpack": "^5.1.0"
+    "webpack": "^5.2.0"
   },
   "devDependencies": {
     "@types/lodash.get": "^4.4.6",
