@@ -168,7 +168,7 @@ function group( arr, getGroup, mapper = item => item )
  */
 function getLockFilename( filename )
 {
-  const name = filename.replace(/[^\w]+/g, '-');
+  const name = filename.split(/[^\w]+/).filter( Boolean ).join('-');
 
   return path.join( os.tmpdir(), `${name}.lock` );
 }
@@ -184,9 +184,10 @@ async function lock( filename )
     getLockFilename( filename ),
     {
       wait: 10000,
-      stale: 20000,
-      retries: 100,
       retryWait: 100,
+      stale: 10000,
+      retries: 100,
+
     },
   );
 }
@@ -201,8 +202,9 @@ function lockSync( filename )
   return lockfile.lockSync(
     getLockFilename( filename ),
     {
-      stale: 20000,
-      retries: 200,
+      // wait and retryWait are not supported in lockSync
+      stale: 10000,
+      retries: 100,
     },
   );
 }

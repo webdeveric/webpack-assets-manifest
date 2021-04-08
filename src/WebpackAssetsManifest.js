@@ -417,15 +417,17 @@ class WebpackAssetsManifest
    */
   emitAssetsManifest(compilation)
   {
+    const outputPath = this.getOutputPath();
+
     const output = this.getManifestPath(
       compilation,
       this.inDevServer() ?
         path.basename( this.options.output ) :
-        path.relative( compilation.compiler.outputPath, this.getOutputPath() ),
+        path.relative( compilation.compiler.outputPath, outputPath ),
     );
 
     if ( this.options.merge ) {
-      lockSync( output );
+      lockSync( outputPath );
     }
 
     this.maybeMerge();
@@ -439,7 +441,7 @@ class WebpackAssetsManifest
     );
 
     if ( this.options.merge ) {
-      unlockSync( output );
+      unlockSync( outputPath );
     }
   }
 
