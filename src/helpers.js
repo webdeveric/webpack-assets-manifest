@@ -161,6 +161,11 @@ function group( arr, getGroup, mapper = item => item )
   );
 }
 
+function md5( data )
+{
+  return crypto.createHash('md5').update( data ).digest('hex');
+}
+
 /**
  * Build a file path to a lock file in the tmp directory
  *
@@ -168,9 +173,10 @@ function group( arr, getGroup, mapper = item => item )
  */
 function getLockFilename( filename )
 {
-  const name = filename.split(/[^\w]+/).filter( Boolean ).join('-');
+  const name = path.basename( filename );
+  const dirHash = md5( path.dirname( filename ) );
 
-  return path.join( os.tmpdir(), `${name}.lock` );
+  return path.join( os.tmpdir(), `${dirHash}-${name}.lock` );
 }
 
 /**
@@ -187,7 +193,6 @@ async function lock( filename )
       retryWait: 100,
       stale: 10000,
       retries: 100,
-
     },
   );
 }
