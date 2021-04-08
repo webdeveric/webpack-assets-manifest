@@ -189,26 +189,9 @@ async function lock( filename )
   await lfLock(
     getLockFilename( filename ),
     {
-      wait: 10000,
+      wait: 6000,
       retryWait: 100,
-      stale: 10000,
-      retries: 100,
-    },
-  );
-}
-
-/**
- * Create a lockfile
- *
- * @param {string} filename
- */
-function lockSync( filename )
-{
-  return lockfile.lockSync(
-    getLockFilename( filename ),
-    {
-      // wait and retryWait are not supported in lockSync
-      stale: 10000,
+      stale: 5000,
       retries: 100,
     },
   );
@@ -224,16 +207,6 @@ async function unlock( filename )
   await lfUnlock( getLockFilename( filename ) );
 }
 
-/**
- * Remove a lockfile
- *
- * @param {string} filename
- */
-function unlockSync( filename )
-{
-  return lockfile.unlockSync( getLockFilename( filename ) );
-}
-
 module.exports = {
   maybeArrayWrap,
   filterHashes,
@@ -246,7 +219,5 @@ module.exports = {
   group,
   getLockFilename,
   lock,
-  lockSync,
   unlock,
-  unlockSync,
 };
