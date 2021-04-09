@@ -161,6 +161,11 @@ function group( arr, getGroup, mapper = item => item )
   );
 }
 
+function md5( data )
+{
+  return crypto.createHash('md5').update( data ).digest('hex');
+}
+
 /**
  * Build a file path to a lock file in the tmp directory
  *
@@ -168,9 +173,10 @@ function group( arr, getGroup, mapper = item => item )
  */
 function getLockFilename( filename )
 {
-  const name = filename.replace(/[^\w]+/g, '-');
+  const name = path.basename( filename );
+  const dirHash = md5( path.dirname( filename ) );
 
-  return path.join( os.tmpdir(), `${name}.lock` );
+  return path.join( os.tmpdir(), `${dirHash}-${name}.lock` );
 }
 
 /**
@@ -183,26 +189,10 @@ async function lock( filename )
   await lfLock(
     getLockFilename( filename ),
     {
-      wait: 10000,
-      stale: 20000,
-      retries: 100,
+      wait: 6000,
       retryWait: 100,
-    },
-  );
-}
-
-/**
- * Create a lockfile
- *
- * @param {string} filename
- */
-function lockSync( filename )
-{
-  return lockfile.lockSync(
-    getLockFilename( filename ),
-    {
-      stale: 20000,
-      retries: 200,
+      stale: 5000,
+      retries: 100,
     },
   );
 }
@@ -217,16 +207,6 @@ async function unlock( filename )
   await lfUnlock( getLockFilename( filename ) );
 }
 
-/**
- * Remove a lockfile
- *
- * @param {string} filename
- */
-function unlockSync( filename )
-{
-  return lockfile.unlockSync( getLockFilename( filename ) );
-}
-
 module.exports = {
   maybeArrayWrap,
   filterHashes,
@@ -239,7 +219,5 @@ module.exports = {
   group,
   getLockFilename,
   lock,
-  lockSync,
   unlock,
-  unlockSync,
 };
