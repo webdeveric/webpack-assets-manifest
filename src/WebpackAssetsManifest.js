@@ -29,8 +29,6 @@ const {
   findMapKeysByValue,
   lock,
   unlock,
-  lockSync,
-  unlockSync,
 } = require('./helpers.js');
 
 /** @type {object} */
@@ -132,7 +130,7 @@ class WebpackAssetsManifest
       compiler.hooks.emit.tap(PLUGIN_NAME, this.recordSubresourceIntegrity.bind(this));
     }
 
-    compiler.hooks.emit.tapAsync(PLUGIN_NAME, this.handleEmit.bind(this));
+    compiler.hooks.emit.tapPromise(PLUGIN_NAME, this.handleEmit.bind(this));
 
     // Use fs to write the manifest.json to disk if `options.writeToDisk` is true
     compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
@@ -420,17 +418,19 @@ class WebpackAssetsManifest
    *
    * @param {object} compilation
    */
-  emitAssetsManifest(compilation)
+  async emitAssetsManifest(compilation)
   {
+    const outputPath = this.getOutputPath();
+
     const output = this.getManifestPath(
       compilation,
       this.inDevServer() ?
         path.basename( this.options.output ) :
-        path.relative( compilation.compiler.outputPath, this.getOutputPath() ),
+        path.relative( compilation.compiler.outputPath, outputPath ),
     );
 
     if ( this.options.merge ) {
-      lockSync( output );
+      await lock( outputPath );
     }
 
     this.maybeMerge();
@@ -444,7 +444,7 @@ class WebpackAssetsManifest
     );
 
     if ( this.options.merge ) {
-      unlockSync( output );
+      await unlock( outputPath );
     }
   }
 
@@ -480,9 +480,8 @@ class WebpackAssetsManifest
    * Handle the `emit` event
    *
    * @param  {object} compilation - the Webpack compilation object
-   * @param  {Function} callback
    */
-  handleEmit(compilation, callback)
+  async handleEmit(compilation)
   {
     // Look in DefaultStatsPresetPlugin.js for options
     const stats = compilation.getStats().toJson({
@@ -572,9 +571,7 @@ class WebpackAssetsManifest
       }
     }
 
-    this.emitAssetsManifest(compilation);
-
-    callback();
+    await this.emitAssetsManifest(compilation);
   }
 
   /**
