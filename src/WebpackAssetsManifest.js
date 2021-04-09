@@ -28,8 +28,6 @@ const {
   findMapKeysByValue,
   lock,
   unlock,
-  lockSync,
-  unlockSync,
 } = require('./helpers.js');
 
 /** @type {object} */
@@ -415,17 +413,19 @@ class WebpackAssetsManifest
    *
    * @param {object} compilation
    */
-  emitAssetsManifest(compilation)
+  async emitAssetsManifest(compilation)
   {
+    const outputPath = this.getOutputPath();
+
     const output = this.getManifestPath(
       compilation,
       this.inDevServer() ?
         path.basename( this.options.output ) :
-        path.relative( compilation.compiler.outputPath, this.getOutputPath() ),
+        path.relative( compilation.compiler.outputPath, outputPath ),
     );
 
     if ( this.options.merge ) {
-      lockSync( output );
+      await lock( outputPath );
     }
 
     this.maybeMerge();
@@ -439,7 +439,7 @@ class WebpackAssetsManifest
     );
 
     if ( this.options.merge ) {
-      unlockSync( output );
+      await unlock( outputPath );
     }
   }
 
@@ -538,7 +538,7 @@ class WebpackAssetsManifest
    *
    * @param {object} compilation
    */
-  handleAfterProcessAssets( compilation )
+  async handleProcessAssetsReport( compilation )
   {
     // Look in DefaultStatsPresetPlugin.js for options
     const stats = compilation.getStats().toJson({
@@ -630,7 +630,7 @@ class WebpackAssetsManifest
       }
     }
 
-    this.emitAssetsManifest(compilation);
+    await this.emitAssetsManifest(compilation);
   }
 
   /**
@@ -797,15 +797,21 @@ class WebpackAssetsManifest
   handleThisCompilation(compilation)
   {
     if ( this.options.integrity ) {
-      compilation.hooks.afterProcessAssets.tap(
-        PLUGIN_NAME,
+      compilation.hooks.processAssets.tap(
+        {
+          name: PLUGIN_NAME,
+          stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+        },
         this.recordSubresourceIntegrity.bind(this, compilation),
       );
     }
 
-    compilation.hooks.afterProcessAssets.tap(
-      PLUGIN_NAME,
-      this.handleAfterProcessAssets.bind(this, compilation),
+    compilation.hooks.processAssets.tapPromise(
+      {
+        name: PLUGIN_NAME,
+        stage: Compilation.PROCESS_ASSETS_STAGE_REPORT,
+      },
+      this.handleProcessAssetsReport.bind(this, compilation),
     );
   }
 
