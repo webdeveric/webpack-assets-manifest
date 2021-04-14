@@ -1,6 +1,6 @@
 {
   "name": "webpack-assets-manifest",
-  "version": "5.0.4",
+  "version": "5.0.5",
   "description": "This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.",
   "license": "MIT",
   "repository": {
