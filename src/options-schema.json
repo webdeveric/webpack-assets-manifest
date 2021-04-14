@@ -17,6 +17,7 @@
       "default": "assets-manifest.json"
     },
     "replacer": {
+      "default": null,
       "oneOf": [
         {
           "$ref": "#/definitions/functionOrNull"
@@ -27,9 +28,17 @@
       ]
     },
     "space": {
-      "type": "integer",
-      "multipleOf": 1.0,
-      "minimum": 0,
+      "oneOf": [
+        {
+          "type": "integer",
+          "multipleOf": 1.0,
+          "minimum": 0
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
       "default": 2
     },
     "writeToDisk": {

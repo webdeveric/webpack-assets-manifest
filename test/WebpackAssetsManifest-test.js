@@ -43,7 +43,11 @@ function create( config, pluginOptions, comp = makeCompiler )
   const compiler = comp( config );
 
   const run = () => new Promise( (resolve, reject) => {
-    compiler.run( err => err ? reject( err ) : resolve() );
+    compiler.run( error => {
+      error ? reject( error ) : resolve();
+
+      compiler.close( () => {} );
+    });
   });
 
   return { compiler, manifest, run };
@@ -114,11 +118,25 @@ describe('WebpackAssetsManifest', function() {
     });
 
     describe('toString()', function() {
-      const manifest = new WebpackAssetsManifest();
-
       it('should return a JSON string', function() {
+        const manifest = new WebpackAssetsManifest();
+
+        manifest.hooks.afterOptions.call(manifest.options);
+
         assert.equal('{}', manifest.toString());
         assert.equal('{}', manifest + '');
+      });
+
+      it('can use tabs', function() {
+        const manifest = new WebpackAssetsManifest({
+          space: '\t',
+        });
+
+        manifest.hooks.afterOptions.call(manifest.options);
+
+        manifest.set('test', 'test');
+
+        assert.equal('{\n\t"test": "test"\n}', manifest.toString());
       });
     });
 
