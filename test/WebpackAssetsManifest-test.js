@@ -113,11 +113,25 @@ describe('WebpackAssetsManifest', function() {
     });
 
     describe('toString()', function() {
-      const manifest = new WebpackAssetsManifest();
-
       it('should return a JSON string', function() {
+        const manifest = new WebpackAssetsManifest();
+
+        manifest.hooks.afterOptions.call(manifest.options);
+
         assert.equal('{}', manifest.toString());
         assert.equal('{}', manifest + '');
+      });
+
+      it('can use tabs', function() {
+        const manifest = new WebpackAssetsManifest({
+          space: '\t',
+        });
+
+        manifest.hooks.afterOptions.call(manifest.options);
+
+        manifest.set('test', 'test');
+
+        assert.equal('{\n\t"test": "test"\n}', manifest.toString());
       });
     });
 
@@ -1144,7 +1158,7 @@ describe('WebpackAssetsManifest', function() {
     describe('Options', function() {
       it('Options can be altered with a hook', function() {
         const mock = chai.spy( options => {
-          options.testing = true;
+          options.space = 4;
 
           return options;
         });
@@ -1159,7 +1173,7 @@ describe('WebpackAssetsManifest', function() {
 
         expect( mock ).to.have.been.called();
 
-        expect( manifest.options.testing ).to.be.true;
+        expect( manifest.options.space ).to.equal(4);
       });
     });
 
