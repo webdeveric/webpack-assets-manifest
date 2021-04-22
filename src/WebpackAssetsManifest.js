@@ -53,33 +53,33 @@ class WebpackAssetsManifest
       transform: new SyncWaterfallHook([ 'assets', 'manifest' ]),
       done: new AsyncSeriesHook([ 'manifest', 'stats' ]),
       options: new SyncWaterfallHook([ 'options' ]),
-      afterOptions: new SyncHook([ 'options' ]),
+      afterOptions: new SyncHook([ 'options', 'manifest' ]),
     });
 
-    this.hooks.transform.tap(PLUGIN_NAME, assets => {
-      const { sortManifest } = this.options;
+    this.hooks.transform.tap(PLUGIN_NAME, (assets, manifest) => {
+      const { sortManifest } = manifest.options;
 
       return sortManifest ? getSortedObject(
         assets,
-        typeof sortManifest === 'function' ? sortManifest.bind(this) : undefined,
+        typeof sortManifest === 'function' ? sortManifest.bind(manifest) : undefined,
       ) : assets;
     });
 
-    this.hooks.afterOptions.tap(PLUGIN_NAME, options => {
-      this.options = Object.assign( this.defaultOptions, options );
-      this.options.integrityHashes = filterHashes( this.options.integrityHashes );
+    this.hooks.afterOptions.tap(PLUGIN_NAME, (options, manifest) => {
+      manifest.options = Object.assign( manifest.defaultOptions, options );
+      manifest.options.integrityHashes = filterHashes( manifest.options.integrityHashes );
 
-      validate(optionsSchema, this.options, { name: PLUGIN_NAME });
+      validate(optionsSchema, manifest.options, { name: PLUGIN_NAME });
 
-      this.options.output = path.normalize( this.options.output );
+      manifest.options.output = path.normalize( manifest.options.output );
 
       // Copy over any entries that may have been added to the manifest before apply() was called.
       // If the same key exists in assets and options.assets, options.assets should be used.
-      this.assets = Object.assign(this.options.assets, this.assets, this.options.assets);
+      manifest.assets = Object.assign(manifest.options.assets, manifest.assets, manifest.options.assets);
 
       [ 'apply', 'customize', 'transform', 'done' ].forEach( hookName => {
-        if ( typeof this.options[ hookName ] === 'function' ) {
-          this.hooks[ hookName ].tap(`${PLUGIN_NAME}.option.${hookName}`, this.options[ hookName ] );
+        if ( typeof manifest.options[ hookName ] === 'function' ) {
+          manifest.hooks[ hookName ].tap(`${PLUGIN_NAME}.option.${hookName}`, manifest.options[ hookName ] );
         }
       });
     });
@@ -109,17 +109,17 @@ class WebpackAssetsManifest
    */
   apply(compiler)
   {
-    if ( ! this.options.enabled ) {
-      return;
-    }
-
     this.compiler = compiler;
 
     // Allow hooks to modify options
     this.options = this.hooks.options.call(this.options);
 
     // Ensure options contain defaults and are valid
-    this.hooks.afterOptions.call(this.options);
+    this.hooks.afterOptions.call(this.options, this);
+
+    if ( ! this.options.enabled ) {
+      return;
+    }
 
     compiler.hooks.watchRun.tap(PLUGIN_NAME, this.handleWatchRun.bind(this));
 
