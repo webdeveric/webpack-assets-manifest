@@ -116,7 +116,7 @@ describe('WebpackAssetsManifest', function() {
       it('should return a JSON string', function() {
         const manifest = new WebpackAssetsManifest();
 
-        manifest.hooks.afterOptions.call(manifest.options);
+        manifest.hooks.afterOptions.call(manifest.options, manifest);
 
         assert.equal('{}', manifest.toString());
         assert.equal('{}', manifest + '');
@@ -127,7 +127,7 @@ describe('WebpackAssetsManifest', function() {
           space: '\t',
         });
 
-        manifest.hooks.afterOptions.call(manifest.options);
+        manifest.hooks.afterOptions.call(manifest.options, manifest);
 
         manifest.set('test', 'test');
 
