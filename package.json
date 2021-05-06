@@ -65,7 +65,7 @@
   "devDependencies": {
     "@types/lodash.get": "^4.4.6",
     "@types/lodash.has": "^4.5.6",
-    "@types/node": "^15.0.1",
+    "@types/node": "^15.0.2",
     "@types/tapable": "^2.2.2",
     "@types/webpack-sources": "^2.1.0",
     "@webdeveric/eslint-config": "^0.1.2",
@@ -73,7 +73,7 @@
     "chai-spies": "^1.0.0",
     "compression-webpack-plugin": "^7.1.2",
     "copy-webpack-plugin": "^8.1.1",
-    "cspell": "^5.3.12",
+    "cspell": "^5.4.0",
     "css-loader": "^5.2.4",
     "eslint": "^7.25.0",
     "file-loader": "^6.2.0",
