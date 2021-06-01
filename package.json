@@ -71,7 +71,7 @@
     "@webdeveric/eslint-config": "^0.1.2",
     "chai": "^4.3.0",
     "chai-spies": "^1.0.0",
-    "compression-webpack-plugin": "^7.1.2",
+    "compression-webpack-plugin": "^8.0.0",
     "copy-webpack-plugin": "^8.1.1",
     "cspell": "^5.5.2",
     "css-loader": "^5.2.4",
