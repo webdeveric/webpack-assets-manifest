@@ -5,6 +5,7 @@
     "chunkhash",
     "codecov",
     "deepmerge",
+    "deps",
     "devtool",
     "downlevel",
     "entrypoint",

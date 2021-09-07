@@ -11,9 +11,9 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x, 12.x, 14.x, 16.x]
         webpack-version: ['5.2.0', 5]
-        dev-server-version: ['3.6.0', latest]
+        dev-server-version: ['3.6.0', 3]
         css-loader-version: ['3.5.0', latest]
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
       - name: Installing dependencies
         run: npm ci
       - name: Installing specific dependency versions
-        run: npm install webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
+        run: npm install --legacy-peer-deps webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
       - name: Building (if needed)
         run: npm run build --if-present
       - name: Running tests
