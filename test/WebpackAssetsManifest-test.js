@@ -12,6 +12,7 @@ const { mkdirp: webpack_mkdirp } = require('webpack/lib/util/fs');
 const superagent = require('superagent');
 const configs = require('./fixtures/configs');
 const makeCompiler = require('./fixtures/makeCompiler');
+const makeCompilerWithNullPrototypeOutputFileSystem = require('./fixtures/makeCompilerWithNullPrototypeOutputFileSystem');
 
 const WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
 const { assert, expect } = chai;
@@ -341,6 +342,19 @@ describe('WebpackAssetsManifest', function() {
         manifest.apply(compiler);
 
         assert.isTrue(manifest.inDevServer());
+      });
+
+      it('Works correct with null prototypes outputFileSystem', function() {
+        const config = configs.hello();
+
+        config.output.path = '/';
+
+        const compiler = makeCompilerWithNullPrototypeOutputFileSystem(config);
+        const manifest = new WebpackAssetsManifest();
+
+        manifest.apply(compiler);
+
+        assert.isFalse(manifest.inDevServer());
       });
     });
 

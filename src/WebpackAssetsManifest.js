@@ -835,7 +835,9 @@ class WebpackAssetsManifest
       return true;
     }
 
-    return has(this, 'compiler.outputFileSystem') && this.compiler.outputFileSystem.constructor?.name === 'MemoryFileSystem';
+    return has(this, 'compiler.outputFileSystem')
+      && this.compiler.outputFileSystem.prototype !== null
+      && this.compiler.outputFileSystem.constructor.name === 'MemoryFileSystem';
   }
 
   /**
