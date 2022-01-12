@@ -349,7 +349,8 @@ describe('WebpackAssetsManifest', function() {
 
         config.output.path = '/';
 
-        const compiler = makeCompilerWithNullPrototypeOutputFileSystem(config);
+        const compiler = makeCompiler(config);
+        compiler.outputFileSystem = Object.create(null);
         const manifest = new WebpackAssetsManifest();
 
         manifest.apply(compiler);
