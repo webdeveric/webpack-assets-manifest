@@ -12,7 +12,6 @@ const { mkdirp: webpack_mkdirp } = require('webpack/lib/util/fs');
 const superagent = require('superagent');
 const configs = require('./fixtures/configs');
 const makeCompiler = require('./fixtures/makeCompiler');
-const makeCompilerWithNullPrototypeOutputFileSystem = require('./fixtures/makeCompilerWithNullPrototypeOutputFileSystem');
 
 const WebpackAssetsManifest = require('../src/WebpackAssetsManifest');
 const { assert, expect } = chai;
