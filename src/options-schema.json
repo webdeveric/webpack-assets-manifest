@@ -158,6 +158,11 @@
       "type": "string",
       "minLength": 1,
       "default": "integrity"
+    },
+    "extra": {
+      "description": "A place to put your arbitrary data",
+      "type": "object",
+      "default": {}
     }
   },
   "definitions": {

@@ -44,10 +44,10 @@ describe('Helpers', function() {
         Symbol(),
       ];
 
-      primitives.forEach( p => {
-        const wrapped = maybeArrayWrap( p );
+      primitives.forEach( value => {
+        const wrapped = maybeArrayWrap( value );
 
-        expect( wrapped ).to.be.an('array').that.deep.equals( [ p ] );
+        expect( wrapped ).to.be.an('array').that.deep.equals( [ value ] );
       });
     });
   });
@@ -138,7 +138,7 @@ describe('Helpers', function() {
       };
 
       expect( JSON.stringify( getSortedObject( obj ) ) ).to.equal('{"a":"a","b":"b"}');
-      expect( JSON.stringify( getSortedObject( obj, (l, r) => l > r ? -1 : l < r ? 1 : 0 ) ) ).to.equal('{"b":"b","a":"a"}');
+      expect( JSON.stringify( getSortedObject( obj, (left, right) => left > right ? -1 : left < right ? 1 : 0 ) ) ).to.equal('{"b":"b","a":"a"}');
     });
   });
 
