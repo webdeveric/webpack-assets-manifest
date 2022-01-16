@@ -4,3 +4,4 @@ coverage.lcov
 .nyc_output/
 coverage/
 private/
+.idea/

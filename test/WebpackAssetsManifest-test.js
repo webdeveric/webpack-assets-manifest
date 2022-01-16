@@ -342,6 +342,22 @@ describe('WebpackAssetsManifest', function() {
 
         assert.isTrue(manifest.inDevServer());
       });
+
+      it('Works correct with null prototypes outputFileSystem', function() {
+        const config = configs.hello();
+
+        config.output.path = '/';
+
+        const compiler = makeCompiler(config);
+
+        Object.setPrototypeOf(compiler.outputFileSystem, null);
+
+        const manifest = new WebpackAssetsManifest();
+
+        manifest.apply(compiler);
+
+        assert.isFalse(manifest.inDevServer());
+      });
     });
 
     describe('getProxy()', function() {
