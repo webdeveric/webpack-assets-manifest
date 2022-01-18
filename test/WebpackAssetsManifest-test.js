@@ -455,8 +455,8 @@ describe('WebpackAssetsManifest', function() {
       it('should use custom comparison function', function() {
         const manifest = new WebpackAssetsManifest({
           assets,
-          sortManifest: function(a, b) {
-            return a.localeCompare(b);
+          sortManifest: function(left, right) {
+            return left.localeCompare(right);
           },
           space: 0,
         });
@@ -614,8 +614,8 @@ describe('WebpackAssetsManifest', function() {
         await setupManifest(manifest);
         await run();
 
-        assert.isTrue( mergingResults.some( r => r === true ) );
-        assert.isTrue( mergingResults.some( r => r === false ) );
+        assert.isTrue( mergingResults.some( result => result === true ) );
+        assert.isTrue( mergingResults.some( result => result === false ) );
       });
 
       it('merge skips customize()', async () => {
@@ -1085,6 +1085,21 @@ describe('WebpackAssetsManifest', function() {
 
         // The plugin shouldn't write to disk if the dev server is configured to do it.
         expect( manifest.shouldWriteToDisk( mockCompilation ) ).to.be.false;
+      });
+    });
+
+    describe('extra', function() {
+      it('Holds arbitrary data', async () => {
+        const { manifest } = create(
+          configs.hello(),
+          {
+            extra: {
+              test: true,
+            },
+          },
+        );
+
+        expect(manifest.options.extra.test).to.be.true;
       });
     });
 

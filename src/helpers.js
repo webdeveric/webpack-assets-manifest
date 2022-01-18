@@ -72,7 +72,7 @@ function filterHashes( hashes )
 /**
  * See {@link https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity|Subresource Integrity} at MDN
  *
- * @param  {array} hashes - The algorithms you want to use when hashing `content`
+ * @param  {string[]} hashes - The algorithms you want to use when hashing `content`
  * @param  {string} content - File contents you want to hash
  * @return {string} SRI hash
  */
@@ -88,14 +88,12 @@ function getSRIHash( hashes, content )
 /**
  * Get the data type of an argument.
  *
- * @param  {*} v - Some variable
+ * @param  {*} input - Some variable
  * @return {string} Data type
  */
-function varType( v )
+function varType( input )
 {
-  const [ , type ] = Object.prototype.toString.call( v ).match(/^\[object (\w+)\]$/);
-
-  return type;
+  return Object.prototype.toString.call(input).slice(8, -1);
 }
 
 /**

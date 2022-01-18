@@ -253,12 +253,12 @@ function devServer( outputPath )
 
 function multi()
 {
-  const c = client();
-  const s = server();
+  const clientConfig = client();
+  const serverConfig = server();
 
-  c.output.path = s.output.path = tmpDirPath();
+  clientConfig.output.path = serverConfig.output.path = tmpDirPath();
 
-  return [ c, s ];
+  return [ clientConfig, serverConfig ];
 }
 
 module.exports = {

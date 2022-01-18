@@ -151,7 +151,7 @@ class WebpackAssetsManifest
       replacer: null, // Its easier to use the transform hook instead.
       space: 2,
       writeToDisk: 'auto',
-      fileExtRegex: /\.\w{2,4}\.(?:map|gz)$|\.\w+$/i,
+      fileExtRegex: /\.\w{2,4}\.(?:map|gz|br)$|\.\w+$/i,
       sortManifest: true,
       merge: false,
       publicPath: null,
@@ -172,6 +172,9 @@ class WebpackAssetsManifest
       integrity: false,
       integrityHashes: [ 'sha256', 'sha384', 'sha512' ],
       integrityPropertyName: 'integrity',
+
+      // Store arbitrary data here for use in customize/transform
+      extra: Object.create(null),
     };
   }
 
@@ -386,7 +389,7 @@ class WebpackAssetsManifest
 
         const deepmerge = require('deepmerge');
 
-        const arrayMerge = (destArray, srcArray) => srcArray;
+        const arrayMerge = (_destArray, srcArray) => srcArray;
 
         for ( const [ key, oldValue ] of Object.entries( data ) ) {
           if ( this.has( key ) ) {
@@ -451,25 +454,28 @@ class WebpackAssetsManifest
   handleProcessAssetsAnalyse( compilation /* , assets */ )
   {
     const { contextRelativeKeys } = this.options;
+    const { assetsInfo, chunkGraph, chunks, compiler, codeGenerationResults } = compilation;
 
-    for ( const chunk of compilation.chunks ) {
-      const modules = compilation.chunkGraph.getChunkModulesIterableBySourceType(
-        chunk,
-        'asset',
-      );
+    for (const chunk of chunks) {
+      const modules = chunkGraph.getChunkModulesIterableBySourceType(chunk, 'asset');
 
-      if ( modules ) {
-        for ( const module of modules ) {
-          const { assetInfo, filename } = module.buildInfo;
+      if (modules) {
+        for (const module of modules) {
+          const codeGenData = codeGenerationResults.get(module, chunk.runtime).data;
+
+          const {
+            assetInfo = codeGenData.get('assetInfo'),
+            filename = codeGenData.get('filename'),
+          } = module.buildInfo;
 
           const info = Object.assign(
             {
-              sourceFilename: path.relative( compilation.compiler.context, module.userRequest ),
+              sourceFilename: path.relative(compiler.context, module.userRequest),
             },
             assetInfo,
           );
 
-          compilation.assetsInfo.set(filename, info);
+          assetsInfo.set(filename, info);
 
           this.assetNames.set(
             contextRelativeKeys ?

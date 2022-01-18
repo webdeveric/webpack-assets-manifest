@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens"
+  ]
+}
