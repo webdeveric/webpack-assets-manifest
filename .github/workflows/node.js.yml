@@ -18,21 +18,22 @@ jobs:
         css-loader-version: ["3.5.0", latest]
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: "pnpm"
       - name: Installing dependencies
-        run: npm ci
+        run: pnpm install
       - name: Installing specific dependency versions
-        run: npm install --legacy-peer-deps webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
+        run: pnpm install webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
       - name: Building (if needed)
-        run: npm run build --if-present
+        run: pnpm --if-present run build
       - name: Running tests
-        run: npm test
+        run: pnpm test
       - name: Generating coverage report
-        run: npm run lcov --if-present
+        run: pnpm lcov
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
         with:

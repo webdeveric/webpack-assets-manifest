@@ -27,6 +27,7 @@
   "files": [
     "src"
   ],
+  "packageManager": "pnpm@8.15.1+sha256.245fe901f8e7fa8782d7f17d32b6a83995e2ae03984cb5b62b8949bfdc27c7b5",
   "scripts": {
     "lint": "eslint --fix src test",
     "typecheck": "tsc --noEmit",
@@ -35,7 +36,7 @@
     "test:report": "nyc --reporter=lcov --reporter=text mocha --colors",
     "lcov": "nyc report --reporter=text-lcov > coverage.lcov",
     "prepare": "husky",
-    "prepublishOnly": "npm run spellcheck && npm run lint && npm test"
+    "prepublishOnly": "pnpm spellcheck && pnpm lint && pnpm test"
   },
   "lint-staged": {
     "*.{js,json,md}": "cspell lint --no-progress --no-summary --no-must-find-files",

@@ -5,6 +5,7 @@
     "Analyse",
     "chunkhash",
     "codecov",
+    "corepack",
     "dbaeumer",
     "deepmerge",
     "deps",
