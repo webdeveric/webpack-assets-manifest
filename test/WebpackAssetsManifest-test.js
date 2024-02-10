@@ -6,7 +6,7 @@ const chalk = require('chalk');
 const { mkdir } = require('node:fs/promises');
 const chai = require('chai');
 const spies = require('chai-spies');
-const rimraf = require('rimraf');
+const { rimraf } = require('rimraf');
 const webpack = require('webpack');
 const { mkdirp: webpack_mkdirp } = require('webpack/lib/util/fs');
 const superagent = require('superagent');
@@ -70,14 +70,8 @@ describe('WebpackAssetsManifest', function () {
     await mkdir(configs.getWorkspace(), { recursive: true, mode: _777 });
   });
 
-  after('clean up', done => {
-    rimraf(configs.getWorkspace(), function (err) {
-      if (err) {
-        throw err;
-      }
-
-      done();
-    });
+  after('clean up', async () => {
+    await rimraf(configs.getWorkspace());
   });
 
   describe('Methods', function () {

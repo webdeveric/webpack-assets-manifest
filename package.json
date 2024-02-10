@@ -89,7 +89,7 @@
     "mocha": "^10.3.0",
     "nyc": "^15.1.0",
     "prettier": "^3.2.5",
-    "rimraf": "^3.0.2",
+    "rimraf": "^5.0.5",
     "superagent": "^8.1.0",
     "typescript": "^5.3.3",
     "webpack": "^5.90.1",
