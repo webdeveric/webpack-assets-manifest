@@ -2,8 +2,6 @@
 
 [![Build Status](https://github.com/webdeveric/webpack-assets-manifest/workflows/Node.js%20CI/badge.svg)](https://github.com/webdeveric/webpack-assets-manifest/actions)
 [![codecov](https://codecov.io/gh/webdeveric/webpack-assets-manifest/branch/master/graph/badge.svg)](https://codecov.io/gh/webdeveric/webpack-assets-manifest)
-[![dependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest)
-[![devDependencies Status](https://david-dm.org/webdeveric/webpack-assets-manifest/dev-status.svg)](https://david-dm.org/webdeveric/webpack-assets-manifest?type=dev)
 
 This webpack plugin will generate a JSON file that matches the original filename with the hashed version.
 
@@ -20,7 +18,7 @@ npm install webpack-assets-manifest --save-dev
 * Updated options schema to prevent additional properties. This helps with catching typos in option names.
 * :warning: Updated default value of the `output` option to be `assets-manifest.json`.
   This is to prevent confusion when working with [Web app manifests](https://developer.mozilla.org/en-US/docs/Web/Manifest) or [WebExtension manifests](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json).
-  
+
 ## New in version 4
 
 * Requires Node 10+.
@@ -225,7 +223,7 @@ new WebpackAssetsManifest({
 });
 ```
 
-If you need to customize during merge, use `merge: 'customize'`. 
+If you need to customize during merge, use `merge: 'customize'`.
 
 If you want to know if `customize` was called when merging with an existing manifest, you can check `manifest.isMerging`.
 
