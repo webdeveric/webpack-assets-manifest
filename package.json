@@ -31,7 +31,7 @@
     "lint": "eslint --fix src test",
     "typecheck": "tsc --noEmit",
     "spellcheck": "cspell --no-progress './{.github,src,test}/**/*.{js,json}' './*.{md,js}' './package.json'",
-    "test": "nyc mocha --colors",
+    "test": "NODE_OPTIONS='--openssl-legacy-provider' nyc mocha --colors",
     "test:report": "nyc --reporter=lcov --reporter=text mocha --colors",
     "lcov": "nyc report --reporter=text-lcov > coverage.lcov",
     "prepare": "husky",
@@ -82,13 +82,13 @@
     "memory-fs": "^0.5.0",
     "mini-css-extract-plugin": "^1.6.0",
     "mkdirp": "^1.0.4",
-    "mocha": "^8.4.0",
+    "mocha": "^10.3.0",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
     "superagent": "^8.1.0",
     "typescript": "^5.3.3",
     "webpack": "^5.90.1",
-    "webpack-dev-server": "^3.11.2",
+    "webpack-dev-server": "^4.15.1",
     "webpack-subresource-integrity": "^1.5.2"
   }
 }
