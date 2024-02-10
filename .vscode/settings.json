@@ -1,27 +1,55 @@
 {
-  "eslint.alwaysShowStatus": true,
-  "eslint.format.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.validate": ["javascript", "typescript"],
+  "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
-  "eslint.packageManager": "npm",
   "editor.bracketPairColorization.enabled": true,
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "javascript.format.semicolons": "insert",
+  "javascript.preferences.quoteStyle": "single",
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.format.semicolons": "insert",
+  "typescript.preferences.quoteStyle": "single",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "[json]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    "**/*.min.{cjs,mjs,js}": "plaintext",
+    ".env.*": "dotenv"
+  },
+  "search.exclude": {
+    "**/dist": true,
+    "**/private": true
+  },
+  "editor.formatOnSaveMode": "file",
+  "workbench.settings.openDefaultSettings": true,
+  "git.inputValidationSubjectLength": 60,
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.preferTypeOnlyAutoImports": true
 }

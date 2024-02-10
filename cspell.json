@@ -29,8 +29,5 @@
     "webdeveric"
   ],
   "flagWords": [],
-  "ignorePaths": [
-    "package-lock.json",
-    "node_modules"
-  ]
+  "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"]
 }
