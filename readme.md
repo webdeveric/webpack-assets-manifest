@@ -1,6 +1,6 @@
 # Webpack Assets Manifest
 
-[![Build Status](https://github.com/webdeveric/webpack-assets-manifest/workflows/Node.js%20CI/badge.svg)](https://github.com/webdeveric/webpack-assets-manifest/actions)
+[![Node.js CI](https://github.com/webdeveric/webpack-assets-manifest/actions/workflows/node.js.yml/badge.svg)](https://github.com/webdeveric/webpack-assets-manifest/actions/workflows/node.js.yml)
 [![codecov](https://codecov.io/gh/webdeveric/webpack-assets-manifest/branch/master/graph/badge.svg)](https://codecov.io/gh/webdeveric/webpack-assets-manifest)
 
 This webpack plugin will generate a JSON file that matches the original filename with the hashed version.
