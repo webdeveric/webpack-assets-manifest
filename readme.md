@@ -8,26 +8,34 @@ This webpack plugin will generate a JSON file that matches the original filename
 ## Installation
 
 ```shell
-npm install webpack-assets-manifest --save-dev
+pnpm add -D webpack-assets-manifest
+```
+
+```shell
+npm install webpack-assets-manifest -D
+```
+
+```shell
+yarn add webpack-assets-manifest -D
 ```
 
 ## New in version 5
 
-* Compatible with webpack 5 only (5.1+ required).
-* Supports finding [asset modules](https://webpack.js.org/guides/asset-modules/).
-* Updated options schema to prevent additional properties. This helps with catching typos in option names.
-* :warning: Updated default value of the `output` option to be `assets-manifest.json`.
+- Compatible with webpack 5 only (5.1+ required).
+- Supports finding [asset modules](https://webpack.js.org/guides/asset-modules/).
+- Updated options schema to prevent additional properties. This helps with catching typos in option names.
+- :warning: Updated default value of the `output` option to be `assets-manifest.json`.
   This is to prevent confusion when working with [Web app manifests](https://developer.mozilla.org/en-US/docs/Web/Manifest) or [WebExtension manifests](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json).
 
 ## New in version 4
 
-* Requires Node 10+.
-* Compatible with webpack 4 only (4.40+ required).
-* Added options: [`enabled`](#enabled), [`entrypointsUseAssets`](#entrypointsUseAssets), [`contextRelativeKeys`](#contextRelativeKeys).
-* Updated [`writeToDisk`](#writeToDisk) option to default to `auto`.
-* Use lock files for various operations.
-* `done` hook is now an `AsyncSeriesHook`.
-* :warning: The structure of the `entrypoints` data has been updated to include `preload` and `prefetch` assets. Assets for an entrypoint are now included in an `assets` property under the entrypoint.
+- Requires Node 10+.
+- Compatible with webpack 4 only (4.40+ required).
+- Added options: [`enabled`](#enabled), [`entrypointsUseAssets`](#entrypointsUseAssets), [`contextRelativeKeys`](#contextRelativeKeys).
+- Updated [`writeToDisk`](#writeToDisk) option to default to `auto`.
+- Use lock files for various operations.
+- `done` hook is now an `AsyncSeriesHook`.
+- :warning: The structure of the `entrypoints` data has been updated to include `preload` and `prefetch` assets. Assets for an entrypoint are now included in an `assets` property under the entrypoint.
 
   Example:
 
@@ -36,22 +44,14 @@ npm install webpack-assets-manifest --save-dev
     "entrypoints": {
       "main": {
         "assets": {
-          "css": [
-            "main.css"
-          ],
-          "js": [
-            "main.js"
-          ]
+          "css": ["main.css"],
+          "js": ["main.js"]
         },
         "prefetch": {
-          "js": [
-            "prefetch.js"
-          ]
+          "js": ["prefetch.js"]
         },
         "preload": {
-          "js": [
-            "preload.js"
-          ]
+          "js": ["preload.js"]
         }
       }
     }
@@ -63,17 +63,17 @@ npm install webpack-assets-manifest --save-dev
 In your webpack config, require the plugin then add an instance to the `plugins` array.
 
 ```js
-const path = require('path');
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+const path = require("path");
+const WebpackAssetsManifest = require("webpack-assets-manifest");
 
 module.exports = {
   entry: {
     // Your entry points
   },
   output: {
-    path: path.join( __dirname, 'dist' ),
-    filename: '[name]-[hash].js',
-    chunkFilename: '[id]-[chunkhash].js',
+    path: path.join(__dirname, "dist"),
+    filename: "[name]-[hash].js",
+    chunkFilename: "[id]-[chunkhash].js",
   },
   module: {
     // Your loader rules go here.
@@ -82,7 +82,7 @@ module.exports = {
     new WebpackAssetsManifest({
       // Options go here
     }),
- ],
+  ],
 };
 ```
 
@@ -203,7 +203,7 @@ See the [sorted](examples/sorted.js) example.
 new WebpackAssetsManifest({
   sortManifest(a, b) {
     // Return -1, 0, or 1
-  }
+  },
 });
 ```
 
@@ -218,8 +218,8 @@ The default behavior is to use the existing keys/values without modification.
 
 ```js
 new WebpackAssetsManifest({
-  output: '/path/to/manifest.json',
-  merge: true
+  output: "/path/to/manifest.json",
+  merge: true,
 });
 ```
 
@@ -256,7 +256,7 @@ When using a string, it will be the value prefix. One common use is to prefix yo
 
 ```js
 const manifest = new WebpackAssetsManifest({
-  publicPath: '//cdn.example.com',
+  publicPath: "//cdn.example.com",
 });
 ```
 
@@ -264,11 +264,10 @@ If you'd like to have more control, use a function. See the [custom CDN](example
 
 ```js
 const manifest = new WebpackAssetsManifest({
-  publicPath(filename, manifest)
-  {
+  publicPath(filename, manifest) {
     // customize filename here
     return filename;
-  }
+  },
 });
 ```
 
@@ -387,14 +386,14 @@ This plugin is using hooks from [Tapable](https://github.com/webpack/tapable/).
 
 The `apply`, `customize`, `transform`, and `done` options are automatically tapped into the appropriate hook.
 
-| Name | Type | Callback signature |
-| ---- | ---- | --------- |
-| `apply` | `SyncHook` | `function(manifest){}` |
-| `customize` | `SyncWaterfallHook` | `function(entry, original, manifest, asset){}` |
-| `transform` | `SyncWaterfallHook` | `function(assets, manifest){}` |
-| `done` | `AsyncSeriesHook` | `async function(manifest, stats){}` |
-| `options` | `SyncWaterfallHook` | `function(options){}` |
-| `afterOptions` | `SyncHook` | `function(options){}` |
+| Name           | Type                | Callback signature                             |
+| -------------- | ------------------- | ---------------------------------------------- |
+| `apply`        | `SyncHook`          | `function(manifest){}`                         |
+| `customize`    | `SyncWaterfallHook` | `function(entry, original, manifest, asset){}` |
+| `transform`    | `SyncWaterfallHook` | `function(assets, manifest){}`                 |
+| `done`         | `AsyncSeriesHook`   | `async function(manifest, stats){}`            |
+| `options`      | `SyncWaterfallHook` | `function(options){}`                          |
+| `afterOptions` | `SyncHook`          | `function(options){}`                          |
 
 #### Tapping into hooks
 
@@ -406,32 +405,35 @@ See the [customized](examples/customized.js) and [transformed](examples/transfor
 ```js
 const manifest = new WebpackAssetsManifest();
 
-manifest.hooks.apply.tap('YourPluginName', function(manifest) {
+manifest.hooks.apply.tap("YourPluginName", function (manifest) {
   // Do something here
-  manifest.set('some-key', 'some-value');
+  manifest.set("some-key", "some-value");
 });
 
-manifest.hooks.customize.tap('YourPluginName', function(entry, original, manifest, asset) {
-  // customize entry here
-  return entry;
-});
+manifest.hooks.customize.tap(
+  "YourPluginName",
+  function (entry, original, manifest, asset) {
+    // customize entry here
+    return entry;
+  }
+);
 
-manifest.hooks.transform.tap('YourPluginName', function(assets, manifest) {
+manifest.hooks.transform.tap("YourPluginName", function (assets, manifest) {
   // customize assets here
   return assets;
 });
 
-manifest.hooks.options.tap('YourPluginName', function(options) {
+manifest.hooks.options.tap("YourPluginName", function (options) {
   // customize options here
   return options;
 });
 
-manifest.hooks.done.tap('YourPluginName', function(manifest, stats) {
+manifest.hooks.done.tap("YourPluginName", function (manifest, stats) {
   console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
   console.log(`${manifest}`);
 });
 
-manifest.hooks.done.tapPromise('YourPluginName', async (manifest, stats) => {
+manifest.hooks.done.tapPromise("YourPluginName", async (manifest, stats) => {
   await yourAsyncOperation();
 });
 ```
@@ -443,7 +445,7 @@ new WebpackAssetsManifest({
   done(manifest, stats) {
     console.log(`The manifest has been written to ${manifest.getOutputPath()}`);
     console.log(`${manifest}`);
-  }
+  },
 });
 ```
 
@@ -462,7 +464,7 @@ If you want to write the manifest to another location, you can use `writeTo(dest
 ```js
 new WebpackAssetsManifest({
   async done(manifest) {
-    await manifest.writeTo('/some/other/path/assets-manifest.json');
-  }
+    await manifest.writeTo("/some/other/path/assets-manifest.json");
+  },
 });
 ```

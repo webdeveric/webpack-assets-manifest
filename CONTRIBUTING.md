@@ -5,7 +5,8 @@
 ```bash
 git clone https://github.com/webdeveric/webpack-assets-manifest.git
 cd webpack-assets-manifest
-npm install
+corepack enable
+pnpm install --frozen-lockfile
 ```
 
 ## Testing
@@ -13,22 +14,15 @@ npm install
 Run tests
 
 ```bash
-npm test
+pnpm test
 ```
 
 Run tests and generate a coverage report. Please keep the code coverage at 100%.
 
 ```bash
-npm run test:report
+pnpm test:report
 ```
 
 ## Pull requests
 
-If you'd like to add a new feature, please create an issue first so it can be discussed.
-
-Before forking and submitting a PR, please make sure all tests pass and the coding style is consistent.
-
-```bash
-npm test
-npm run lint
-```
+Pull requests are welcome. If you want to add a large feature or breaking change, please open an issue first so it can be discussed.
