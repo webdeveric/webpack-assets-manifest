@@ -46,6 +46,9 @@ devDependencies:
   '@webdeveric/eslint-config':
     specifier: ^0.4.0
     version: 0.4.0(eslint@8.56.0)
+  '@webdeveric/prettier-config':
+    specifier: ^0.2.0
+    version: 0.2.0(prettier@3.2.5)
   chai:
     specifier: ^4.3.0
     version: 4.4.1
@@ -67,6 +70,9 @@ devDependencies:
   eslint:
     specifier: ^8.56.0
     version: 8.56.0
+  eslint-config-prettier:
+    specifier: ^9.1.0
+    version: 9.1.0(eslint@8.56.0)
   file-loader:
     specifier: ^6.2.0
     version: 6.2.0(webpack@5.90.1)
@@ -85,15 +91,15 @@ devDependencies:
   mini-css-extract-plugin:
     specifier: ^1.6.0
     version: 1.6.2(webpack@5.90.1)
-  mkdirp:
-    specifier: ^1.0.4
-    version: 1.0.4
   mocha:
     specifier: ^10.3.0
     version: 10.3.0
   nyc:
     specifier: ^15.1.0
     version: 15.1.0
+  prettier:
+    specifier: ^3.2.5
+    version: 3.2.5
   rimraf:
     specifier: ^3.0.2
     version: 3.0.2
@@ -948,6 +954,14 @@ packages:
       eslint: '>= 4'
     dependencies:
       eslint: 8.56.0
+    dev: true
+
+  /@webdeveric/prettier-config@0.2.0(prettier@3.2.5):
+    resolution: {integrity: sha512-bcVZEXBts3cn73WWO17xiYpkpvw0+o3CbUViTirv7Pyp9Cju4tkmWBFmAP8K9aygdf0owlXVKH7aaVvErIHSZA==}
+    peerDependencies:
+      prettier: '>=2.4.0'
+    dependencies:
+      prettier: 3.2.5
     dev: true
 
   /@xtuc/ieee754@1.2.0:
@@ -2246,6 +2260,15 @@ packages:
   /escape-string-regexp@4.0.0:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
+    dev: true
+
+  /eslint-config-prettier@9.1.0(eslint@8.56.0):
+    resolution: {integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
+    dependencies:
+      eslint: 8.56.0
     dev: true
 
   /eslint-scope@5.1.1:
@@ -3971,12 +3994,6 @@ packages:
       minimist: 1.2.8
     dev: true
 
-  /mkdirp@1.0.4:
-    resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dev: true
-
   /mocha@10.3.0:
     resolution: {integrity: sha512-uF2XJs+7xSLsrmIvn37i/wnc91nw7XjOQB8ccyx5aEgdnohr7n+rEiZP23WkCYHjilR6+EboEnbq/ZQDz4LSbg==}
     engines: {node: '>= 14.0.0'}
@@ -4543,6 +4560,12 @@ packages:
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+    dev: true
+
+  /prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: true
 
   /process-nextick-args@2.0.1:

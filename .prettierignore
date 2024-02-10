@@ -1,0 +1,13 @@
+.vscode/
+.husky/
+coverage/
+build/
+dist/
+private/
+package-lock.json
+pnpm-lock.yaml
+.prettierignore
+.editorconfig
+.npmrc
+.nvmrc
+.eslintrc*
