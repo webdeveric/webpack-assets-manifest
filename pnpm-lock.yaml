@@ -29,19 +29,19 @@ dependencies:
 
 devDependencies:
   '@types/lodash.get':
-    specifier: ^4.4.6
+    specifier: ^4.4.9
     version: 4.4.9
   '@types/lodash.has':
-    specifier: ^4.5.6
+    specifier: ^4.5.9
     version: 4.5.9
   '@types/node':
-    specifier: ^17.0.8
-    version: 17.0.45
+    specifier: ^20.11.17
+    version: 20.11.17
   '@types/tapable':
-    specifier: ^2.2.2
+    specifier: ^2.2.7
     version: 2.2.7
   '@types/webpack-sources':
-    specifier: ^3.2.0
+    specifier: ^3.2.3
     version: 3.2.3
   '@webdeveric/eslint-config':
     specifier: ^0.4.0
@@ -50,10 +50,10 @@ devDependencies:
     specifier: ^0.2.0
     version: 0.2.0(prettier@3.2.5)
   chai:
-    specifier: ^4.3.0
+    specifier: ^4.4.1
     version: 4.4.1
   chai-spies:
-    specifier: ^1.0.0
+    specifier: ^1.1.0
     version: 1.1.0(chai@4.4.1)
   compression-webpack-plugin:
     specifier: ^7.1.2
@@ -65,7 +65,7 @@ devDependencies:
     specifier: ^8.3.2
     version: 8.3.2
   css-loader:
-    specifier: ^5.2.4
+    specifier: ^5.2.7
     version: 5.2.7(webpack@5.90.1)
   eslint:
     specifier: ^8.56.0
@@ -77,8 +77,8 @@ devDependencies:
     specifier: ^6.2.0
     version: 6.2.0(webpack@5.90.1)
   fs-extra:
-    specifier: ^9.1.0
-    version: 9.1.0
+    specifier: ^11.2.0
+    version: 11.2.0
   husky:
     specifier: ^9.0.10
     version: 9.0.10
@@ -89,7 +89,7 @@ devDependencies:
     specifier: ^0.5.0
     version: 0.5.0
   mini-css-extract-plugin:
-    specifier: ^1.6.0
+    specifier: ^1.6.2
     version: 1.6.2(webpack@5.90.1)
   mocha:
     specifier: ^10.3.0
@@ -104,7 +104,7 @@ devDependencies:
     specifier: ^5.0.5
     version: 5.0.5
   superagent:
-    specifier: ^8.1.0
+    specifier: ^8.1.2
     version: 8.1.2
   typescript:
     specifier: ^5.3.3
@@ -790,7 +790,7 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 17.0.45
+      '@types/node': 20.11.17
     dev: true
 
   /@types/json-schema@7.0.15:
@@ -816,8 +816,10 @@ packages:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
     dev: true
 
-  /@types/node@17.0.45:
-    resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
+  /@types/node@20.11.17:
+    resolution: {integrity: sha512-QmgQZGWu1Yw9TDyAP9ZzpFJKynYNeOvwMJmaxABfieQoVoiVOS6MN1WSpqpRcbeA5+RW82kraAVxCCJg+780Qw==}
+    dependencies:
+      undici-types: 5.26.5
     dev: true
 
   /@types/source-list-map@0.1.6:
@@ -833,7 +835,7 @@ packages:
   /@types/webpack-sources@3.2.3:
     resolution: {integrity: sha512-4nZOdMwSPHZ4pTEZzSp0AsTM4K7Qmu40UKW4tJDiOVs20UzYF9l+qUe4s0ftfN0pin06n+5cWWDJXH+sbhAiDw==}
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 20.11.17
       '@types/source-list-map': 0.1.6
       source-map: 0.7.4
     dev: true
@@ -1210,11 +1212,6 @@ packages:
 
   /asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
-    dev: true
-
-  /at-least-node@1.0.0:
-    resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
-    engines: {node: '>= 4.0.0'}
     dev: true
 
   /atob@2.1.2:
@@ -2761,11 +2758,10 @@ packages:
     resolution: {integrity: sha512-cHEpEQHUg0f8XdtZCc2ZAhrHzKzT0MrFUTcvx+hfxYu7rGMDc5SKoXFh+n4YigxsHXRzc6OrCshdR1bWH6HHyg==}
     dev: true
 
-  /fs-extra@9.1.0:
-    resolution: {integrity: sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==}
-    engines: {node: '>=10'}
+  /fs-extra@11.2.0:
+    resolution: {integrity: sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==}
+    engines: {node: '>=14.14'}
     dependencies:
-      at-least-node: 1.0.0
       graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.1
@@ -3565,7 +3561,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 20.11.17
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
@@ -5517,6 +5513,10 @@ packages:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
     engines: {node: '>=14.17'}
     hasBin: true
+    dev: true
+
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
     dev: true
 
   /union-value@1.0.1:
