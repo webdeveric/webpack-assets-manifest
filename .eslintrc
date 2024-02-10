@@ -1,5 +1,7 @@
 {
-  "extends": "@webdeveric/eslint-config",
+  "root": true,
+  "extends": ["@webdeveric/eslint-config", "prettier"],
+
   "parserOptions": {
     "ecmaVersion": 2018
   },
