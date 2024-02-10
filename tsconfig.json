@@ -3,6 +3,7 @@
     "allowJs": true,
     "alwaysStrict": true,
     "checkJs": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "lib": [
       "es2017"
@@ -18,6 +19,9 @@
     ]
   },
   "include": [
-    "src/*"
+    "./src/*"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
