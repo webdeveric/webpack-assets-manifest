@@ -58,7 +58,7 @@
     "lockfile": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
-    "schema-utils": "^3.3.0",
+    "schema-utils": "^4.2.0",
     "tapable": "^2.2.1"
   },
   "peerDependencies": {
