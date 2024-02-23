@@ -53,13 +53,13 @@
   },
   "prettier": "@webdeveric/prettier-config",
   "dependencies": {
-    "chalk": "^4.0",
-    "deepmerge": "^4.0",
-    "lockfile": "^1.0",
-    "lodash.get": "^4.0",
-    "lodash.has": "^4.0",
-    "schema-utils": "^3.0",
-    "tapable": "^2.0"
+    "chalk": "^4.1.2",
+    "deepmerge": "^4.3.1",
+    "lockfile": "^1.0.4",
+    "lodash.get": "^4.4.2",
+    "lodash.has": "^4.5.2",
+    "schema-utils": "^3.3.0",
+    "tapable": "^2.2.1"
   },
   "peerDependencies": {
     "webpack": "^5.2.0"
@@ -67,7 +67,7 @@
   "devDependencies": {
     "@types/lodash.get": "^4.4.9",
     "@types/lodash.has": "^4.5.9",
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.11.20",
     "@types/tapable": "^2.2.7",
     "@types/webpack-sources": "^3.2.3",
     "@webdeveric/eslint-config": "^0.4.0",
@@ -76,13 +76,13 @@
     "chai-spies": "^1.1.0",
     "compression-webpack-plugin": "^7.1.2",
     "copy-webpack-plugin": "^8.1.1",
-    "cspell": "^8.3.2",
+    "cspell": "^8.4.1",
     "css-loader": "^5.2.7",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "file-loader": "^6.2.0",
     "fs-extra": "^11.2.0",
-    "husky": "^9.0.10",
+    "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "memory-fs": "^0.5.0",
     "mini-css-extract-plugin": "^1.6.2",
@@ -92,7 +92,7 @@
     "rimraf": "^5.0.5",
     "superagent": "^8.1.2",
     "typescript": "^5.3.3",
-    "webpack": "^5.90.1",
+    "webpack": "^5.90.3",
     "webpack-dev-server": "^3.11.3",
     "webpack-subresource-integrity": "^1.5.2"
   }
