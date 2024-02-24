@@ -692,7 +692,7 @@ class WebpackAssetsManifest {
    * @param  {object} module
    */
   handleNormalModuleLoader(compilation, loaderContext, module) {
-    const { emitFile } = loaderContext;
+    const emitFile = loaderContext.emitFile.bind(module);
     const { contextRelativeKeys } = this.options;
 
     // assetInfo parameter was added in Webpack 4.40.0
@@ -710,7 +710,7 @@ class WebpackAssetsManifest {
         name,
       );
 
-      return emitFile.call(module, name, content, sourceMap, info);
+      emitFile(name, content, sourceMap, info);
     };
   }
 
