@@ -752,7 +752,7 @@ class WebpackAssetsManifest {
     compilation.hooks.processAssets.tap(
       {
         name: PLUGIN_NAME,
-        stage: Compilation.PROCESS_ASSETS_STAGE_REPORT,
+        stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
       },
       this.handleProcessAssetsAnalyse.bind(this, compilation),
     );
