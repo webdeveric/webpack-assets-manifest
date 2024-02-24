@@ -27,7 +27,7 @@
   "files": [
     "src"
   ],
-  "packageManager": "pnpm@8.15.1+sha256.245fe901f8e7fa8782d7f17d32b6a83995e2ae03984cb5b62b8949bfdc27c7b5",
+  "packageManager": "pnpm@8.15.3+sha256.fc4a49bd609550a41e14d20efbce802a4b892aa4cac877322de2f0924f122991",
   "scripts": {
     "lint": "eslint --fix src test",
     "format": "prettier --write .",
@@ -78,7 +78,7 @@
     "copy-webpack-plugin": "^8.1.1",
     "cspell": "^8.4.1",
     "css-loader": "^5.2.7",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "file-loader": "^6.2.0",
     "fs-extra": "^11.2.0",
