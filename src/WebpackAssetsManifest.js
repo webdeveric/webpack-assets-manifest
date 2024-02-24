@@ -14,11 +14,6 @@ const get = require('lodash.get');
 const has = require('lodash.has');
 const { validate } = require('schema-utils');
 const { AsyncSeriesHook, SyncHook, SyncWaterfallHook } = require('tapable');
-const {
-  Compilation,
-  NormalModule,
-  sources: { RawSource },
-} = require('webpack');
 
 const {
   maybeArrayWrap,
@@ -420,7 +415,7 @@ class WebpackAssetsManifest {
 
     this.maybeMerge();
 
-    compilation.emitAsset(output, new RawSource(this.toString(), false), {
+    compilation.emitAsset(output, new compilation.compiler.webpack.sources.RawSource(this.toString(), false), {
       assetsManifest: true,
       generated: true,
       generatedBy: [PLUGIN_NAME],
@@ -744,7 +739,7 @@ class WebpackAssetsManifest {
    * @param  {object} compilation - the Webpack compilation object
    */
   handleCompilation(compilation) {
-    NormalModule.getCompilationHooks(compilation).loader.tap(
+    compilation.compiler.webpack.NormalModule.getCompilationHooks(compilation).loader.tap(
       PLUGIN_NAME,
       this.handleNormalModuleLoader.bind(this, compilation),
     );
@@ -752,7 +747,7 @@ class WebpackAssetsManifest {
     compilation.hooks.processAssets.tap(
       {
         name: PLUGIN_NAME,
-        stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+        stage: compilation.compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
       },
       this.handleProcessAssetsAnalyse.bind(this, compilation),
     );
@@ -768,7 +763,7 @@ class WebpackAssetsManifest {
       compilation.hooks.processAssets.tap(
         {
           name: PLUGIN_NAME,
-          stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+          stage: compilation.compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
         },
         this.recordSubresourceIntegrity.bind(this, compilation),
       );
@@ -777,7 +772,7 @@ class WebpackAssetsManifest {
     compilation.hooks.processAssets.tapPromise(
       {
         name: PLUGIN_NAME,
-        stage: Compilation.PROCESS_ASSETS_STAGE_REPORT,
+        stage: compilation.compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
       },
       this.handleProcessAssetsReport.bind(this, compilation),
     );
