@@ -13,9 +13,9 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-        webpack-version: ["5.2.0", 5]
-        dev-server-version: ["3.6.0", 3]
-        css-loader-version: ["3.5.0", latest]
+        webpack-version: ['5.2.0', latest]
+        dev-server-version: [4, latest]
+        css-loader-version: ['3.5.0', latest]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -23,20 +23,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
-      - name: Installing dependencies
+          cache: 'pnpm'
+      - name: Install dependencies
         run: pnpm install
-      - name: Installing specific dependency versions
-        run: pnpm install webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
-      - name: Building (if needed)
-        run: pnpm --if-present run build
-      - name: Running tests
-        run: pnpm test
-      - name: Generating coverage report
-        run: pnpm lcov
+      - name: Install specific dependency versions
+        run: pnpm install webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }} --no-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Test
+        run: pnpm coverage
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          files: ./coverage.lcov
           token: ${{ secrets.CODECOV_TOKEN }}
