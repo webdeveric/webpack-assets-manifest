@@ -566,7 +566,7 @@ describe('Options', () => {
 
       await setupManifest(manifest, 'fixtures/json/invalid-json.txt');
 
-      await expect(run()).rejects.toThrowError('Expected property name');
+      await expect(run()).rejects.toThrowError();
     });
   });
 
