@@ -111,19 +111,19 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    * This is using hooks from {@link https://github.com/webpack/tapable | Tapable}.
    */
   hooks = Object.freeze({
-    apply: new SyncHook<[plugin: WebpackAssetsManifest]>(['manifest']),
+    apply: new SyncHook<[manifest: WebpackAssetsManifest]>(['manifest']),
     customize: new SyncWaterfallHook<
       [
         entry: KeyValuePair | false | undefined | void,
         original: KeyValuePair,
-        plugin: WebpackAssetsManifest,
+        manifest: WebpackAssetsManifest,
         asset: Asset | undefined,
       ]
     >(['entry', 'original', 'manifest', 'asset']),
-    transform: new SyncWaterfallHook<[asset: AssetsStorage, plugin: WebpackAssetsManifest]>(['assets', 'manifest']),
-    done: new AsyncSeriesHook<[plugin: WebpackAssetsManifest, stats: Stats]>(['manifest', 'stats']),
+    transform: new SyncWaterfallHook<[asset: AssetsStorage, manifest: WebpackAssetsManifest]>(['assets', 'manifest']),
+    done: new AsyncSeriesHook<[manifest: WebpackAssetsManifest, stats: Stats]>(['manifest', 'stats']),
     options: new SyncWaterfallHook<[options: Options]>(['options']),
-    afterOptions: new SyncHook<[options: Options, plugin: WebpackAssetsManifest]>(['options', 'manifest']),
+    afterOptions: new SyncHook<[options: Options, manifest: WebpackAssetsManifest]>(['options', 'manifest']),
   });
 
   constructor(options: Partial<Options> = {}) {
