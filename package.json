@@ -74,7 +74,7 @@
     "tapable": "^2.2.1"
   },
   "peerDependencies": {
-    "webpack": "^5.2.0"
+    "webpack": "^5.37.0"
   },
   "devDependencies": {
     "@types/lockfile": "^1.0.4",
