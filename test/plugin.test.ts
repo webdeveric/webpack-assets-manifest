@@ -1407,19 +1407,23 @@ describe('Options', () => {
     it('Should serve the assets manifest JSON file', async () => {
       const { compiler } = create(configs.devServer(), undefined, webpack);
 
-      const server = new WebpackDevServer(undefined, compiler);
+      const server = new WebpackDevServer(
+        {
+          host: 'localhost',
+        },
+        compiler,
+      );
 
       await server.start();
 
-      await expect(fetch(`http://127.0.0.1:${server.options.port}/assets-manifest.json`)).resolves.toHaveProperty(
-        'status',
-        200,
-      );
+      await expect(
+        fetch(`http://${server.options.host}:${server.options.port}/assets-manifest.json`),
+      ).resolves.toHaveProperty('status', 200);
 
-      await server.close();
+      await server.stop();
     });
 
-    describe.sequential('writeToDisk', () => {
+    describe('writeToDisk', () => {
       beforeAll(async () => {
         await mkdir(getWorkspace(), { recursive: true, mode: _777 });
       });
@@ -1435,20 +1439,24 @@ describe('Options', () => {
           writeToDisk: true,
         });
 
-        const server = new WebpackDevServer(undefined, compiler);
+        const server = new WebpackDevServer(
+          {
+            host: 'localhost',
+          },
+          compiler,
+        );
 
         await server.start();
 
-        await expect(fetch(`http://127.0.0.1:${server.options.port}/assets-manifest.json`)).resolves.toHaveProperty(
-          'status',
-          200,
-        );
+        await expect(
+          fetch(`http://${server.options.host}:${server.options.port}/assets-manifest.json`),
+        ).resolves.toHaveProperty('status', 200);
 
         const manifestStats = await stat(manifest.getOutputPath());
 
         expect(manifestStats.isFile()).toBeTruthy();
 
-        await server.close();
+        await server.stop();
       });
 
       it('Should write to compiler.outputPath if no output paths are specified', async () => {
@@ -1461,14 +1469,18 @@ describe('Options', () => {
           writeToDisk: true,
         });
 
-        const server = new WebpackDevServer(undefined, compiler);
+        const server = new WebpackDevServer(
+          {
+            host: 'localhost',
+          },
+          compiler,
+        );
 
         await server.start();
 
-        await expect(fetch(`http://127.0.0.1:${server.options.port}/assets-manifest.json`)).resolves.toHaveProperty(
-          'status',
-          200,
-        );
+        await expect(
+          fetch(`http://${server.options.host}:${server.options.port}/assets-manifest.json`),
+        ).resolves.toHaveProperty('status', 200);
 
         const manifestStats = await stat(manifest.getOutputPath());
 
@@ -1476,7 +1488,7 @@ describe('Options', () => {
 
         expect(manifestStats.isFile()).toBeTruthy();
 
-        await server.close();
+        await server.stop();
       });
 
       it('writeToDisk: auto', async () => {
