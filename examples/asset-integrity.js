@@ -1,4 +1,4 @@
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 
 const manifest = new WebpackAssetsManifest({
   output: 'asset-integrity-manifest.json',
