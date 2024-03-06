@@ -32,7 +32,6 @@
     "node": ">=18.0.0"
   },
   "type": "module",
-  "main": "./dist/mjs/plugin.js",
   "types": "./dist/types/plugin.d.ts",
   "exports": {
     ".": {
@@ -46,6 +45,22 @@
       "import": "./dist/mjs/*.js"
     },
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "helpers": [
+        "./dist/types/helpers.d.ts"
+      ],
+      "options-schema": [
+        "dist/types/options-schema.d.ts"
+      ],
+      "type-predicate": [
+        "dist/types/type-predicate.d.ts"
+      ],
+      "types": [
+        "dist/types/types.d.ts"
+      ]
+    }
   },
   "files": [
     "dist"
