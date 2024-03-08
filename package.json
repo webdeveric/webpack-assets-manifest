@@ -93,7 +93,7 @@
   },
   "devDependencies": {
     "@types/lockfile": "^1.0.4",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.11.25",
     "@types/tapable": "^2.2.7",
     "@types/webpack-sources": "^3.2.3",
     "@vitest/coverage-v8": "^1.3.1",
@@ -117,7 +117,7 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "superagent": "^8.1.2",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.2",
     "vitest": "^1.3.1",
     "webpack": "^5.90.3",
     "webpack-dev-server": "^5.0.2",
