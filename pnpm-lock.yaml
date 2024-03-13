@@ -65,8 +65,8 @@ devDependencies:
     specifier: ^8.4.1
     version: 8.4.1
   css-loader:
-    specifier: ^5.2.7
-    version: 5.2.7(webpack@5.90.3)
+    specifier: ^6.10.0
+    version: 6.10.0(webpack@5.90.3)
   eslint:
     specifier: ^8.57.0
     version: 8.57.0
@@ -1901,21 +1901,25 @@ packages:
       vscode-uri: 3.0.8
     dev: true
 
-  /css-loader@5.2.7(webpack@5.90.3):
-    resolution: {integrity: sha512-Q7mOvpBNBG7YrVGMxRxcBJZFL75o+cH2abNASdibkj/fffYD8qWbInZrD0S9ccI6vZclF3DsHE7njGlLtaHbhg==}
-    engines: {node: '>= 10.13.0'}
+  /css-loader@6.10.0(webpack@5.90.3):
+    resolution: {integrity: sha512-LTSA/jWbwdMlk+rhmElbDR2vbtQoTBPr7fkJE+mxrHj+7ru0hUmHafDRzWIjIHTwpitWVaqY2/UWGRca3yUgRw==}
+    engines: {node: '>= 12.13.0'}
     peerDependencies:
-      webpack: ^4.27.0 || ^5.0.0
+      '@rspack/core': 0.x || 1.x
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.35)
-      loader-utils: 2.0.4
       postcss: 8.4.35
       postcss-modules-extract-imports: 3.0.0(postcss@8.4.35)
       postcss-modules-local-by-default: 4.0.4(postcss@8.4.35)
       postcss-modules-scope: 3.1.1(postcss@8.4.35)
       postcss-modules-values: 4.0.0(postcss@8.4.35)
       postcss-value-parser: 4.2.0
-      schema-utils: 3.3.0
       semver: 7.6.0
       webpack: 5.90.3
     dev: true
