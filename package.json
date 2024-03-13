@@ -74,7 +74,7 @@
     "@webdeveric/prettier-config": "^0.2.0",
     "chai": "^4.4.1",
     "chai-spies": "^1.1.0",
-    "compression-webpack-plugin": "^7.1.2",
+    "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^8.1.1",
     "cspell": "^8.4.1",
     "css-loader": "^5.2.7",
