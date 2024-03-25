@@ -1,5 +1,3 @@
-'use strict';
-
-module.exports = function(name) {
+export default function hello(name) {
   return 'Hello ' + name;
-};
+}

@@ -1,3 +1,1 @@
-'use strict';
-
-module.exports = () => console.log('preload');
+export default () => console.log('preload');

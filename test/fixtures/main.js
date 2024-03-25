@@ -1,5 +1,3 @@
-'use strict';
-
-require('./styles/main.css');
+import './styles/main.css';
 
 console.log('Main');

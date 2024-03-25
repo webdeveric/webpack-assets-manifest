@@ -1,7 +1,8 @@
 node_modules
-npm-debug.log
-coverage.lcov
-.nyc_output/
-coverage/
-private/
 .idea/
+cache/
+coverage/
+dist/
+private/
+*.tsbuildinfo
+npm-debug.log

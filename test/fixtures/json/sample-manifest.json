@@ -4,20 +4,13 @@
   "entrypoints": {
     "main": {
       "assets": {
-        "css": [
-          "main.css"
-        ],
-        "js": [
-          "runtime.js",
-          "main.js"
-        ]
+        "css": ["main.css"],
+        "js": ["runtime.js", "main.js"]
       }
     },
     "demo": {
       "assets": {
-        "js": [
-          "demo.js"
-        ]
+        "js": ["demo.js"]
       }
     }
   }

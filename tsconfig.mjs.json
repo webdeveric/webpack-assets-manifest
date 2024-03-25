@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "rootDir": "./src",
+    "sourceRoot": "./src",
+    "outDir": "./dist/mjs",
+    "verbatimModuleSyntax": true,
+    "tsBuildInfoFile": "./cache/mjs.tsbuildinfo"
+  },
+  "include": ["src/**/*"]
+}

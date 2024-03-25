@@ -10,4 +10,3 @@ pnpm-lock.yaml
 .editorconfig
 .npmrc
 .nvmrc
-.eslintrc*

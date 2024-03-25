@@ -51,5 +51,9 @@
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.preferTypeOnlyAutoImports": true
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "typescript.surveys.enabled": false,
+  "typescript.implementationsCodeLens.enabled": true
 }

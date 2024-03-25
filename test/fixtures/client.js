@@ -1,6 +1,4 @@
-'use strict';
-
-require('./images/Ginger.asset.jpg');
-require('./images/Ginger.loader.jpg');
+import './images/Ginger.asset.jpg';
+import './images/Ginger.loader.jpg';
 
 console.log('Client');
