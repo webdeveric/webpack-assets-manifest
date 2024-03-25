@@ -69,8 +69,9 @@
   "scripts": {
     "clean": "rimraf ./coverage/ ./dist/",
     "prebuild": "pnpm clean",
+    "validate": "validate-package-exports --check --verify",
     "build": "tsc --build tsconfig.cjs.json tsconfig.mjs.json --force",
-    "postbuild": "echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json && echo '{\"type\":\"module\"}' > ./dist/mjs/package.json",
+    "postbuild": "echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json && echo '{\"type\":\"module\"}' > ./dist/mjs/package.json && pnpm validate",
     "lint": "eslint ./*{js,cjs,mjs,mts} ./src ./test",
     "typecheck": "tsc --build --verbose",
     "spellcheck": "cspell --no-progress './{.github,src,test}/**/*.{ts,js,json}' './*.{md,js}' './package.json'",
@@ -118,6 +119,7 @@
     "rimraf": "^5.0.5",
     "superagent": "^8.1.2",
     "typescript": "^5.4.3",
+    "validate-package-exports": "^0.1.0",
     "vitest": "^1.4.0",
     "webpack": "^5.91.0",
     "webpack-dev-server": "^5.0.4",
