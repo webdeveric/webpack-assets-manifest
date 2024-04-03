@@ -1203,13 +1203,13 @@ describe('Options', () => {
           writeToDisk: true,
         });
 
-        const spy = vi.spyOn(compiler.outputFileSystem, 'writeFile');
+        const spy = vi.spyOn(compiler.outputFileSystem!, 'writeFile');
 
         await run();
 
         expect(spy).toHaveBeenCalled();
 
-        const content = (await promisify(compiler.outputFileSystem.readFile)(manifest.getOutputPath()))?.toString();
+        const content = (await promisify(compiler.outputFileSystem!.readFile)(manifest.getOutputPath()))?.toString();
 
         expect(manifest.toString()).toEqual(content);
       });

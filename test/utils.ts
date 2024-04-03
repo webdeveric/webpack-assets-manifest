@@ -26,7 +26,8 @@ export function makeCompiler(configuration: Configuration): Compiler {
     ...configuration,
   });
 
-  compiler.outputFileSystem = createFsFromVolume(new Volume());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  compiler.outputFileSystem = createFsFromVolume(new Volume()) as any;
 
   return compiler;
 }
@@ -47,7 +48,8 @@ export function makeMultiCompiler(configurations: Configuration[]): MultiCompile
     ),
   );
 
-  compiler.outputFileSystem = createFsFromVolume(new Volume());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  compiler.outputFileSystem = createFsFromVolume(new Volume()) as any;
 
   return compiler;
 }
