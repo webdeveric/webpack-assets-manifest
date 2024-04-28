@@ -41,8 +41,8 @@ devDependencies:
     specifier: ^0.2.0
     version: 0.2.0(prettier@3.2.5)
   '@webdeveric/utils':
-    specifier: ^0.30.0
-    version: 0.30.0
+    specifier: ^0.31.0
+    version: 0.31.0
   compression-webpack-plugin:
     specifier: ^11.1.0
     version: 11.1.0(webpack@5.91.0)
@@ -1731,6 +1731,14 @@ packages:
       lodash.escaperegexp: 4.1.2
     dev: true
 
+  /@webdeveric/utils@0.31.0:
+    resolution: {integrity: sha512-KMkJO/Qx9jz+7HOEyRDeDCzCATIeipQBAqyK2zSy3RzjhPXs1jst+m11WqlRKMEEE7d6kLmatsh6VrmR1MYtqg==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      lodash.clonedeep: 4.5.0
+      lodash.escaperegexp: 4.1.2
+    dev: true
+
   /@xtuc/ieee754@1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
     dev: true
@@ -2058,7 +2066,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001613
+      caniuse-lite: 1.0.30001614
       electron-to-chromium: 1.4.750
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
@@ -2130,8 +2138,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /caniuse-lite@1.0.30001613:
-    resolution: {integrity: sha512-BNjJULJfOONQERivfxte7alLfeLW4QnwHvNW4wEcLEbXfV6VSCYvr+REbf2Sojv8tC1THpjPXBxWgDbq4NtLWg==}
+  /caniuse-lite@1.0.30001614:
+    resolution: {integrity: sha512-jmZQ1VpmlRwHgdP1/uiKzgiAuGOfLEJsYFP4+GBou/QQ4U6IOJCB4NP1c+1p9RGLpwObcT94jA5/uO+F1vBbog==}
     dev: true
 
   /chai@4.4.1:
