@@ -35,5 +35,11 @@
     "webdeveric"
   ],
   "flagWords": [],
-  "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"]
+  "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"],
+  "languageSettings": [
+    {
+      "languageId": "commit-msg",
+      "ignoreRegExpList": ["/^#.*/gm"]
+    }
+  ]
 }
