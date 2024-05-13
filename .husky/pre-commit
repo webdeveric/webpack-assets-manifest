@@ -1,1 +1,1 @@
-npx --no lint-staged -- --config "$(dirname "$0")/../lint-staged.config.mjs"
+npx --no lint-staged
