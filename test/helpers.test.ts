@@ -67,7 +67,7 @@ describe('findMapKeysByValue()', function () {
 
 describe('group()', () => {
   it('group items from an array based on a callback return value', () => {
-    const grouped = group(['cat', 'dog', 'dinosaur'], word => word[0]);
+    const grouped = group(['cat', 'dog', 'dinosaur'], (word) => word[0]);
 
     expect(grouped).toEqual({
       c: ['cat'],
@@ -76,7 +76,7 @@ describe('group()', () => {
   });
 
   it('prevent item from being grouped', () => {
-    const grouped = group(['cat', 'dog', 'dinosaur'], word => (word === 'cat' ? undefined : word[0]));
+    const grouped = group(['cat', 'dog', 'dinosaur'], (word) => (word === 'cat' ? undefined : word[0]));
 
     expect(grouped).toEqual({
       d: ['dog', 'dinosaur'],
@@ -86,7 +86,7 @@ describe('group()', () => {
   it('can modify items with a callback', () => {
     const grouped = group(
       ['cat', 'dog', 'dinosaur'],
-      word => word[0],
+      (word) => word[0],
       (word, group) => `${word.toUpperCase()}-group-${String(group)}`,
     );
 

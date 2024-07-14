@@ -91,7 +91,7 @@ export function lock(filename: string): Promise<void> {
         retries: 100,
         retryWait: 100,
       },
-      error => {
+      (error) => {
         if (error) {
           reject(error);
 
@@ -111,7 +111,7 @@ export function lock(filename: string): Promise<void> {
  */
 export function unlock(filename: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    lockfileUnlock(getLockFilename(filename), error => {
+    lockfileUnlock(getLockFilename(filename), (error) => {
       if (error) {
         reject(error);
 

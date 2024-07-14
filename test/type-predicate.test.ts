@@ -40,11 +40,11 @@ describe('isKeyValuePair()', () => {
 });
 
 describe('isPropertyKey()', () => {
-  it.each(['string-key', 123, Symbol('symbol-key')])('Returns true for %s', input => {
+  it.each(['string-key', 123, Symbol('symbol-key')])('Returns true for %s', (input) => {
     expect(isPropertyKey(input)).toBeTruthy();
   });
 
-  it.each([false, null, undefined, {}, []])('Returns false for %s', input => {
+  it.each([false, null, undefined, {}, []])('Returns false for %s', (input) => {
     expect(isPropertyKey(input)).toBeFalsy();
   });
 });

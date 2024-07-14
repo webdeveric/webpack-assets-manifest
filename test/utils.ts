@@ -35,7 +35,7 @@ export function makeCompiler(configuration: Configuration): Compiler {
 export function makeMultiCompiler(configurations: Configuration[]): MultiCompiler {
   const compiler = webpack(
     configurations.map(
-      config =>
+      (config) =>
         ({
           mode: 'development',
           stats: 'errors-only',
@@ -95,7 +95,7 @@ export function createMulti(
 
   const compiler = comp(
     configurations.map(
-      config =>
+      (config) =>
         ({
           mode: 'development',
           stats: 'errors-only',

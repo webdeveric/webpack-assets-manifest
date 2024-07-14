@@ -4,10 +4,10 @@ import { cwd } from 'node:process';
 /**
  * @type {(filenames: string[]) => string[]>}
  */
-const relativeFilenames = filenames => {
+const relativeFilenames = (filenames) => {
   const root = cwd();
 
-  return filenames.map(file => relative(root, file));
+  return filenames.map((file) => relative(root, file));
 };
 
 /**
@@ -16,7 +16,7 @@ const relativeFilenames = filenames => {
 export default {
   '*.{js,cjs,mjs,ts,cts,mts}': ['eslint --fix', 'prettier --write'],
   '*.{json,md}': 'prettier --write',
-  '*': filenames => {
+  '*': (filenames) => {
     const files = relativeFilenames(filenames);
 
     return [

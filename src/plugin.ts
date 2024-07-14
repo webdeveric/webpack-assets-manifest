@@ -127,7 +127,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   });
 
   constructor(options: Partial<Options> = {}) {
-    this.hooks.transform.tap(PLUGIN_NAME, assets => {
+    this.hooks.transform.tap(PLUGIN_NAME, (assets) => {
       const { sortManifest } = this.options;
 
       return sortManifest
@@ -185,7 +185,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
 
     // The compilation has finished
-    compiler.hooks.done.tapPromise(PLUGIN_NAME, async stats => await this.hooks.done.promise(this, stats));
+    compiler.hooks.done.tapPromise(PLUGIN_NAME, async (stats) => await this.hooks.done.promise(this, stats));
 
     // Setup is complete.
     this.hooks.apply.call(this);
@@ -371,10 +371,10 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    */
   public processAssetsByChunkName(assets: StatsCompilation['assetsByChunkName'], hmrFiles: Set<string>): void {
     if (assets) {
-      Object.keys(assets).forEach(chunkName => {
+      Object.keys(assets).forEach((chunkName) => {
         asArray(assets[chunkName])
-          .filter(filename => !hmrFiles.has(filename)) // Remove hot module replacement files
-          .forEach(filename => {
+          .filter((filename) => !hmrFiles.has(filename)) // Remove hot module replacement files
+          .forEach((filename) => {
             this.assetNames.set(chunkName + this.getExtension(filename), filename);
           });
       });
@@ -514,7 +514,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   private processStatsAssets(assets: StatsAsset[] | undefined): void {
     const { contextRelativeKeys } = this.options;
 
-    assets?.forEach(asset => {
+    assets?.forEach((asset) => {
       if (asset.name && asset.info.sourceFilename) {
         this.assetNames.set(
           contextRelativeKeys
@@ -535,7 +535,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   } {
     const hmrFiles = new Set<string>();
 
-    const assets = compilation.getAssets().filter(asset => {
+    const assets = compilation.getAssets().filter((asset) => {
       if (asset.info.hotModuleReplacement) {
         hmrFiles.add(asset.name);
 
@@ -585,7 +585,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
         sourceFilenames.push(name);
       }
 
-      sourceFilenames.forEach(key => {
+      sourceFilenames.forEach((key) => {
         this.currentAsset = asset;
 
         this.set(key, asset.name);
@@ -671,7 +671,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   public clear(): void {
     // Delete properties instead of setting to {} so that the variable reference
     // is maintained incase the `assets` is being shared in multi-compiler mode.
-    Object.keys(this.assets).forEach(key => {
+    Object.keys(this.assets).forEach((key) => {
       delete this.assets[key];
     });
   }
@@ -693,7 +693,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       // Check to see if we let webpack-dev-server handle it.
       if (this.inDevServer()) {
         const wdsWriteToDisk: ((filePath: string) => boolean) | boolean | undefined = compilation.options.devServer
-          ? compilation.options.devServer.devMiddleware?.writeToDisk ?? compilation.options.devServer.writeToDisk
+          ? (compilation.options.devServer.devMiddleware?.writeToDisk ?? compilation.options.devServer.writeToDisk)
           : undefined;
 
         if (wdsWriteToDisk === true) {
@@ -762,13 +762,15 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
     for (const asset of compilation.getAssets()) {
       if (!asset.info[integrityPropertyName]) {
-        const sriHashes = new Map<string, string | undefined>(integrityHashes.map(algorithm => [algorithm, undefined]));
+        const sriHashes = new Map<string, string | undefined>(
+          integrityHashes.map((algorithm) => [algorithm, undefined]),
+        );
 
         // webpack-subresource-integrity@4+ stores the integrity hash on `asset.info.contenthash`.
         if (asset.info.contenthash) {
           asArray(asset.info.contenthash)
-            .filter(contentHash => integrityHashes.some(algorithm => contentHash.startsWith(`${algorithm}-`)))
-            .forEach(sriHash => sriHashes.set(sriHash.substring(0, sriHash.indexOf('-')), sriHash));
+            .filter((contentHash) => integrityHashes.some((algorithm) => contentHash.startsWith(`${algorithm}-`)))
+            .forEach((sriHash) => sriHashes.set(sriHash.substring(0, sriHash.indexOf('-')), sriHash));
         }
 
         const assetContent = asset.source.source().toString();
@@ -840,7 +842,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       return true;
     }
 
-    if (process.argv.some(arg => arg.includes('webpack-dev-server'))) {
+    if (process.argv.some((arg) => arg.includes('webpack-dev-server'))) {
       return true;
     }
 
