@@ -243,8 +243,8 @@ describe('Methods', () => {
       const manifest = new WebpackAssetsManifest();
       const methods = ['set', 'setRaw'] satisfies (keyof WebpackAssetsManifest)[];
 
-      ['some/image.jpg', 'some\\image.jpg'].forEach(key => {
-        methods.forEach(method => {
+      ['some/image.jpg', 'some\\image.jpg'].forEach((key) => {
+        methods.forEach((method) => {
           manifest[method](key, 'image.jpg');
 
           expect(manifest.has(key)).toBeTruthy();
@@ -311,7 +311,7 @@ describe('Methods', () => {
     it('Returns a Proxy', () => {
       const manifest = new WebpackAssetsManifest();
 
-      [undefined, false, true].forEach(raw => {
+      [undefined, false, true].forEach((raw) => {
         const proxy = manifest.getProxy(raw);
 
         expect(proxy).instanceOf(WebpackAssetsManifest);
@@ -390,7 +390,7 @@ describe('Options', () => {
     it('Should use custom comparison function', () => {
       const manifest = new WebpackAssetsManifest({
         assets,
-        sortManifest: function (left, right) {
+        sortManifest(left, right) {
           return left.localeCompare(right);
         },
         space: 0,
@@ -438,7 +438,7 @@ describe('Options', () => {
       const manifest = new WebpackAssetsManifest({
         assets,
         space: 0,
-        replacer: function (_key, value) {
+        replacer(_key, value) {
           if (typeof value === 'string') {
             return value.toUpperCase();
           }
@@ -464,7 +464,7 @@ describe('Options', () => {
         space: 0,
       });
 
-      Object.keys(assets).forEach(key => {
+      Object.keys(assets).forEach((key) => {
         manifest.set(key, assets[key]);
       });
 
@@ -783,7 +783,7 @@ describe('Options', () => {
         integrity: true,
         integrityHashes: ['md5'],
         apply(manifest) {
-          manifest.compiler?.hooks.compilation.tap('test', compilation => {
+          manifest.compiler?.hooks.compilation.tap('test', (compilation) => {
             vi.spyOn(compilation.assetsInfo, 'get').mockImplementation(() => ({
               [manifest.options.integrityPropertyName]: 'test',
             }));
@@ -972,9 +972,9 @@ describe('Options', () => {
       type WriteToDiskFn = Exclude<NonNullable<DevMiddleware['writeToDisk']>, boolean>;
       type DevMiddlewareWithWriteToDiskFn = Omit<DevMiddleware, 'writeToDisk'> & { writeToDisk: WriteToDiskFn };
 
-      let spy: MockInstance<Parameters<WriteToDiskFn>, ReturnType<WriteToDiskFn>> | undefined;
+      let spy: MockInstance<WriteToDiskFn> | undefined;
 
-      compiler.hooks.compilation.tap('test', compilation => {
+      compiler.hooks.compilation.tap('test', (compilation) => {
         if (
           isObject(compilation.options.devServer) &&
           isObject<DevMiddlewareWithWriteToDiskFn>(compilation.options.devServer.devMiddleware) &&
@@ -982,7 +982,7 @@ describe('Options', () => {
         ) {
           spy = vi
             .spyOn(compilation.options.devServer.devMiddleware, 'writeToDisk')
-            .mockImplementation(filePath => manifest.getOutputPath() === filePath);
+            .mockImplementation((filePath) => manifest.getOutputPath() === filePath);
         }
       });
 
@@ -1036,7 +1036,7 @@ describe('Options', () => {
       const { manifest } = create(configs.hello(), {
         apply: () => {},
         customize: () => {},
-        transform: assets => assets,
+        transform: (assets) => assets,
         done: async () => {},
       });
 
@@ -1094,7 +1094,7 @@ describe('Options', () => {
 
     describe('Options', function () {
       it('Options can be altered with a hook', function () {
-        const mock = vi.fn(options => {
+        const mock = vi.fn((options) => {
           options.space = 0;
 
           return options;
