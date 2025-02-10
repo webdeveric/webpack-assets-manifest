@@ -52,20 +52,20 @@
         "./dist/types/helpers.d.ts"
       ],
       "options-schema": [
-        "dist/types/options-schema.d.ts"
+        "./dist/types/options-schema.d.ts"
       ],
       "type-predicate": [
-        "dist/types/type-predicate.d.ts"
+        "./dist/types/type-predicate.d.ts"
       ],
       "types": [
-        "dist/types/types.d.ts"
+        "./dist/types/types.d.ts"
       ]
     }
   },
   "files": [
     "dist"
   ],
-  "packageManager": "pnpm@9.5.0+sha256.dbdf5961c32909fb030595a9daa1dae720162e658609a8f92f2fa99835510ca5",
+  "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92",
   "scripts": {
     "clean": "rimraf ./coverage/ ./dist/",
     "prebuild": "pnpm clean",
@@ -86,7 +86,7 @@
   "dependencies": {
     "deepmerge": "^4.3.1",
     "lockfile": "^1.0.4",
-    "schema-utils": "^4.2.0",
+    "schema-utils": "^4.3.0",
     "tapable": "^2.2.1"
   },
   "peerDependencies": {
@@ -94,33 +94,38 @@
   },
   "devDependencies": {
     "@types/lockfile": "^1.0.4",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.17.17",
     "@types/tapable": "^2.2.7",
     "@types/webpack-sources": "^3.2.3",
-    "@vitest/coverage-v8": "^2.0.2",
-    "@webdeveric/eslint-config-ts": "^0.8.0",
+    "@vitest/coverage-v8": "^3.0.5",
+    "@webdeveric/eslint-config-ts": "^0.11.0",
     "@webdeveric/prettier-config": "^0.3.0",
     "compression-webpack-plugin": "^11.1.0",
     "copy-webpack-plugin": "^12.0.2",
-    "cspell": "^8.10.4",
+    "cspell": "^8.17.3",
     "css-loader": "^7.1.2",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "^2.31.0",
     "file-loader": "^6.2.0",
-    "fs-extra": "^11.2.0",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.7",
-    "memfs": "^4.9.3",
-    "mini-css-extract-plugin": "^2.9.0",
-    "prettier": "^3.3.3",
+    "fs-extra": "^11.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "memfs": "^4.17.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "prettier": "^3.5.0",
     "rimraf": "^6.0.1",
-    "typescript": "^5.5.3",
-    "validate-package-exports": "^0.5.0",
-    "vitest": "^2.0.2",
-    "webpack": "^5.93.0",
-    "webpack-dev-server": "^5.0.4",
+    "typescript": "^5.7.3",
+    "validate-package-exports": "^0.8.0",
+    "vitest": "^3.0.5",
+    "webpack": "^5.97.1",
+    "webpack-dev-server": "^5.2.0",
     "webpack-subresource-integrity": "^5.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
