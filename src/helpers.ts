@@ -50,7 +50,7 @@ export function findMapKeysByValue<K = string, V = string>(map: Map<K, V>): (sea
  * @internal
  */
 export function group<T>(
-  data: ReadonlyArray<T>,
+  data: readonly T[],
   getGroup: (item: T) => PropertyKey | undefined,
   mapper?: (item: T, group: PropertyKey) => T,
 ): Record<PropertyKey, T> {
