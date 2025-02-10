@@ -4,7 +4,7 @@ import type { validate } from 'schema-utils';
 
 type Schema = Parameters<typeof validate>[0];
 
-export const optionsSchema: () => Schema = () => ({
+export const optionsSchema = {
   title: 'Webpack Assets Manifest options schema',
   description: 'Webpack Assets Manifest options',
   type: 'object',
@@ -182,4 +182,4 @@ export const optionsSchema: () => Schema = () => ({
       ],
     },
   },
-});
+} satisfies Schema;
