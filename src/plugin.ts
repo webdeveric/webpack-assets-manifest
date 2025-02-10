@@ -33,8 +33,6 @@ import type {
   WebpackPluginInstance,
 } from 'webpack';
 
-const IS_MERGING = Symbol('isMerging');
-
 const PLUGIN_NAME = 'WebpackAssetsManifest';
 
 export type * from './types.js';
@@ -105,7 +103,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   private currentAsset?: Asset;
 
   // Is a merge happening?
-  private [IS_MERGING] = false;
+  #isMerging = false;
 
   /**
    * This is using hooks from {@link https://github.com/webpack/tapable | Tapable}.
@@ -138,7 +136,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     this.hooks.afterOptions.tap(PLUGIN_NAME, (options, manifest) => {
       manifest.options = Object.assign(manifest.defaultOptions, options);
 
-      validate(optionsSchema(), manifest.options, { name: PLUGIN_NAME });
+      validate(optionsSchema, manifest.options, { name: PLUGIN_NAME });
 
       manifest.options.output = normalize(manifest.options.output);
 
@@ -245,7 +243,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    * Determine if the manifest data is currently being merged.
    */
   get isMerging(): boolean {
-    return this[IS_MERGING];
+    return this.#isMerging;
   }
 
   /**
@@ -409,7 +407,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       try {
         const deepmerge = (await import('deepmerge')).default;
 
-        this[IS_MERGING] = true;
+        this.#isMerging = true;
 
         const content = await readFile(this.getOutputPath(), { encoding: 'utf8' });
 
@@ -431,7 +429,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
           }
         }
       } finally {
-        this[IS_MERGING] = false;
+        this.#isMerging = false;
       }
     }
   }
