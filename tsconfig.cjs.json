@@ -4,7 +4,6 @@
     "composite": true,
     "noEmit": false,
     "rootDir": "./src",
-    "sourceRoot": "./src",
     "outDir": "./dist/cjs",
     "module": "CommonJS",
     "moduleResolution": "Node",

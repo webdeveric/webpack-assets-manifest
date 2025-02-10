@@ -3,6 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "verbatimModuleSyntax": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "tsBuildInfoFile": "./cache/test.tsbuildinfo"
   },
   "include": ["src/**/*", "test/**/*"]

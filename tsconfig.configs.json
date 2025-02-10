@@ -4,7 +4,6 @@
     "allowJs": true,
     "noEmit": true,
     "rootDir": "./",
-    "sourceRoot": "./",
     "tsBuildInfoFile": "./cache/configs.tsbuildinfo"
   },
   "include": ["./*.ts", "./*.mts", "./*.cts", "./*.js", "./*.mjs", "./*.cjs"]
