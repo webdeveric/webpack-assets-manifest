@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { chmod, copyFile, mkdir, stat } from 'node:fs/promises';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,9 +6,9 @@ import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { container, webpack, type Compilation } from 'webpack';
-import { version as webpackVersion } from 'webpack/package.json';
+import webpackPackage from 'webpack/package.json' with { type: 'json' };
 import WebpackDevServer from 'webpack-dev-server';
-import { version as webpackDevServerVersion } from 'webpack-dev-server/package.json';
+import webpackDevServerPackage from 'webpack-dev-server/package.json' with { type: 'json' };
 
 import { WebpackAssetsManifest, type Options } from '../src/plugin.js';
 import { isObject } from '../src/type-predicate.js';
@@ -21,10 +20,9 @@ import type { AssetsStorage, JsonStringifySpace, KeyValuePair } from '../src/typ
 
 const currentDirectory = fileURLToPath(new URL('.', import.meta.url));
 
-console.log(`webpack version: ${webpackVersion}\nwebpack dev server version: ${webpackDevServerVersion}`);
-
-const _444 = 0o444;
-const _777 = 0o777;
+console.log(
+  `webpack version: ${webpackPackage.version}\nwebpack dev server version: ${webpackDevServerPackage.version}`,
+);
 
 it('Is a webpack plugin', () => {
   const manifest = new WebpackAssetsManifest();
@@ -491,7 +489,7 @@ describe('Options', () => {
 
   describe.sequential('merge', () => {
     beforeAll(async () => {
-      await mkdir(getWorkspace(), { recursive: true, mode: _777 });
+      await mkdir(getWorkspace(), { recursive: true, mode: 0o777 });
     });
 
     afterAll(async () => {
@@ -502,7 +500,7 @@ describe('Options', () => {
       manifest: WebpackAssetsManifest,
       jsonFilePath: string,
     ): Promise<WebpackAssetsManifest> {
-      await mkdir(dirname(manifest.getOutputPath()), { recursive: true, mode: _777 });
+      await mkdir(dirname(manifest.getOutputPath()), { recursive: true, mode: 0o777 });
 
       await copyFile(resolve(currentDirectory, jsonFilePath), manifest.getOutputPath());
 
@@ -1191,7 +1189,7 @@ describe('Options', () => {
 
     describe.sequential('outputFileSystem', () => {
       beforeAll(async () => {
-        await mkdir(getWorkspace(), { recursive: true, mode: _777 });
+        await mkdir(getWorkspace(), { recursive: true, mode: 0o777 });
       });
 
       afterAll(async () => {
@@ -1217,11 +1215,11 @@ describe('Options', () => {
       it('Compiler has error if unable to create directory', async () => {
         const { run } = create(configs.hello(), undefined, webpack);
 
-        await chmod(getWorkspace(), _444);
+        await chmod(getWorkspace(), 0o444);
 
         await expect(run()).rejects.toThrowError(/permission denied/i);
 
-        await chmod(getWorkspace(), _777);
+        await chmod(getWorkspace(), 0o777);
       });
     });
 
@@ -1425,7 +1423,7 @@ describe('Options', () => {
 
     describe('writeToDisk', () => {
       beforeAll(async () => {
-        await mkdir(getWorkspace(), { recursive: true, mode: _777 });
+        await mkdir(getWorkspace(), { recursive: true, mode: 0o777 });
       });
 
       afterAll(async () => {
