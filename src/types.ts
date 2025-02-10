@@ -3,11 +3,6 @@
 /**
  * @public
  */
-export type AnyRecord = Record<PropertyKey, any>;
-
-/**
- * @public
- */
 export type UnknownRecord = Record<PropertyKey, unknown>;
 
 /**
