@@ -28,9 +28,9 @@ export function getSortedObject(
   object: Record<string, unknown>,
   compareFunction?: (left: string, right: string) => number,
 ): typeof object {
-  return Object.keys(object)
-    .sort(compareFunction)
-    .reduce((sorted, key) => ((sorted[key] = object[key]), sorted), Object.create(null));
+  return Object.fromEntries(
+    Object.entries(object).sort(compareFunction ? (left, right) => compareFunction(left[0], right[0]) : undefined),
+  );
 }
 
 /**
