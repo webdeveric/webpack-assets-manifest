@@ -12,28 +12,38 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
-        webpack-version: ["5.2.0", 5]
-        dev-server-version: ["3.6.0", 3]
-        css-loader-version: ["3.5.0", latest]
+        node-version: [18.x, 20.x, 22.x]
+        webpack-version: ['5.27.0', 5]
+        dev-server-version: ['3.6.0', 3]
+        css-loader-version: ['3.5.0', latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
+          cache: 'pnpm'
+
       - name: Installing dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
       - name: Installing specific dependency versions
         run: pnpm install webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
+
       - name: Building (if needed)
         run: pnpm --if-present run build
+
       - name: Running tests
         run: pnpm test
+
       - name: Generating coverage report
         run: pnpm lcov
+
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
         with:
