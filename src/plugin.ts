@@ -35,10 +35,6 @@ import type {
 
 const PLUGIN_NAME = 'WebpackAssetsManifest';
 
-export type * from './types.js';
-
-export type { getSRIHash, isObject, isKeyValuePair };
-
 /**
  * @public
  */
@@ -607,22 +603,24 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
         return asset ? asset : this.getPublicPath(file);
       };
 
-      const entrypoints = Object.create(null);
+      const entrypoints = Object.fromEntries(
+        Array.from(compilation.entrypoints, ([name, entrypoint]) => {
+          const value: Record<PropertyKey, Record<PropertyKey, string[]>> = {
+            assets: group(entrypoint.getFiles().filter(removeHMR), getExtensionGroup, getAssetOrFilename),
+          };
 
-      for (const [name, entrypoint] of compilation.entrypoints) {
-        entrypoints[name] = {
-          assets: group(entrypoint.getFiles().filter(removeHMR), getExtensionGroup, getAssetOrFilename),
-        };
+          // This contains preload and prefetch
+          const childAssets = stats.namedChunkGroups?.[name].childAssets;
 
-        // This contains preload and prefetch
-        const childAssets = stats.namedChunkGroups?.[name].childAssets;
-
-        if (childAssets) {
-          for (const [property, assets] of Object.entries(childAssets)) {
-            entrypoints[name][property] = group(assets.filter(removeHMR), getExtensionGroup, getAssetOrFilename);
+          if (childAssets) {
+            for (const [property, assets] of Object.entries(childAssets)) {
+              value[property] = group(assets.filter(removeHMR), getExtensionGroup, getAssetOrFilename);
+            }
           }
-        }
-      }
+
+          return [name, value];
+        }),
+      );
 
       if (this.options.entrypointsKey === false) {
         for (const key in entrypoints) {
