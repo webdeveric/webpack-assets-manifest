@@ -53,7 +53,7 @@ export function group<T>(
   data: readonly T[],
   getGroup: (item: T) => PropertyKey | undefined,
   mapper?: (item: T, group: PropertyKey) => T,
-): Record<PropertyKey, T> {
+): Record<PropertyKey, T[]> {
   return data.reduce((obj, item) => {
     const group = getGroup(item);
 
