@@ -7,9 +7,7 @@
   },
   "parserOptions": {
     "project": ["./tsconfig.json"],
-    "EXPERIMENTAL_useProjectService": {
-      "maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING": 1000
-    }
+    "EXPERIMENTAL_useProjectService": true
   },
   "settings": {
     "import/extensions": [".ts", ".mts", ".cts", ".js", ".json"],
