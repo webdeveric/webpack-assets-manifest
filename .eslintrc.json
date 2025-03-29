@@ -26,6 +26,7 @@
     }
   },
   "rules": {
+    "@typescript-eslint/no-shadow": "off",
     "import/first": "error",
     "import/no-absolute-path": "error",
     "import/no-cycle": "error",
