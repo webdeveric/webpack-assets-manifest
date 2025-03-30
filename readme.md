@@ -25,6 +25,7 @@ yarn add webpack-assets-manifest -D
 - The package exports `esm` and `cjs`.
 - Added `manifest.utils` for use in the `customize` hook.
   - See [examples/customized.js](https://github.com/webdeveric/webpack-assets-manifest/blob/master/examples/customized.js)
+  - https://github.com/webdeveric/webpack-assets-manifest/blob/b6ed8c09394bf33c8fadd5adff8bad7694f295ba/src/plugin.ts#L185-L195
 
 ### Breaking changes
 
