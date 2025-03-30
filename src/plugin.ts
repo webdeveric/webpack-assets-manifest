@@ -136,8 +136,8 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
       manifest.options.output = normalize(manifest.options.output);
 
-      // Copy over any entries that may have been added to the manifest before apply() was called.
-      // If the same key exists in assets and options.assets, options.assets should be used.
+      // Copy over any entries that may have been added to the manifest before `apply()` was called.
+      // If the same key exists in assets and `options.assets`, `options.assets` should be used.
       manifest.assets = Object.assign(manifest.options.assets, manifest.assets, manifest.options.assets);
 
       // Tap some hooks
@@ -175,7 +175,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
     compiler.hooks.thisCompilation.tap(PLUGIN_NAME, this.handleThisCompilation.bind(this));
 
-    // Use fs to write the manifest.json to disk if `options.writeToDisk` is true
+    // Use `fs` to write the `manifest.json` to disk if `options.writeToDisk` is `true`.
     compiler.hooks.afterEmit.tapPromise(PLUGIN_NAME, this.handleAfterEmit.bind(this));
 
     // The compilation has finished
@@ -396,7 +396,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Merge data if the output file already exists
+   * Merge data if the output file already exists.
    */
   private async maybeMerge(): Promise<void> {
     if (this.options.merge) {
@@ -431,7 +431,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Emit the assets manifest
+   * Emit the assets manifest.
    */
   private async emitAssetsManifest(compilation: Compilation): Promise<void> {
     const outputPath = this.getOutputPath();
@@ -459,7 +459,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Record details of Asset Modules
+   * Record details of Asset Modules.
    */
   private handleProcessAssetsAnalyse(compilation: Compilation /* , assets */): void {
     const { contextRelativeKeys } = this.options;
@@ -501,9 +501,9 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * When using webpack 5 persistent cache, loaderContext.emitFile sometimes doesn't
-   * get called and so the asset names are not recorded. To work around this, lets
-   * loops over the stats.assets and record the asset names.
+   * When using webpack 5 persistent cache, `loaderContext.emitFile` sometimes
+   * doesn't get called and so the asset names are not recorded. To work around
+   * this, lets loop over the `stats.assets` and record the asset names.
    */
   private processStatsAssets(assets: StatsAsset[] | undefined): void {
     const { contextRelativeKeys } = this.options;
@@ -665,7 +665,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   public clear(): void {
-    // Delete properties instead of setting to {} so that the variable reference
+    // Delete properties instead of setting to `{}` so that the variable reference
     // is maintained incase the `assets` is being shared in multi-compiler mode.
     Object.keys(this.assets).forEach((key) => {
       delete this.assets[key];
@@ -673,14 +673,14 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Cleanup before running Webpack
+   * Cleanup before running Webpack.
    */
   private handleWatchRun(): void {
     this.clear();
   }
 
   /**
-   * Determine if the manifest should be written to disk with fs.
+   * Determine if the manifest should be written to disk with `fs`.
    *
    * TODO: make this `private`
    */
@@ -715,7 +715,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Last chance to write the manifest to disk.
+   * This is the last chance to write the manifest to disk.
    */
   private async handleAfterEmit(compilation: Compilation): Promise<void> {
     if (this.shouldWriteToDisk(compilation)) {
@@ -724,7 +724,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Record asset names
+   * Record asset names.
    */
   private handleNormalModuleLoader(compilation: Compilation, loaderContext: object, module: NormalModule): void {
     const emitFile = (loaderContext as LoaderContext<unknown>).emitFile.bind(module);
@@ -751,7 +751,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Add the SRI hash to the assetsInfo map
+   * Add the SRI hash to the `assetsInfo` map.
    */
   private recordSubresourceIntegrity(compilation: Compilation): void {
     const { integrityHashes, integrityPropertyName } = this.options;
@@ -785,7 +785,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Hook into compilation objects
+   * Hook into `Compilation` objects.
    */
   private handleCompilation(compilation: Compilation): void {
     compilation.compiler.webpack.NormalModule.getCompilationHooks(compilation).loader.tap(
@@ -803,7 +803,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Hook into the compilation object
+   * Hook into the `Compilation` object.
    */
   private handleThisCompilation(compilation: Compilation): void {
     if (this.options.integrity) {
@@ -826,7 +826,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Determine if webpack-dev-server is being used
+   * Determine if `webpack-dev-server` is being used.
    *
    * The WEBPACK_DEV_SERVER / WEBPACK_SERVE env vars cannot be relied upon.
    * See issue {@link https://github.com/webdeveric/webpack-assets-manifest/issues/125}
@@ -853,7 +853,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Get the file system path to the manifest
+   * Get the file system path to the manifest.
    */
   public getOutputPath(): string {
     return isAbsolute(this.options.output)
@@ -864,7 +864,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   }
 
   /**
-   * Get the public path for the filename
+   * Get the public path for the filename.
    */
   public getPublicPath(filename: string): string {
     const { publicPath } = this.options;
