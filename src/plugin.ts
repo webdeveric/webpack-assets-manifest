@@ -834,11 +834,10 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   public inDevServer(): boolean {
     const [, webpackPath, serve] = process.argv;
 
-    if (serve === 'serve' && webpackPath && basename(webpackPath) === 'webpack') {
-      return true;
-    }
-
-    if (process.argv.some((arg) => arg.includes('webpack-dev-server'))) {
+    if (
+      (serve === 'serve' && webpackPath && basename(webpackPath) === 'webpack') ||
+      process.argv.some((arg) => arg.includes('webpack-dev-server'))
+    ) {
       return true;
     }
 
