@@ -1,1 +1,1 @@
-npx --no cspell -- --no-summary --no-progress --language-id commit-msg $1
+pnpm exec commitlint --edit $1

@@ -5,6 +5,8 @@
     "Analyse",
     "chunkhash",
     "codecov",
+    "commitlint",
+    "conventionalcommits",
     "corepack",
     "dbaeumer",
     "deepmerge",
@@ -35,11 +37,5 @@
     "webdeveric"
   ],
   "flagWords": [],
-  "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"],
-  "languageSettings": [
-    {
-      "languageId": "commit-msg",
-      "ignoreRegExpList": ["/^#.*/gm"]
-    }
-  ]
+  "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"]
 }
