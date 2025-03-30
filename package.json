@@ -73,7 +73,7 @@
     "build": "tsc --build tsconfig.cjs.json tsconfig.mjs.json --force",
     "postbuild": "echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json && echo '{\"type\":\"module\"}' > ./dist/mjs/package.json && pnpm validate",
     "lint": "eslint ./*{js,cjs,mjs,mts} ./src ./test",
-    "typecheck": "tsc --build tsconfig.mjs.json --verbose --noEmit",
+    "typecheck": "tsc --build tsconfig.mjs.json tsconfig.configs.json tsconfig.test.json --verbose --noEmit",
     "spellcheck": "cspell --no-progress './{.github,src,test}/**/*.{ts,js,json}' './*.{md,js}' './package.json'",
     "format": "prettier --write ./*.{mts,mjs,json,md} ./src/ ./test/ --no-error-on-unmatched-pattern",
     "test": "vitest",
