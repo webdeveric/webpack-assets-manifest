@@ -1,13 +1,12 @@
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
+
+import { name, version } from 'webpack-assets-manifest/package.json';
 
 const manifest = new WebpackAssetsManifest({
   output: 'transformed-manifest.json',
   transform(assets, manifest) {
     // Attach new properties to `assets` or return something else.
     // Just be sure it can be JSON stringified.
-
-    const { name, version } = require('./package.json');
-
     assets.package = {
       name,
       version,
@@ -19,6 +18,6 @@ const manifest = new WebpackAssetsManifest({
       value: 'YourValue',
     });
 
-    assets[ key ] = value;
+    assets[key] = value;
   },
 });

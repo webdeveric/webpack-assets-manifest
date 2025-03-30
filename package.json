@@ -5,10 +5,15 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/webdeveric/webpack-assets-manifest.git"
+    "url": "git+ssh://git@github.com/webdeveric/webpack-assets-manifest.git"
   },
   "bugs": {
     "url": "https://github.com/webdeveric/webpack-assets-manifest/issues"
+  },
+  "author": {
+    "email": "eric@webdeveric.com",
+    "name": "Eric King",
+    "url": "http://webdeveric.com/"
   },
   "homepage": "https://github.com/webdeveric/webpack-assets-manifest",
   "keywords": [
@@ -23,77 +28,110 @@
     "integrity",
     "sri"
   ],
-  "main": "src/WebpackAssetsManifest.js",
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "type": "module",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/mjs/index.js"
+    },
+    "./*": {
+      "types": "./dist/types/*.d.ts",
+      "require": "./dist/cjs/*.js",
+      "import": "./dist/mjs/*.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "helpers": [
+        "./dist/types/helpers.d.ts"
+      ],
+      "options-schema": [
+        "./dist/types/options-schema.d.ts"
+      ],
+      "type-predicate": [
+        "./dist/types/type-predicate.d.ts"
+      ],
+      "types": [
+        "./dist/types/types.d.ts"
+      ]
+    }
+  },
   "files": [
-    "src"
+    "dist"
   ],
   "packageManager": "pnpm@10.7.0+sha512.6b865ad4b62a1d9842b61d674a393903b871d9244954f652b8842c2b553c72176b278f64c463e52d40fff8aba385c235c8c9ecf5cc7de4fd78b8bb6d49633ab6",
   "scripts": {
-    "lint": "eslint --fix src test",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit",
-    "spellcheck": "cspell --no-progress './{.github,src,test}/**/*.{js,json}' './*.{md,js}' './package.json'",
-    "test": "NODE_OPTIONS='--openssl-legacy-provider' nyc mocha --colors",
-    "test:report": "nyc --reporter=lcov --reporter=text mocha --colors",
-    "lcov": "nyc report --reporter=text-lcov > coverage.lcov",
+    "clean": "rimraf ./coverage/ ./dist/",
+    "prebuild": "pnpm clean",
+    "validate": "validate-package-exports --check --verify --info",
+    "build": "tsc --build tsconfig.cjs.json tsconfig.mjs.json --force",
+    "postbuild": "echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json && echo '{\"type\":\"module\"}' > ./dist/mjs/package.json && pnpm validate",
+    "lint": "eslint ./*{js,cjs,mjs,mts} ./src ./test",
+    "typecheck": "tsc --build --verbose",
+    "spellcheck": "cspell --no-progress './{.github,src,test}/**/*.{ts,js,json}' './*.{md,js}' './package.json'",
+    "format": "prettier --write ./*.{mts,mjs,json,md} ./src/ ./test/ --no-error-on-unmatched-pattern",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "prepare": "husky",
-    "prepublishOnly": "pnpm spellcheck && pnpm lint && pnpm test"
-  },
-  "lint-staged": {
-    "*.{js,json,md}": "cspell lint --no-progress --no-summary --no-must-find-files",
-    "*.js": "eslint --fix"
-  },
-  "engines": {
-    "node": ">=10.13.0"
-  },
-  "author": {
-    "email": "eric@webdeveric.com",
-    "name": "Eric King",
-    "url": "http://webdeveric.com/"
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm spellcheck && pnpm lint && pnpm coverage"
   },
   "prettier": "@webdeveric/prettier-config",
   "dependencies": {
-    "chalk": "^4.1.2",
     "deepmerge": "^4.3.1",
     "lockfile": "^1.0.4",
-    "lodash.get": "^4.4.2",
-    "lodash.has": "^4.5.2",
-    "schema-utils": "^3.3.0",
+    "schema-utils": "^4.3.0",
     "tapable": "^2.2.1"
   },
   "peerDependencies": {
-    "webpack": "^5.2.0"
+    "webpack": "^5.61.0"
   },
   "devDependencies": {
-    "@types/lodash.get": "^4.4.9",
-    "@types/lodash.has": "^4.5.9",
-    "@types/node": "^20.11.20",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@commitlint/types": "^19.8.0",
+    "@types/lockfile": "^1.0.4",
+    "@types/node": "^20.17.28",
     "@types/tapable": "^2.2.7",
     "@types/webpack-sources": "^3.2.3",
-    "@webdeveric/eslint-config": "^0.4.0",
-    "@webdeveric/prettier-config": "^0.2.0",
-    "chai": "^4.4.1",
-    "chai-spies": "^1.1.0",
-    "compression-webpack-plugin": "^7.1.2",
-    "copy-webpack-plugin": "^8.1.1",
-    "cspell": "^8.4.1",
-    "css-loader": "^5.2.7",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
+    "@vitest/coverage-v8": "^3.0.9",
+    "@webdeveric/eslint-config-ts": "^0.11.0",
+    "@webdeveric/prettier-config": "^0.3.0",
+    "commitlint": "^19.8.0",
+    "commitlint-plugin-cspell": "^0.1.1",
+    "compression-webpack-plugin": "^11.1.0",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "copy-webpack-plugin": "^13.0.0",
+    "cspell": "^8.18.1",
+    "css-loader": "^7.1.2",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-import-resolver-typescript": "^4.3.1",
+    "eslint-plugin-import": "^2.31.0",
     "file-loader": "^6.2.0",
-    "fs-extra": "^11.2.0",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.2",
-    "memory-fs": "^0.5.0",
-    "mini-css-extract-plugin": "^1.6.2",
-    "mocha": "^10.3.0",
-    "nyc": "^15.1.0",
-    "prettier": "^3.2.5",
-    "rimraf": "^5.0.5",
-    "superagent": "^8.1.2",
-    "typescript": "^5.3.3",
-    "webpack": "^5.90.3",
-    "webpack-dev-server": "^3.11.3",
-    "webpack-subresource-integrity": "^1.5.2"
+    "fs-extra": "^11.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "memfs": "^4.17.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "semantic-release": "^24.2.3",
+    "typescript": "^5.8.2",
+    "validate-package-exports": "^0.9.0",
+    "vitest": "^3.0.9",
+    "webpack": "^5.98.0",
+    "webpack-dev-server": "^5.2.1",
+    "webpack-subresource-integrity": "^5.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

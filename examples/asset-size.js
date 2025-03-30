@@ -1,4 +1,4 @@
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 
 const manifest = new WebpackAssetsManifest({
   output: 'asset-size-manifest.json',
@@ -8,7 +8,7 @@ const manifest = new WebpackAssetsManifest({
         value: entry.value,
         // `size()` returns number of bytes
         size: asset.source.size(),
-      }
+      },
     };
   },
 });

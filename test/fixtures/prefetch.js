@@ -1,3 +1,1 @@
-'use strict';
-
-module.exports = () => console.log('prefetch');
+export default () => console.log('prefetch');

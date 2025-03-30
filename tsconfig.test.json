@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "tsBuildInfoFile": "./cache/test.tsbuildinfo"
+  },
+  "include": ["test/**/*", "test/fixtures/**/*.json"],
+  "references": [
+    {
+      "path": "./tsconfig.mjs.json"
+    }
+  ]
+}

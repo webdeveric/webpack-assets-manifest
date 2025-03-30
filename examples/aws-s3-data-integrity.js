@@ -1,9 +1,9 @@
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+import { WebpackAssetsManifest } from 'webpack-assets-manifest';
 
 const manifest = new WebpackAssetsManifest({
   output: 'aws-s3-data-integrity-manifest.json',
   integrity: true,
-  integrityHashes: [ 'md5' ],
+  integrityHashes: ['md5'],
   integrityPropertyName: 'md5',
   publicPath: 's3://some-bucket/some-folder/',
   customize(entry, original, manifest, asset) {

@@ -1,1 +1,1 @@
-npx --no lint-staged
+pnpm exec lint-staged --relative

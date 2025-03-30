@@ -1,27 +1,13 @@
 {
+  "extends": "./tsconfig.base.json",
+  "files": [],
   "compilerOptions": {
-    "allowJs": true,
-    "alwaysStrict": true,
-    "checkJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "lib": [
-      "es2017"
-    ],
-    "module": "commonjs",
-    "noEmit": true,
-    "noImplicitThis": true,
-    "resolveJsonModule": true,
-    "strict": false,
-    "target": "ES2017",
-    "types": [
-      "node"
-    ]
+    "tsBuildInfoFile": "./cache/.tsbuildinfo"
   },
-  "include": [
-    "./src/*"
-  ],
-  "exclude": [
-    "node_modules"
+  "references": [
+    { "path": "./tsconfig.mjs.json" },
+    { "path": "./tsconfig.cjs.json" },
+    { "path": "./tsconfig.test.json" },
+    { "path": "./tsconfig.configs.json" }
   ]
 }

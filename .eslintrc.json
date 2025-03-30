@@ -1,0 +1,68 @@
+{
+  "root": true,
+  "extends": ["@webdeveric/eslint-config-ts", "plugin:import/recommended", "plugin:import/typescript", "prettier"],
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "project": ["./tsconfig.json"],
+    "EXPERIMENTAL_useProjectService": true
+  },
+  "settings": {
+    "import/extensions": [".ts", ".mts", ".cts", ".js", ".json"],
+    "import/resolver": {
+      "typescript": {
+        "project": "./tsconfig.json"
+      },
+      "node": {
+        "extensions": [".js", ".ts", ".mts", ".cts"]
+      }
+    },
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".mts", ".cts"]
+    }
+  },
+  "rules": {
+    "@typescript-eslint/no-shadow": "off",
+    "import/first": "error",
+    "import/no-absolute-path": "error",
+    "import/no-cycle": "error",
+    "import/no-deprecated": "error",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": ["./vitest.config.mts", "./lint-staged.config.mjs", "./test/**/*"]
+      }
+    ],
+    "import/no-relative-packages": "error",
+    "import/no-self-import": "error",
+    "import/no-unresolved": "error",
+    "import/no-useless-path-segments": [
+      "error",
+      {
+        "noUselessIndex": false
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        },
+        "groups": ["builtin", "external", "internal", "parent", ["sibling", "index"], "type"],
+        "newlines-between": "always"
+      }
+    ],
+    "sort-imports": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}

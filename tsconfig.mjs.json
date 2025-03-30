@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "./src",
+    "outDir": "./dist/mjs",
+    "verbatimModuleSyntax": true,
+    "tsBuildInfoFile": "./cache/mjs.tsbuildinfo"
+  },
+  "include": ["src/**/*"]
+}
