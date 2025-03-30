@@ -1,8 +1,3 @@
-/**
- * Webpack Assets Manifest
- *
- * @author Eric King <eric@webdeveric.com>
- */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join, normalize, relative, resolve } from 'node:path';
 
@@ -82,6 +77,8 @@ export type Options = {
 };
 
 /**
+ * This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.
+ *
  * @public
  */
 export class WebpackAssetsManifest implements WebpackPluginInstance {
@@ -250,7 +247,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       return '';
     }
 
-    filename = filename.split(/[?#]/)[0];
+    filename = filename.split(/[?#]/)[0]!;
 
     if (this.options.fileExtRegex instanceof RegExp) {
       const ext = filename.match(this.options.fileExtRegex);
@@ -367,7 +364,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     if (assets) {
       Object.keys(assets).forEach((chunkName) => {
         asArray(assets[chunkName])
-          .filter((filename) => !hmrFiles.has(filename)) // Remove hot module replacement files
+          .filter((filename): filename is string => typeof filename === 'string' && !hmrFiles.has(filename)) // Remove hot module replacement files
           .forEach((filename) => {
             this.assetNames.set(chunkName + this.getExtension(filename), filename);
           });
@@ -536,7 +533,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
         return false;
       }
 
-      return !asset.info.assetsManifest;
+      return !asset.info['assetsManifest'];
     });
 
     return {
@@ -610,7 +607,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
           };
 
           // This contains preload and prefetch
-          const childAssets = stats.namedChunkGroups?.[name].childAssets;
+          const childAssets = stats.namedChunkGroups?.[name]?.childAssets;
 
           if (childAssets) {
             for (const [property, assets] of Object.entries(childAssets)) {
@@ -689,7 +686,8 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       // Check to see if we let webpack-dev-server handle it.
       if (this.inDevServer()) {
         const wdsWriteToDisk: ((filePath: string) => boolean) | boolean | undefined = compilation.options.devServer
-          ? (compilation.options.devServer.devMiddleware?.writeToDisk ?? compilation.options.devServer.writeToDisk)
+          ? (compilation.options.devServer['devMiddleware']?.writeToDisk ??
+            compilation.options.devServer['writeToDisk'])
           : undefined;
 
         if (wdsWriteToDisk === true) {

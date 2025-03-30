@@ -273,7 +273,7 @@ describe('Methods', () => {
 
       expect(manifest.inDevServer()).toBeFalsy();
 
-      process.argv = [originalArgv[0], join(dirname(originalArgv[1]), 'webpack'), 'serve'];
+      process.argv = [String(originalArgv[0]), join(dirname(String(originalArgv[1])), 'webpack'), 'serve'];
 
       expect(manifest.inDevServer()).toBeTruthy();
     });
@@ -975,11 +975,11 @@ describe('Options', () => {
       compiler.hooks.compilation.tap('test', (compilation) => {
         if (
           isObject(compilation.options.devServer) &&
-          isObject<DevMiddlewareWithWriteToDiskFn>(compilation.options.devServer.devMiddleware) &&
-          typeof compilation.options.devServer.devMiddleware.writeToDisk === 'function'
+          isObject<DevMiddlewareWithWriteToDiskFn>(compilation.options.devServer['devMiddleware']) &&
+          typeof compilation.options.devServer['devMiddleware'].writeToDisk === 'function'
         ) {
           spy = vi
-            .spyOn(compilation.options.devServer.devMiddleware, 'writeToDisk')
+            .spyOn(compilation.options.devServer['devMiddleware'], 'writeToDisk')
             .mockImplementation((filePath) => manifest.getOutputPath() === filePath);
         }
       });
@@ -998,7 +998,7 @@ describe('Options', () => {
           },
         });
 
-        expect(manifest.options.extra.test).toEqual(true);
+        expect(manifest.options.extra['test']).toEqual(true);
       });
     });
 
