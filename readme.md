@@ -18,6 +18,21 @@ npm install webpack-assets-manifest -D
 yarn add webpack-assets-manifest -D
 ```
 
+## New in version 6
+
+- This plugin is now written with TypeScript.
+- TypeScript types are provided by this package.
+- The package exports `esm` and `cjs`.
+- Added `manifest.utils` for use in the `customize` hook.
+  - See [examples/customized.js](https://github.com/webdeveric/webpack-assets-manifest/blob/master/examples/customized.js)
+
+### Breaking changes
+
+- Bumped minimum webpack version to `5.61`
+- Bumped minimum Node version to `20.10`
+- The plugin is exported using a named export instead of default.
+  - Use `import { WebpackAssetsManifest } from 'webpack-assets-manifest';`
+
 ## New in version 5
 
 - Compatible with webpack 5 only (5.1+ required).
