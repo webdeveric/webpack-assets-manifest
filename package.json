@@ -1,6 +1,6 @@
 {
   "name": "webpack-assets-manifest",
-  "version": "5.2.1",
+  "version": "0.0.0-development",
   "description": "This Webpack plugin will generate a JSON file that matches the original filename with the hashed version.",
   "license": "MIT",
   "repository": {
@@ -96,7 +96,7 @@
     "@commitlint/config-conventional": "^19.8.0",
     "@commitlint/types": "^19.8.0",
     "@types/lockfile": "^1.0.4",
-    "@types/node": "^20.17.29",
+    "@types/node": "^20.17.30",
     "@types/tapable": "^2.2.7",
     "@types/webpack-sources": "^3.2.3",
     "@vitest/coverage-v8": "^3.1.1",
@@ -122,7 +122,7 @@
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "semantic-release": "^24.2.3",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "validate-package-exports": "^0.9.0",
     "vitest": "^3.1.1",
     "webpack": "^5.98.0",
