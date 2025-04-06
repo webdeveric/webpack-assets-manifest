@@ -1,16 +1,19 @@
-import { WebpackAssetsManifest } from 'webpack-assets-manifest';
+// This is imported this way for typechecking purposes.
+// Use `import { WebpackAssetsManifest } from 'webpack-assets-manifest';` in your code.
+import { WebpackAssetsManifest } from '../src/plugin.js';
 
-const manifest = new WebpackAssetsManifest({
+new WebpackAssetsManifest({
   output: 'customized-manifest.json',
   // This will allow you to customize each individual entry in the manifest.
-  customize(entry, original, manifest, asset) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  customize(entry, _original, manifest, _asset) {
     if (manifest.isMerging) {
       // Do something
     }
 
     if (manifest.utils.isKeyValuePair(entry)) {
       // You can prevent adding items to the manifest by returning false.
-      if (entry.key.toLowerCase().endsWith('.map')) {
+      if (typeof entry.key === 'string' && entry.key.toLowerCase().endsWith('.map')) {
         return false;
       }
 
@@ -25,5 +28,7 @@ const manifest = new WebpackAssetsManifest({
         value: `dist/${entry.value}`,
       };
     }
+
+    return entry;
   },
 });
