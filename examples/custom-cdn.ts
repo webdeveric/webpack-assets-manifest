@@ -1,6 +1,8 @@
-import { WebpackAssetsManifest } from 'webpack-assets-manifest';
+// This is imported this way for typechecking purposes.
+// Use `import { WebpackAssetsManifest } from 'webpack-assets-manifest';` in your code.
+import { WebpackAssetsManifest } from '../src/plugin.js';
 
-const manifest = new WebpackAssetsManifest({
+new WebpackAssetsManifest({
   output: 'custom-cdn-manifest.json',
   publicPath(filename, manifest) {
     switch (manifest.getExtension(filename).substring(1).toLowerCase()) {

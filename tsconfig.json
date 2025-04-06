@@ -8,6 +8,7 @@
     { "path": "./tsconfig.mjs.json" },
     { "path": "./tsconfig.cjs.json" },
     { "path": "./tsconfig.test.json" },
-    { "path": "./tsconfig.configs.json" }
+    { "path": "./tsconfig.configs.json" },
+    { "path": "./tsconfig.examples.json" }
   ]
 }

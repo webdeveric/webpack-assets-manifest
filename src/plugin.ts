@@ -57,7 +57,7 @@ export type Options = {
   merge: boolean | 'customize';
   output: string;
   publicPath?: ((filename: string, manifest: WebpackAssetsManifest) => string) | string | boolean;
-  sortManifest: boolean | ((left: string, right: string) => number);
+  sortManifest: boolean | ((this: WebpackAssetsManifest, left: string, right: string) => number);
   writeToDisk: boolean | 'auto';
 
   // JSON stringify parameters
@@ -358,7 +358,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   /**
    * Process compilation assets.
    *
-   * TODO: make this `private`
+   * @todo make this `private`
    */
   public processAssetsByChunkName(assets: StatsCompilation['assetsByChunkName'], hmrFiles: Set<string>): void {
     if (assets) {
@@ -679,7 +679,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   /**
    * Determine if the manifest should be written to disk with `fs`.
    *
-   * TODO: make this `private`
+   * @todo make this `private`
    */
   public shouldWriteToDisk(compilation: Compilation): boolean {
     if (this.options.writeToDisk === 'auto') {
@@ -723,13 +723,14 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
   /**
    * Record asset names.
+   *
+   * @todo remove `as` casting the next time the minium webpack version is updated. The types were updated in webpack 5.94.0.
    */
   private handleNormalModuleLoader(compilation: Compilation, loaderContext: object, module: NormalModule): void {
     const emitFile = (loaderContext as LoaderContext<unknown>).emitFile.bind(module);
 
     const { contextRelativeKeys } = this.options;
 
-    // assetInfo parameter was added in Webpack 4.40.0
     (loaderContext as LoaderContext<unknown>).emitFile = (name, content, sourceMap, assetInfo) => {
       const info = Object.assign(
         {

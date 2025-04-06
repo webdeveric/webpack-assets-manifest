@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "./",
+    "tsBuildInfoFile": "./cache/examples.tsbuildinfo"
+  },
+  "include": ["./package.json", "./examples/*.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.mjs.json"
+    }
+  ]
+}
