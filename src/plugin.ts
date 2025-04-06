@@ -57,7 +57,7 @@ export type Options = {
   merge: boolean | 'customize';
   output: string;
   publicPath?: ((filename: string, manifest: WebpackAssetsManifest) => string) | string | boolean;
-  sortManifest: boolean | ((left: string, right: string) => number);
+  sortManifest: boolean | ((this: WebpackAssetsManifest, left: string, right: string) => number);
   writeToDisk: boolean | 'auto';
 
   // JSON stringify parameters
