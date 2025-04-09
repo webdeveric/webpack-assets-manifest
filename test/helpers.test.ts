@@ -23,8 +23,12 @@ describe('asArray()', function () {
 });
 
 describe('getSRIHash()', function () {
-  it('Returns SRI hash', function () {
-    expect(getSRIHash('sha256', '')).toEqual('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
+  it.each([
+    ['', 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+    ['test', 'sha256-n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg='],
+  ])('Returns SRI hash', function (input, hash) {
+    expect(getSRIHash('sha256', input)).toEqual(hash);
+    expect(getSRIHash('sha256', Buffer.from(input))).toEqual(hash);
   });
 
   it('Throws when provided an invalid hash algorithm', function () {

@@ -768,7 +768,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
             .forEach((sriHash) => sriHashes.set(sriHash.substring(0, sriHash.indexOf('-')), sriHash));
         }
 
-        const assetContent = asset.source.source().toString();
+        const assetContent = asset.source.source();
 
         sriHashes.forEach((value, key, map) => {
           if (typeof value === 'undefined') {
