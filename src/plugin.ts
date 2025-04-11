@@ -18,6 +18,7 @@ import type {
 } from './types.js';
 import type {
   Asset,
+  AssetInfo,
   Compilation,
   Compiler,
   LoaderContext,
@@ -472,16 +473,21 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
           if (module instanceof NormalModule) {
             const codeGenData = codeGenerationResults.get(module, chunk.runtime).data;
 
-            const { assetInfo = codeGenData?.get('assetInfo'), filename = codeGenData?.get('filename') } =
-              module.buildInfo ?? {};
+            const filename: string | undefined = module.buildInfo?.['filename'] ?? codeGenData?.get('filename');
 
-            const info = Object.assign(
-              {
-                rawRequest: module.rawRequest,
-                sourceFilename: relative(compiler.context, module.userRequest),
-              },
-              assetInfo,
-            );
+            if (!filename) {
+              compilation.getLogger(PLUGIN_NAME).warn('Unable to get filename from module', module);
+
+              continue;
+            }
+
+            const assetInfo: AssetInfo | undefined = module.buildInfo?.['assetInfo'] ?? codeGenData?.get('assetInfo');
+
+            const info = {
+              rawRequest: module.rawRequest,
+              sourceFilename: relative(compiler.context, module.userRequest),
+              ...assetInfo,
+            };
 
             assetsInfo.set(filename, info);
 
