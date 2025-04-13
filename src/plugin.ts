@@ -468,6 +468,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
       if (modules) {
         const { NormalModule } = compilation.compiler.webpack;
+        const infraLogger = compilation.compiler.getInfrastructureLogger(PLUGIN_NAME);
 
         for (const module of modules) {
           if (module instanceof NormalModule) {
@@ -476,7 +477,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
             const filename: string | undefined = module.buildInfo?.['filename'] ?? codeGenData?.get('filename');
 
             if (!filename) {
-              compilation.getLogger(PLUGIN_NAME).warn('Unable to get filename from module', module);
+              infraLogger.warn(`Unable to get filename from module: "${module.rawRequest}"`);
 
               continue;
             }
@@ -496,7 +497,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
               filename,
             );
           } else {
-            compilation.getLogger(PLUGIN_NAME).warn(`Unhandled module: ${module.constructor.name}`);
+            infraLogger.warn(`Unhandled module: ${module.constructor.name}`);
           }
         }
       }
