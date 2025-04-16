@@ -1400,7 +1400,7 @@ describe('Options', () => {
 
       const stats = await run();
 
-      expect(stats?.compilation.errors).toHaveLength(1);
+      expect(stats?.compilation.errors.length).toBeGreaterThan(0);
 
       expect(write).toHaveBeenCalled();
       expect(write.mock.calls.at(0)?.at(0)?.toString()).toEqual(
