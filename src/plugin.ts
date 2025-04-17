@@ -771,6 +771,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
         // webpack-subresource-integrity@4+ stores the integrity hash on `asset.info.contenthash`.
         if (asset.info.contenthash) {
           asArray(asset.info.contenthash)
+            .flatMap((contentHash) => contentHash.split(' '))
             .filter((contentHash) => integrityHashes.some((algorithm) => contentHash.startsWith(`${algorithm}-`)))
             .forEach((sriHash) => sriHashes.set(sriHash.substring(0, sriHash.indexOf('-')), sriHash));
         }
