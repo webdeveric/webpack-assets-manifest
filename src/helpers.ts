@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, type BinaryLike } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,8 +15,8 @@ export function asArray<T>(data: T | T[]): T[] {
  *
  * @public
  */
-export function getSRIHash(algorithm: string, content: string): string {
-  return `${algorithm}-${createHash(algorithm).update(content, 'utf8').digest('base64')}`;
+export function getSRIHash(algorithm: string, content: string | BinaryLike): string {
+  return `${algorithm}-${createHash(algorithm).update(content).digest('base64')}`;
 }
 
 /**

@@ -10,7 +10,6 @@ import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity';
 import { tmpDirPath } from './utils.js';
 
 import type { Configuration } from 'webpack';
-import 'webpack-dev-server';
 import type Server from 'webpack-dev-server';
 
 type Output = NonNullable<Configuration['output']>;
@@ -75,6 +74,39 @@ export function client(hashed = false): ConfigurationForTests {
           generator: {
             filename: hashed ? 'images/[name]-[contenthash:6][ext]' : 'images/[name][ext]',
           },
+        },
+      ],
+    },
+    plugins: [],
+  };
+}
+
+export function badImport(loggingConfig: Configuration['infrastructureLogging'] = {}): ConfigurationForTests {
+  return {
+    mode: 'development',
+    target: 'web',
+    infrastructureLogging: {
+      level: 'verbose',
+      ...loggingConfig,
+    },
+    entry: {
+      badImport: resolve(fixturesDir, './bad-import.js'),
+    },
+    output: {
+      path: tmpDirPath(),
+      filename: '[name].js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.css$/i,
+          exclude: /node_modules/,
+          type: 'asset/resource',
+          use: [
+            {
+              loader: 'sass-loader',
+            },
+          ],
         },
       ],
     },
@@ -203,6 +235,9 @@ export function server(): ConfigurationForTests {
     target: 'node',
     entry: {
       server: resolve(fixturesDir, './server.js'),
+    },
+    infrastructureLogging: {
+      level: 'none',
     },
     stats: 'errors-only',
     output: {

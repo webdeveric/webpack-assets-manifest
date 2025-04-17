@@ -1,5 +1,6 @@
 import { chmod, copyFile, mkdir, stat } from 'node:fs/promises';
 import { resolve, dirname, join } from 'node:path';
+import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
@@ -1386,6 +1387,25 @@ describe('Options', () => {
 
       expect(manifest.assetNames.get('main.js')).toEqual('main.123456.js');
       expect([...manifest.assetNames.values()].includes('0.123456.hot-update.js')).toBeFalsy();
+    });
+
+    it('Logs warning when unable to determine filename', async () => {
+      const write = vi.fn();
+
+      const { run } = create(
+        configs.badImport({
+          stream: new PassThrough({ write }),
+        }),
+      );
+
+      const stats = await run();
+
+      expect(stats?.compilation.errors.length).toBeGreaterThan(0);
+
+      expect(write).toHaveBeenCalled();
+      expect(write.mock.calls.at(0)?.at(0)?.toString()).toEqual(
+        expect.stringContaining('Unable to get filename from module'),
+      );
     });
   });
 

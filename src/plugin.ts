@@ -18,6 +18,7 @@ import type {
 } from './types.js';
 import type {
   Asset,
+  AssetInfo,
   Compilation,
   Compiler,
   LoaderContext,
@@ -467,21 +468,27 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
       if (modules) {
         const { NormalModule } = compilation.compiler.webpack;
+        const infraLogger = compilation.compiler.getInfrastructureLogger(PLUGIN_NAME);
 
         for (const module of modules) {
           if (module instanceof NormalModule) {
             const codeGenData = codeGenerationResults.get(module, chunk.runtime).data;
 
-            const { assetInfo = codeGenData?.get('assetInfo'), filename = codeGenData?.get('filename') } =
-              module.buildInfo ?? {};
+            const filename: string | undefined = module.buildInfo?.['filename'] ?? codeGenData?.get('filename');
 
-            const info = Object.assign(
-              {
-                rawRequest: module.rawRequest,
-                sourceFilename: relative(compiler.context, module.userRequest),
-              },
-              assetInfo,
-            );
+            if (!filename) {
+              infraLogger.warn(`Unable to get filename from module: "${module.rawRequest}"`);
+
+              continue;
+            }
+
+            const assetInfo: AssetInfo | undefined = module.buildInfo?.['assetInfo'] ?? codeGenData?.get('assetInfo');
+
+            const info = {
+              rawRequest: module.rawRequest,
+              sourceFilename: relative(compiler.context, module.userRequest),
+              ...assetInfo,
+            };
 
             assetsInfo.set(filename, info);
 
@@ -490,7 +497,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
               filename,
             );
           } else {
-            compilation.getLogger(PLUGIN_NAME).warn(`Unhandled module: ${module.constructor.name}`);
+            infraLogger.warn(`Unhandled module: ${module.constructor.name}`);
           }
         }
       }
@@ -764,11 +771,12 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
         // webpack-subresource-integrity@4+ stores the integrity hash on `asset.info.contenthash`.
         if (asset.info.contenthash) {
           asArray(asset.info.contenthash)
+            .flatMap((contentHash) => contentHash.split(' '))
             .filter((contentHash) => integrityHashes.some((algorithm) => contentHash.startsWith(`${algorithm}-`)))
             .forEach((sriHash) => sriHashes.set(sriHash.substring(0, sriHash.indexOf('-')), sriHash));
         }
 
-        const assetContent = asset.source.source().toString();
+        const assetContent = asset.source.source();
 
         sriHashes.forEach((value, key, map) => {
           if (typeof value === 'undefined') {
