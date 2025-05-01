@@ -16,7 +16,7 @@ importers:
         version: 1.0.4
       schema-utils:
         specifier: ^4.3.0
-        version: 4.3.0
+        version: 4.3.2
       tapable:
         specifier: ^2.2.1
         version: 2.2.1
@@ -3973,8 +3973,8 @@ packages:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
     engines: {node: '>= 10.13.0'}
 
-  schema-utils@4.3.0:
-    resolution: {integrity: sha512-Gf9qqc58SpCA/xdziiHz35F4GNIWYWZrEshUc/G/r5BnLph6xpKuLeoJoQuj5WfBIx/eQLf+hmVPYHaxJu7V2g==}
+  schema-utils@4.3.2:
+    resolution: {integrity: sha512-Gn/JaSk/Mt9gYubxTtSn/QCV4em9mpAPiR1rqy/Ocu19u/G9J5WWdNoUT4SiV6mFC3y6cxyFcFwdzPM3FgxGAQ==}
     engines: {node: '>= 10.13.0'}
 
   select-hose@2.0.0:
@@ -6564,7 +6564,7 @@ snapshots:
 
   compression-webpack-plugin@11.1.0(webpack@5.99.5):
     dependencies:
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       webpack: 5.99.5
 
@@ -6641,7 +6641,7 @@ snapshots:
     dependencies:
       glob-parent: 6.0.2
       normalize-path: 3.0.0
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       tinyglobby: 0.2.12
       webpack: 5.99.5
@@ -8215,7 +8215,7 @@ snapshots:
 
   mini-css-extract-plugin@2.9.2(webpack@5.99.5):
     dependencies:
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       tapable: 2.2.1
       webpack: 5.99.5
 
@@ -8909,7 +8909,7 @@ snapshots:
       ajv: 6.12.6
       ajv-keywords: 3.5.2(ajv@6.12.6)
 
-  schema-utils@4.3.0:
+  schema-utils@4.3.2:
     dependencies:
       '@types/json-schema': 7.0.15
       ajv: 8.17.1
@@ -9336,7 +9336,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       serialize-javascript: 6.0.2
       terser: 5.39.0
       webpack: 5.99.5
@@ -9673,7 +9673,7 @@ snapshots:
       mime-types: 2.1.35
       on-finished: 2.4.1
       range-parser: 1.2.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
     optionalDependencies:
       webpack: 5.99.5
 
@@ -9700,7 +9700,7 @@ snapshots:
       launch-editor: 2.10.0
       open: 10.1.1
       p-retry: 6.2.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       selfsigned: 2.4.1
       serve-index: 1.9.1
       sockjs: 0.3.24
@@ -9742,7 +9742,7 @@ snapshots:
       loader-runner: 4.3.0
       mime-types: 2.1.35
       neo-async: 2.6.2
-      schema-utils: 4.3.0
+      schema-utils: 4.3.2
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.14(webpack@5.99.5)
       watchpack: 2.4.2
