@@ -1,7 +1,7 @@
 {
   "version": "0.2",
   "language": "en",
-  "words": ["Analyse", "chunkhash", "conventionalcommits", "subresource", "webdeveric"],
+  "words": ["Analyse", "chunkhash", "conventionalcommits", "subresource", "unrs-resolver", "webdeveric"],
   "flagWords": [],
   "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"]
 }
