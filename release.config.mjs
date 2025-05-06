@@ -10,6 +10,16 @@ export default {
       {
         releaseRules: [
           {
+            type: 'chore',
+            scope: 'deps',
+            release: 'minor',
+          },
+          {
+            type: 'chore',
+            scope: 'deps-dev',
+            release: false,
+          },
+          {
             type: 'docs',
             release: 'patch',
           },
