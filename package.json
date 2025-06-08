@@ -71,7 +71,7 @@
     "prebuild": "pnpm clean",
     "validate": "validate-package-exports --check --verify --info",
     "build": "tsc --build tsconfig.cjs.json tsconfig.mjs.json --force",
-    "postbuild": "echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json && echo '{\"type\":\"module\"}' > ./dist/mjs/package.json && pnpm validate",
+    "postbuild": "node postbuild.mjs && pnpm validate",
     "lint": "eslint \"./*.{js,cjs,mjs,ts,cts,mts}\" ./src ./test ./examples",
     "typecheck": "tsc --build --verbose",
     "spellcheck": "cspell --no-progress './{.github,src,examples,test}/**/*.{ts,js,json,yml}' './*.{md,js,mjs,mts}' './package.json'",
