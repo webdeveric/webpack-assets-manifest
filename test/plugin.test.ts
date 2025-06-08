@@ -1,5 +1,5 @@
 import { chmod, copyFile, mkdir, stat } from 'node:fs/promises';
-import { resolve, dirname, join } from 'node:path';
+import { resolve, dirname, join, sep } from 'node:path';
 import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -103,7 +103,7 @@ describe('Methods', () => {
         output: '/manifest.json',
       });
 
-      expect(manifest.getOutputPath()).toEqual('/manifest.json');
+      expect(manifest.getOutputPath()).toEqual(`${sep}manifest.json`);
     });
 
     it('Should work with a relative output path', () => {
@@ -111,7 +111,7 @@ describe('Methods', () => {
         output: '../manifest.json',
       });
 
-      expect(manifest.getOutputPath()).toEqual(resolve(String(compiler.options.output.path), '../manifest.json'));
+      expect(manifest.getOutputPath()).toEqual(resolve(String(compiler.options.output.path), `..${sep}manifest.json`));
     });
 
     it('Should output manifest in compiler output.path by default', () => {
@@ -1213,7 +1213,7 @@ describe('Options', () => {
         expect(manifest.toString()).toEqual(content);
       });
 
-      it('Compiler has error if unable to create directory', async () => {
+      it.skipIf(process.platform === 'win32')('Compiler has error if unable to create directory', async () => {
         const { run } = create(configs.hello(), undefined, webpack);
 
         await chmod(getWorkspace(), 0o444);

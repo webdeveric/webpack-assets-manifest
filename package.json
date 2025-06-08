@@ -65,16 +65,16 @@
   "files": [
     "dist"
   ],
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977",
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912",
   "scripts": {
     "clean": "rimraf ./coverage/ ./dist/ ./cache/",
     "prebuild": "pnpm clean",
     "validate": "validate-package-exports --check --verify --info",
     "build": "tsc --build tsconfig.cjs.json tsconfig.mjs.json --force",
-    "postbuild": "echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json && echo '{\"type\":\"module\"}' > ./dist/mjs/package.json && pnpm validate",
-    "lint": "eslint ./*{js,cjs,mjs,mts} ./src ./test ./examples",
+    "postbuild": "node postbuild.mjs && pnpm validate",
+    "lint": "eslint \"./*.{js,cjs,mjs,ts,cts,mts}\" ./src ./test ./examples",
     "typecheck": "tsc --build --verbose",
-    "spellcheck": "cspell --no-progress './{.github,src,examples,test}/**/*.{ts,js,json}' './*.{md,js,mjs,mts}' './package.json'",
+    "spellcheck": "cspell --no-progress './{.github,src,examples,test}/**/*.{ts,js,json,yml}' './*.{md,js,mjs,mts}' './package.json'",
     "format": "prettier --write ./*.{mts,mjs,json,md} ./src/ ./test/ --no-error-on-unmatched-pattern",
     "test": "vitest",
     "coverage": "vitest run --coverage",
@@ -87,7 +87,7 @@
     "deepmerge": "^4.3.1",
     "lockfile": "^1.0.4",
     "schema-utils": "^4.3.2",
-    "tapable": "^2.2.1"
+    "tapable": "^2.2.2"
   },
   "peerDependencies": {
     "webpack": "^5.61.0"
@@ -96,10 +96,10 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/types": "^19.8.1",
     "@types/lockfile": "^1.0.4",
-    "@types/node": "^20.17.51",
+    "@types/node": "^20.19.0",
     "@types/tapable": "^2.2.7",
     "@types/webpack-sources": "^3.2.3",
-    "@vitest/coverage-v8": "^3.1.4",
+    "@vitest/coverage-v8": "^3.2.2",
     "@webdeveric/eslint-config-ts": "^0.11.0",
     "@webdeveric/prettier-config": "^0.3.0",
     "commitlint": "^19.8.1",
@@ -111,7 +111,7 @@
     "css-loader": "^7.1.2",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-import-resolver-typescript": "^4.4.1",
+    "eslint-import-resolver-typescript": "^4.4.3",
     "eslint-plugin-import": "^2.31.0",
     "file-loader": "^6.2.0",
     "fs-extra": "^11.3.0",
@@ -124,10 +124,10 @@
     "sass-loader": "^16.0.5",
     "semantic-release": "^24.2.5",
     "typescript": "^5.8.3",
-    "validate-package-exports": "^0.9.0",
-    "vitest": "^3.1.4",
+    "validate-package-exports": "^0.11.0",
+    "vitest": "^3.2.2",
     "webpack": "^5.99.9",
-    "webpack-dev-server": "^5.2.1",
+    "webpack-dev-server": "^5.2.2",
     "webpack-subresource-integrity": "^5.1.0"
   },
   "pnpm": {

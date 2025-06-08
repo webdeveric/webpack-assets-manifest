@@ -9,13 +9,15 @@ concurrency:
 jobs:
   ci:
     name: Continuous Integration
-    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: true
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         node-version: [20.x, 22.x]
         webpack-version: ['5.61.0', latest]
         dev-server-version: [4, latest]
         css-loader-version: ['3.5.0', latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
