@@ -523,6 +523,14 @@ describe('Options', () => {
       );
     });
 
+    it('Should not error if output file does not exist before merging', async () => {
+      const { run } = create(configs.hello(), {
+        merge: true,
+      });
+
+      await expect(run()).resolves.not.toThrow();
+    });
+
     it('Can customize during merge', async () => {
       const mergingResults: boolean[] = [];
       const { manifest, run } = create(configs.hello(), {
