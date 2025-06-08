@@ -422,6 +422,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
             this.set(key, oldValue);
           }
         }
+      } catch (error) {
+        // Ignore ENOENT errors when merging.
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+          return;
+        }
+
+        throw error;
       } finally {
         this.#isMerging = false;
       }

@@ -5,6 +5,7 @@
     "Analyse",
     "chunkhash",
     "conventionalcommits",
+    "ENOENT",
     "nvmrc",
     "postbuild",
     "subresource",
