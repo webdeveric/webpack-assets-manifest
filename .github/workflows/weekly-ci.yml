@@ -2,7 +2,7 @@ name: Weekly CI
 
 on:
   schedule:
-    - cron: '0 16 * * 1' # Mondays at 4pm
+    - cron: '0 0 * * 2' # Tuesdays at 00:00 UTC
 
 jobs:
   weekly-ci:
