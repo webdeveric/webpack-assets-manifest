@@ -1,9 +1,18 @@
+import assert from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { createFsFromVolume, Volume } from 'memfs';
-import { type Compiler, type Configuration, type Stats, webpack, type MultiCompiler, type MultiStats } from 'webpack';
+import {
+  type Compiler,
+  type Configuration,
+  type Stats,
+  webpack,
+  type MultiCompiler,
+  type MultiStats,
+  type MultiConfiguration,
+} from 'webpack';
 
 import { WebpackAssetsManifest } from '../src/plugin.js';
 
@@ -15,8 +24,20 @@ export function tmpDirPath(): string {
   return join(getWorkspace(), randomUUID());
 }
 
+export function makeWebpackCompiler(configuration: Configuration): Compiler;
+
+export function makeWebpackCompiler(configuration: MultiConfiguration): MultiCompiler;
+
+export function makeWebpackCompiler(configuration: Configuration | MultiConfiguration): Compiler | MultiCompiler {
+  const compiler = webpack(configuration);
+
+  assert(compiler, 'webpack compiler not defined');
+
+  return compiler;
+}
+
 export function makeCompiler(configuration: Configuration): Compiler {
-  const compiler = webpack({
+  const compiler = makeWebpackCompiler({
     mode: 'development',
     stats: 'errors-only',
     infrastructureLogging: {
@@ -33,7 +54,7 @@ export function makeCompiler(configuration: Configuration): Compiler {
 }
 
 export function makeMultiCompiler(configurations: Configuration[]): MultiCompiler {
-  const compiler = webpack(
+  const compiler = makeWebpackCompiler(
     configurations.map(
       (config) =>
         ({
