@@ -20,8 +20,14 @@ pnpm test
 Run tests and generate a coverage report. Please keep the code coverage at 100%.
 
 ```bash
-pnpm test:report
+pnpm coverage
 ```
+
+## Commit messages
+
+Commit messages should follow [conventional commits](https://www.conventionalcommits.org/).
+
+Releases are created automatically and the version bump is determined from the commit messages.
 
 ## Pull requests
 
