@@ -677,7 +677,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
   public clear(): void {
     // Delete properties instead of setting to `{}` so that the variable reference
-    // is maintained incase the `assets` is being shared in multi-compiler mode.
+    // is maintained in case the `assets` is being shared in multi-compiler mode.
     Object.keys(this.assets).forEach((key) => {
       delete this.assets[key];
     });
@@ -775,7 +775,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
           integrityHashes.map((algorithm) => [algorithm, undefined]),
         );
 
-        // webpack-subresource-integrity@4+ stores the integrity hash on `asset.info.contenthash`.
+        // webpack-subresource-integrity@5+ stores the integrity hash on `asset.info.contenthash`.
         if (asset.info.contenthash) {
           asArray(asset.info.contenthash)
             .flatMap((contentHash) => contentHash.split(' '))
