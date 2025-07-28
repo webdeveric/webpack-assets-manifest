@@ -6,7 +6,7 @@ import { promisify } from 'node:util';
 
 import { rimraf } from 'rimraf';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
-import { container, webpack, type Compilation } from 'webpack';
+import { container, type Compilation } from 'webpack';
 import webpackPackage from 'webpack/package.json' with { type: 'json' };
 import WebpackDevServer from 'webpack-dev-server';
 import webpackDevServerPackage from 'webpack-dev-server/package.json' with { type: 'json' };
@@ -14,7 +14,7 @@ import webpackDevServerPackage from 'webpack-dev-server/package.json' with { typ
 import { WebpackAssetsManifest, type Options } from '../src/plugin.js';
 import { isObject } from '../src/type-predicate.js';
 
-import { create, createMulti, getWorkspace, makeCompiler, makeRun } from './utils.js';
+import { create, createMulti, getWorkspace, makeCompiler, makeRun, makeWebpackCompiler } from './utils.js';
 import * as configs from './webpack-configs.js';
 
 import type { AssetsStorage, JsonStringifySpace, KeyValuePair } from '../src/types.js';
@@ -296,7 +296,7 @@ describe('Methods', () => {
     });
 
     it('Works correctly when outputFileSystem.prototype is null', () => {
-      const { compiler, manifest } = create(configs.hello(), undefined, webpack);
+      const { compiler, manifest } = create(configs.hello(), undefined, makeWebpackCompiler);
 
       Object.setPrototypeOf(compiler.outputFileSystem, null);
 
@@ -940,7 +940,7 @@ describe('Options', () => {
 
   describe('writeToDisk', () => {
     it.each([
-      { fn: webpack, devServerWriteToDisk: true, result: false },
+      { fn: makeWebpackCompiler, devServerWriteToDisk: true, result: false },
       { fn: makeCompiler, devServerWriteToDisk: true, result: false },
       { fn: makeCompiler, devServerWriteToDisk: false, result: false },
     ])(
@@ -1222,7 +1222,7 @@ describe('Options', () => {
       });
 
       it.skipIf(process.platform === 'win32')('Compiler has error if unable to create directory', async () => {
-        const { run } = create(configs.hello(), undefined, webpack);
+        const { run } = create(configs.hello(), undefined, makeWebpackCompiler);
 
         await chmod(getWorkspace(), 0o444);
 
@@ -1419,7 +1419,7 @@ describe('Options', () => {
 
   describe('Usage with webpack-dev-server', () => {
     it('inDevServer() should return true', async () => {
-      const { compiler, manifest } = create(configs.devServer(), undefined, webpack);
+      const { compiler, manifest } = create(configs.devServer(), undefined, makeWebpackCompiler);
 
       const server = new WebpackDevServer(undefined, compiler);
 
@@ -1431,7 +1431,7 @@ describe('Options', () => {
     });
 
     it('Should serve the assets manifest JSON file', async () => {
-      const { compiler } = create(configs.devServer(), undefined, webpack);
+      const { compiler } = create(configs.devServer(), undefined, makeWebpackCompiler);
 
       const server = new WebpackDevServer(
         {
@@ -1523,7 +1523,7 @@ describe('Options', () => {
           {
             writeToDisk: 'auto',
           },
-          webpack,
+          makeWebpackCompiler,
         );
 
         const server = new WebpackDevServer(undefined, compiler);

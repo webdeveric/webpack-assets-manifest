@@ -185,7 +185,7 @@ export function sri(): ConfigurationForTests {
   config.plugins.push(
     new SubresourceIntegrityPlugin({
       enabled: true,
-      hashFuncNames: ['sha256'],
+      hashFuncNames: ['sha256', 'sha384', 'sha512'],
     }),
   );
 
