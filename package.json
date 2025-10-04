@@ -86,8 +86,8 @@
   "dependencies": {
     "deepmerge": "^4.3.1",
     "lockfile": "^1.0.4",
-    "schema-utils": "^4.3.2",
-    "tapable": "^2.2.3"
+    "schema-utils": "^4.3.3",
+    "tapable": "^2.3.0"
   },
   "peerDependencies": {
     "webpack": "^5.61.0"
@@ -126,7 +126,7 @@
     "typescript": "^5.9.2",
     "validate-package-exports": "^0.13.0",
     "vitest": "^3.2.4",
-    "webpack": "^5.101.3",
+    "webpack": "^5.102.0",
     "webpack-dev-server": "^5.2.2",
     "webpack-subresource-integrity": "^5.1.0"
   },
