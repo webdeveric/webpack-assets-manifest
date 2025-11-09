@@ -479,7 +479,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
         for (const module of modules) {
           if (module instanceof NormalModule) {
-            const codeGenData = codeGenerationResults.get(module, chunk.runtime).data;
+            const codeGenData = codeGenerationResults?.get(module, chunk.runtime).data;
 
             const filename: string | undefined = module.buildInfo?.['filename'] ?? codeGenData?.get('filename');
 

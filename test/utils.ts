@@ -5,13 +5,14 @@ import { join } from 'node:path';
 
 import { createFsFromVolume, Volume } from 'memfs';
 import {
+  config as webpackConfig,
+  webpack,
   type Compiler,
   type Configuration,
-  type Stats,
-  webpack,
   type MultiCompiler,
-  type MultiStats,
   type MultiConfiguration,
+  type MultiStats,
+  type Stats,
 } from 'webpack';
 
 import { WebpackAssetsManifest } from '../src/plugin.js';
@@ -54,20 +55,19 @@ export function makeCompiler(configuration: Configuration): Compiler {
 }
 
 export function makeMultiCompiler(configurations: Configuration[]): MultiCompiler {
-  const compiler = makeWebpackCompiler(
-    configurations.map(
-      (config) =>
-        ({
-          mode: 'development',
-          stats: 'errors-only',
-          infrastructureLogging: {
-            level: 'none',
-            debug: false,
-          },
-          ...config,
-        }) satisfies Configuration,
-    ),
+  const multiConfigurations: MultiConfiguration = configurations.map((config) =>
+    webpackConfig.getNormalizedWebpackOptions({
+      mode: 'development',
+      stats: 'errors-only',
+      infrastructureLogging: {
+        level: 'none',
+        debug: false,
+      },
+      ...config,
+    } satisfies Configuration),
   );
+
+  const compiler = makeWebpackCompiler(multiConfigurations);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   compiler.outputFileSystem = createFsFromVolume(new Volume()) as any;
