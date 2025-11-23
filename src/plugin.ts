@@ -447,9 +447,18 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       this.inDevServer() ? basename(this.options.output) : relative(compilation.compiler.outputPath, outputPath),
     );
 
-    const release = this.options.merge ? await lock('./', { lockfilePath: `./${PLUGIN_NAME}.lock` }) : undefined;
+    let release: (() => Promise<void>) | undefined;
 
     try {
+      if (this.options.merge) {
+        const outputDir = dirname(outputPath);
+
+        // `lock()` requires the directory to exist.
+        await mkdir(outputDir, { recursive: true });
+
+        release = await lock(outputDir, { lockfilePath: join(outputDir, `${PLUGIN_NAME}.lock`) });
+      }
+
       await this.maybeMerge();
 
       compilation.emitAsset(output, new compilation.compiler.webpack.sources.RawSource(this.toString(), false), {
