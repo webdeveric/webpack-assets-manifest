@@ -1,8 +1,6 @@
 import { getHashes } from 'node:crypto';
 
-import type { validate } from 'schema-utils';
-
-type Schema = Parameters<typeof validate>[0];
+import type { Schema } from 'schema-utils';
 
 export const optionsSchema = {
   title: 'Webpack Assets Manifest options schema',
