@@ -447,21 +447,17 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       this.inDevServer() ? basename(this.options.output) : relative(compilation.compiler.outputPath, outputPath),
     );
 
-    let release: (() => Promise<void>) | undefined;
+    const release = this.options.merge ? await lock('./', { lockfilePath: `./${PLUGIN_NAME}.lock` }) : undefined;
 
-    if (this.options.merge) {
-      release = await lock('./', { lockfilePath: `./${PLUGIN_NAME}.lock` });
-    }
+    try {
+      await this.maybeMerge();
 
-    await this.maybeMerge();
-
-    compilation.emitAsset(output, new compilation.compiler.webpack.sources.RawSource(this.toString(), false), {
-      assetsManifest: true,
-      generated: true,
-      generatedBy: [PLUGIN_NAME],
-    });
-
-    if (this.options.merge) {
+      compilation.emitAsset(output, new compilation.compiler.webpack.sources.RawSource(this.toString(), false), {
+        assetsManifest: true,
+        generated: true,
+        generatedBy: [PLUGIN_NAME],
+      });
+    } finally {
       await release?.();
     }
   }
@@ -671,13 +667,17 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   public async writeTo(destination: string): Promise<void> {
     const destinationDir = dirname(destination);
 
-    await mkdir(destinationDir, { recursive: true });
+    let release: (() => Promise<void>) | undefined;
 
-    const release = await lock(destinationDir, { lockfilePath: join(destinationDir, `${PLUGIN_NAME}.lock`) });
+    try {
+      await mkdir(destinationDir, { recursive: true });
 
-    await writeFile(destination, this.toString());
+      release = await lock(destinationDir, { lockfilePath: join(destinationDir, `${PLUGIN_NAME}.lock`) });
 
-    await release();
+      await writeFile(destination, this.toString());
+    } finally {
+      await release?.();
+    }
   }
 
   public clear(): void {
