@@ -99,7 +99,7 @@
     "@types/proper-lockfile": "^4.1.4",
     "@types/tapable": "^2.3.0",
     "@types/webpack-sources": "^3.2.3",
-    "@vitest/coverage-v8": "^4.0.12",
+    "@vitest/coverage-v8": "^4.0.13",
     "@webdeveric/eslint-config-ts": "^0.11.0",
     "@webdeveric/prettier-config": "^0.3.0",
     "commitlint": "^20.1.0",
@@ -125,7 +125,7 @@
     "semantic-release": "^24.2.9",
     "typescript": "^5.9.3",
     "validate-package-exports": "^0.14.0",
-    "vitest": "^4.0.12",
+    "vitest": "^4.0.13",
     "webpack": "^5.103.0",
     "webpack-dev-server": "^5.2.2",
     "webpack-subresource-integrity": "^5.1.0"
