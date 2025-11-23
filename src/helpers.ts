@@ -1,8 +1,4 @@
 import { createHash, type BinaryLike } from 'node:crypto';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-
-import { lock as lockfileLock, unlock as lockfileUnlock } from 'lockfile';
 
 import { isPropertyKey } from './type-predicate.js';
 
@@ -63,62 +59,4 @@ export function group<T>(
 
     return obj;
   }, Object.create(null));
-}
-
-/**
- * Build a file path to a lock file in the tmp directory
- *
- * @internal
- */
-export function getLockFilename(filename: string): string {
-  const name = filename.replace(/[^\w]+/g, '-');
-
-  return join(tmpdir(), `${name}.lock`);
-}
-
-/**
- * Create a lockfile (async)
- *
- * @internal
- */
-export function lock(filename: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    lockfileLock(
-      getLockFilename(filename),
-      {
-        wait: 10000,
-        stale: 20000,
-        retries: 100,
-        retryWait: 100,
-      },
-      (error) => {
-        if (error) {
-          reject(error);
-
-          return;
-        }
-
-        resolve();
-      },
-    );
-  });
-}
-
-/**
- * Remove a lockfile (async)
- *
- * @internal
- */
-export function unlock(filename: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    lockfileUnlock(getLockFilename(filename), (error) => {
-      if (error) {
-        reject(error);
-
-        return;
-      }
-
-      resolve();
-    });
-  });
 }

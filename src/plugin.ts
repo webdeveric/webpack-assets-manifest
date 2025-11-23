@@ -1,10 +1,11 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join, normalize, relative, resolve } from 'node:path';
 
+import { lock } from 'proper-lockfile';
 import { validate } from 'schema-utils';
 import { AsyncSeriesHook, SyncHook, SyncWaterfallHook } from 'tapable';
 
-import { asArray, findMapKeysByValue, getSortedObject, getSRIHash, group, lock, unlock } from './helpers.js';
+import { asArray, findMapKeysByValue, getSortedObject, getSRIHash, group } from './helpers.js';
 import { optionsSchema } from './options-schema.js';
 import { isKeyValuePair, isObject } from './type-predicate.js';
 
@@ -446,8 +447,10 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       this.inDevServer() ? basename(this.options.output) : relative(compilation.compiler.outputPath, outputPath),
     );
 
+    let release: (() => Promise<void>) | undefined;
+
     if (this.options.merge) {
-      await lock(outputPath);
+      release = await lock('./', { lockfilePath: `./${PLUGIN_NAME}.lock` });
     }
 
     await this.maybeMerge();
@@ -459,7 +462,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     });
 
     if (this.options.merge) {
-      await unlock(outputPath);
+      await release?.();
     }
   }
 
@@ -666,13 +669,15 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    * Write the asset manifest to the file system.
    */
   public async writeTo(destination: string): Promise<void> {
-    await lock(destination);
+    const destinationDir = dirname(destination);
 
-    await mkdir(dirname(destination), { recursive: true });
+    await mkdir(destinationDir, { recursive: true });
+
+    const release = await lock(destinationDir, { lockfilePath: join(destinationDir, `${PLUGIN_NAME}.lock`) });
 
     await writeFile(destination, this.toString());
 
-    await unlock(destination);
+    await release();
   }
 
   public clear(): void {

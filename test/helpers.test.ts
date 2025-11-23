@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { asArray, getSortedObject, findMapKeysByValue, group, getLockFilename, getSRIHash } from '../src/helpers.js';
-
-describe('getLockFilename()', () => {
-  it('Returns the sanitized filename with a .lock suffix', () => {
-    expect(
-      getLockFilename('/some-path/asset-manifest.json').endsWith('some-path-asset-manifest-json.lock'),
-    ).toBeTruthy();
-  });
-});
+import { asArray, getSortedObject, findMapKeysByValue, group, getSRIHash } from '../src/helpers.js';
 
 describe('asArray()', function () {
   it('returns input if it is an array', () => {
