@@ -85,7 +85,7 @@
   "prettier": "@webdeveric/prettier-config",
   "dependencies": {
     "deepmerge": "^4.3.1",
-    "lockfile": "^1.0.4",
+    "proper-lockfile": "^4.1.2",
     "schema-utils": "^4.3.3",
     "tapable": "^2.3.0"
   },
@@ -95,8 +95,8 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^20.0.0",
     "@commitlint/types": "^20.0.0",
-    "@types/lockfile": "^1.0.4",
     "@types/node": "^20.19.25",
+    "@types/proper-lockfile": "^4.1.4",
     "@types/tapable": "^2.3.0",
     "@types/webpack-sources": "^3.2.3",
     "@vitest/coverage-v8": "^4.0.12",
