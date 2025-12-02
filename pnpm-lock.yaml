@@ -47,7 +47,7 @@ importers:
         version: 0.11.0(eslint@8.57.1)(typescript@5.9.3)
       '@webdeveric/prettier-config':
         specifier: ^0.3.0
-        version: 0.3.0(prettier@3.6.2)
+        version: 0.3.0(prettier@3.7.3)
       commitlint:
         specifier: ^20.1.0
         version: 20.1.0(@types/node@20.19.24)(typescript@5.9.3)
@@ -101,7 +101,7 @@ importers:
         version: 2.9.4(webpack@5.102.1)
       prettier:
         specifier: ^3.6.2
-        version: 3.6.2
+        version: 3.7.3
       rimraf:
         specifier: ^6.1.0
         version: 6.1.0
@@ -3872,8 +3872,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.6.2:
-    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+  prettier@3.7.3:
+    resolution: {integrity: sha512-QgODejq9K3OzoBbuyobZlUhznP5SKwPqp+6Q6xw6o8gnhr4O85L2U915iM2IDcfF2NPXVaM9zlo9tdwipnYwzg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -6355,9 +6355,9 @@ snapshots:
     dependencies:
       eslint: 8.57.1
 
-  '@webdeveric/prettier-config@0.3.0(prettier@3.6.2)':
+  '@webdeveric/prettier-config@0.3.0(prettier@3.7.3)':
     dependencies:
-      prettier: 3.6.2
+      prettier: 3.7.3
 
   '@webdeveric/utils@0.72.0': {}
 
@@ -8923,7 +8923,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.6.2: {}
+  prettier@3.7.3: {}
 
   pretty-ms@9.3.0:
     dependencies:
