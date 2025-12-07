@@ -122,7 +122,7 @@
     "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
     "sass-loader": "^16.0.6",
-    "semantic-release": "^24.2.9",
+    "semantic-release": "^25.0.2",
     "typescript": "^5.9.3",
     "validate-package-exports": "^0.14.0",
     "vitest": "^4.0.15",
