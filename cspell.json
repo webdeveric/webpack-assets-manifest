@@ -10,6 +10,7 @@
     "postbuild",
     "subresource",
     "unrs-resolver",
+    "vitest",
     "webdeveric"
   ],
   "flagWords": [],

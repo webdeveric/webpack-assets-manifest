@@ -5,7 +5,6 @@ import { join } from 'node:path';
 
 import { createFsFromVolume, Volume } from 'memfs';
 import {
-  config as webpackConfig,
   webpack,
   type Compiler,
   type Configuration,
@@ -55,17 +54,15 @@ export function makeCompiler(configuration: Configuration): Compiler {
 }
 
 export function makeMultiCompiler(configurations: Configuration[]): MultiCompiler {
-  const multiConfigurations: MultiConfiguration = configurations.map((config) =>
-    webpackConfig.getNormalizedWebpackOptions({
-      mode: 'development',
-      stats: 'errors-only',
-      infrastructureLogging: {
-        level: 'none',
-        debug: false,
-      },
-      ...config,
-    } satisfies Configuration),
-  );
+  const multiConfigurations: MultiConfiguration = configurations.map((config) => ({
+    mode: 'development',
+    stats: 'errors-only',
+    infrastructureLogging: {
+      level: 'none',
+      debug: false,
+    },
+    ...config,
+  }));
 
   const compiler = makeWebpackCompiler(multiConfigurations);
 
