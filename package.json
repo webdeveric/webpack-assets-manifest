@@ -65,7 +65,7 @@
   "files": [
     "dist"
   ],
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
+  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a",
   "scripts": {
     "clean": "rimraf ./coverage/ ./dist/ ./cache/",
     "prebuild": "pnpm clean",
@@ -95,15 +95,15 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^20.2.0",
     "@commitlint/types": "^20.2.0",
-    "@types/node": "^20.19.25",
+    "@types/node": "^20.19.27",
     "@types/proper-lockfile": "^4.1.4",
     "@types/tapable": "^2.3.0",
     "@types/webpack-sources": "^3.2.3",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.16",
     "@webdeveric/eslint-config-ts": "^0.11.0",
     "@webdeveric/prettier-config": "^0.3.0",
     "commitlint": "^20.2.0",
-    "commitlint-plugin-cspell": "^0.3.0",
+    "commitlint-plugin-cspell": "^0.4.0",
     "compression-webpack-plugin": "^11.1.0",
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "copy-webpack-plugin": "^13.0.1",
@@ -114,7 +114,7 @@
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "file-loader": "^6.2.0",
-    "fs-extra": "^11.3.2",
+    "fs-extra": "^11.3.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "memfs": "^4.51.1",
@@ -125,8 +125,8 @@
     "semantic-release": "^24.2.9",
     "typescript": "^5.9.3",
     "validate-package-exports": "^0.14.0",
-    "vitest": "^4.0.15",
-    "webpack": "^5.103.0",
+    "vitest": "^4.0.16",
+    "webpack": "^5.104.1",
     "webpack-dev-server": "^5.2.2",
     "webpack-subresource-integrity": "^5.1.0"
   },
