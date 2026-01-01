@@ -103,7 +103,7 @@
     "@webdeveric/eslint-config-ts": "^0.11.0",
     "@webdeveric/prettier-config": "^0.3.0",
     "commitlint": "^20.2.0",
-    "commitlint-plugin-cspell": "^0.3.0",
+    "commitlint-plugin-cspell": "^0.4.0",
     "compression-webpack-plugin": "^11.1.0",
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "copy-webpack-plugin": "^13.0.1",
