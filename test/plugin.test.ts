@@ -1421,7 +1421,7 @@ describe('Options', () => {
     it('inDevServer() should return true', async () => {
       const { compiler, manifest } = create(configs.devServer(), undefined, makeWebpackCompiler);
 
-      const server = new WebpackDevServer(undefined, compiler);
+      const server = new WebpackDevServer({}, compiler);
 
       await server.start();
 
@@ -1526,7 +1526,7 @@ describe('Options', () => {
           makeWebpackCompiler,
         );
 
-        const server = new WebpackDevServer(undefined, compiler);
+        const server = new WebpackDevServer({}, compiler);
 
         await server.start();
 
