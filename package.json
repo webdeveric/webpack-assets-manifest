@@ -104,9 +104,9 @@
     "@webdeveric/prettier-config": "^0.3.0",
     "commitlint": "^20.4.2",
     "commitlint-plugin-cspell": "^0.6.0",
-    "compression-webpack-plugin": "^11.1.0",
+    "compression-webpack-plugin": "^12.0.0",
     "conventional-changelog-conventionalcommits": "^9.2.0",
-    "copy-webpack-plugin": "^13.0.1",
+    "copy-webpack-plugin": "^14.0.0",
     "cspell": "^9.7.0",
     "css-loader": "^7.1.4",
     "eslint": "^8.57.1",
@@ -134,6 +134,9 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "serialize-javascript@<=7.0.2": ">=7.0.3"
+    }
   }
 }
