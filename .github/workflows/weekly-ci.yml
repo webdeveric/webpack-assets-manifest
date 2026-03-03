@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * 2' # Tuesdays at 00:00 UTC
 
+env:
+  HUSKY: 0
+
 jobs:
   weekly-ci:
     name: Weekly CI
