@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+concurrency: release
+
+env:
+  HUSKY: 0
+
 permissions:
   contents: read # for checkout
 
@@ -12,6 +17,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write # to be able to publish a GitHub release
       issues: write # to be able to comment on released issues
@@ -42,7 +48,5 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Set this value in your repository secrets after you generate it at NPM.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: pnpm exec semantic-release
