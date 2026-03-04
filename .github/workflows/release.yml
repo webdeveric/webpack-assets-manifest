@@ -38,6 +38,12 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
 
+      # Trusted Publishing needs npn 11.5.1 or later
+      - name: Install latest npm
+        run: |
+          npm install -g npm@latest
+          npm --version
+
       - name: Installing dependencies
         run: pnpm install --frozen-lockfile
 
@@ -48,5 +54,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
         run: pnpm exec semantic-release
