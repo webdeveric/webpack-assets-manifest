@@ -65,7 +65,7 @@
   "files": [
     "dist"
   ],
-  "packageManager": "pnpm@10.31.0+sha512.e3927388bfaa8078ceb79b748ffc1e8274e84d75163e67bc22e06c0d3aed43dd153151cbf11d7f8301ff4acb98c68bdc5cadf6989532801ffafe3b3e4a63c268",
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "scripts": {
     "clean": "rimraf ./coverage/ ./dist/ ./cache/",
     "prebuild": "pnpm clean",
@@ -116,15 +116,15 @@
     "file-loader": "^6.2.0",
     "fs-extra": "^11.3.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.2",
+    "lint-staged": "^16.3.3",
     "memfs": "^4.56.11",
-    "mini-css-extract-plugin": "^2.10.0",
+    "mini-css-extract-plugin": "^2.10.1",
     "prettier": "^3.8.1",
     "rimraf": "^6.1.3",
     "sass-loader": "^16.0.7",
     "semantic-release": "^25.0.3",
     "typescript": "^5.9.3",
-    "validate-package-exports": "^0.19.1",
+    "validate-package-exports": "^0.21.0",
     "vitest": "^4.0.18",
     "webpack": "^5.105.4",
     "webpack-dev-server": "^5.2.3",
