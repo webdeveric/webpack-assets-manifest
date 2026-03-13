@@ -133,10 +133,6 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(webpack@5.105.4)
 
-  dist/cjs: {}
-
-  dist/mjs: {}
-
 packages:
 
   '@actions/core@3.0.0':
