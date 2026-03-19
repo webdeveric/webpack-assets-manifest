@@ -6,6 +6,7 @@
     "chunkhash",
     "conventionalcommits",
     "ENOENT",
+    "esbuild",
     "nvmrc",
     "postbuild",
     "subresource",
@@ -14,5 +15,5 @@
     "webdeveric"
   ],
   "flagWords": [],
-  "ignorePaths": ["pnpm-lock.yaml", "./.vscode/", "node_modules"]
+  "ignorePaths": ["pnpm-lock.yaml", "pnpm-workspace.yaml", "./.vscode/", "node_modules"]
 }
