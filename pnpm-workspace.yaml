@@ -1,5 +1,9 @@
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+
 minimumReleaseAge: 2880 # 2 days
 
 minimumReleaseAgeExclude:
-  - compression-webpack-plugin
-  - copy-webpack-plugin
+  - '@webdeveric/utils@0.76.0'
+  - validate-package-exports@0.22.0
