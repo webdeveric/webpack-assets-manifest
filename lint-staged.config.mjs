@@ -1,5 +1,5 @@
 /**
- * @type {Record<string, string | string[] | ((filenames: string[]) => string | string[] | Promise<string | string[]>)>}
+ * @type {import('lint-staged').Configuration}
  */
 export default {
   '*.{js,cjs,mjs,ts,cts,mts}': ['eslint --fix', 'prettier --write'],
