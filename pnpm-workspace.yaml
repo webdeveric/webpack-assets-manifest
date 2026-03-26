@@ -3,7 +3,3 @@ allowBuilds:
   unrs-resolver: true
 
 minimumReleaseAge: 2880 # 2 days
-
-minimumReleaseAgeExclude:
-  - '@webdeveric/utils@0.76.0'
-  - validate-package-exports@0.22.0

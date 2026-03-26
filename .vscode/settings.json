@@ -1,59 +1,48 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "eslint.validate": ["javascript", "typescript"],
   "eslint.format.enable": true,
+  "eslint.validate": ["javascript", "typescript"],
   "eslint.lintTask.enable": true,
   "editor.bracketPairColorization.enabled": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
-  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "javascript.format.semicolons": "insert",
-  "javascript.preferences.quoteStyle": "single",
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.format.semicolons": "insert",
-  "typescript.preferences.quoteStyle": "single",
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[xml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.formatOnSaveMode": "file",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
   },
   "files.associations": {
     "**/*.min.{cjs,mjs,js}": "plaintext",
-    ".env.*": "dotenv"
+    ".env.*": "dotenv",
   },
+  "git.inputValidationSubjectLength": 60,
+  "js/ts.format.semicolons": "insert",
+  "js/ts.preferences.preferTypeOnlyAutoImports": true,
+  "js/ts.suggest.jsdoc.generateReturns": false,
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+  "js/ts.updateImportsOnFileMove.enabled": "always",
   "search.exclude": {
     "**/dist": true,
-    "**/private": true
+    "**/private": true,
   },
-  "editor.formatOnSaveMode": "file",
-  "workbench.settings.openDefaultSettings": true,
-  "git.inputValidationSubjectLength": 60,
-  "javascript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.preferences.importModuleSpecifierEnding": "js",
-  "typescript.preferences.preferTypeOnlyAutoImports": true,
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.referencesCodeLens.enabled": true,
-  "typescript.surveys.enabled": false,
-  "typescript.implementationsCodeLens.enabled": true
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
 }
