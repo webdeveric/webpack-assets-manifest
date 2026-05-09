@@ -114,7 +114,7 @@
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "file-loader": "^6.2.0",
-    "fs-extra": "^11.3.4",
+    "fs-extra": "^11.3.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "memfs": "^4.57.2",
