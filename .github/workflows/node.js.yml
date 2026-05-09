@@ -9,6 +9,9 @@ concurrency:
 env:
   HUSKY: 0
 
+permissions:
+  contents: read # for checkout
+
 jobs:
   core:
     name: Continuous Integration Core Checks

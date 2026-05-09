@@ -7,6 +7,9 @@ on:
 env:
   HUSKY: 0
 
+permissions:
+  contents: read # for checkout
+
 jobs:
   weekly-ci:
     name: Weekly CI
