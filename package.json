@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/webdeveric/webpack-assets-manifest.git"
+    "url": "git+https://github.com/webdeveric/webpack-assets-manifest.git"
   },
   "bugs": {
     "url": "https://github.com/webdeveric/webpack-assets-manifest/issues"
