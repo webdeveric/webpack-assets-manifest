@@ -35,6 +35,9 @@ jobs:
       - name: Audit dependencies
         run: pnpm audit --audit-level=moderate --prod --ignore-registry-errors
 
+      - name: Verify registry signatures for installed packages
+        run: pnpm audit signatures
+
       - name: Check spelling
         run: pnpm spellcheck
 
