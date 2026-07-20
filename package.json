@@ -65,7 +65,7 @@
   "files": [
     "dist"
   ],
-  "packageManager": "pnpm@11.15.0+sha512.266f8957a30d2be6e9468e5e66bcdedd35a794175f71b067ba8504d686cce1d0c0f429b33c323c3c569ad4891e667574a49ff71d1b89a22cc66f13c65818c578",
+  "packageManager": "pnpm@11.15.1+sha512.81350b07e53c9538a02f1f2303b4290fa2d7be04e56e2a970c4cc4b417dc761de196edabd49d55c7dc9580db81007c44143e4e3d7e462b3000d23c255122d065",
   "scripts": {
     "clean": "rimraf ./coverage/ ./dist/ ./cache/",
     "prebuild": "pnpm clean",
@@ -96,10 +96,10 @@
     "@commitlint/config-conventional": "^21.2.0",
     "@commitlint/types": "^21.2.0",
     "@types/node": "^20.19.43",
-    "@typescript/native": "npm:typescript@^7.0.2",
     "@types/proper-lockfile": "^4.1.4",
     "@types/tapable": "^2.3.0",
     "@types/webpack-sources": "^3.2.3",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^4.1.10",
     "@webdeveric/eslint-config-ts": "^0.12.1",
     "@webdeveric/prettier-config": "^0.4.0",
@@ -123,7 +123,7 @@
     "prettier": "^3.9.5",
     "rimraf": "^6.1.3",
     "sass-loader": "^17.0.0",
-    "semantic-release": "^25.0.7",
+    "semantic-release": "^25.0.8",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "validate-package-exports": "^1.3.2",
     "vitest": "^4.1.10",

@@ -61,6 +61,9 @@ jobs:
         webpack-version: ['5.61.0', latest]
         dev-server-version: [4, 5]
         css-loader-version: ['3.5.0', latest]
+        include:
+          - dev-serer-version: latest
+            webpack-version: latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
