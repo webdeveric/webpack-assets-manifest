@@ -99,7 +99,7 @@
   "dependencies": {
     "deepmerge": "^4.3.1",
     "proper-lockfile": "^4.1.2",
-    "schema-utils": "^4.3.3",
+    "schema-utils": "^4.5.0",
     "tapable": "^2.3.3"
   },
   "peerDependencies": {
