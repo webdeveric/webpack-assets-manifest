@@ -82,7 +82,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install specific dependency versions
-        run: pnpm install webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }} --no-lockfile
+        run: pnpm install --no-save --lockfile=false webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
 
       - name: Test
         run: pnpm coverage
