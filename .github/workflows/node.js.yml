@@ -57,11 +57,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         node-version: [22.x, 24.x, 26.x]
         webpack-version: ['5.61.0', latest]
-        dev-server-version: [4, 5]
+        dev-server-version: [4, 5, latest]
         css-loader-version: ['3.5.0', latest]
-        include:
+        exclude:
           - dev-server-version: latest
-            webpack-version: latest
+            webpack-version: '5.61.0'
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -74,7 +74,7 @@ jobs:
           runtime: node@${{ matrix.node-version }}
 
       - name: Install specific dependency versions
-        run: pnpm install --no-save --lockfile=false webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
+        run: pnpm add -D webpack@${{ matrix.webpack-version }} webpack-dev-server@${{ matrix.dev-server-version }} css-loader@${{ matrix.css-loader-version }}
 
       - name: Test
         run: pnpm coverage
