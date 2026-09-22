@@ -10,5 +10,7 @@ engineStrict: true
 
 minimumReleaseAge: 2880 # 2 days
 
-minimumReleaseAgeExclude:
-  - validate-package-exports@1.4.2
+minimumReleaseAgeExcludePrune: true
+
+update:
+  githubActions: true
