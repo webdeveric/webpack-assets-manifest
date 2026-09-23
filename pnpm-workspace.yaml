@@ -4,6 +4,10 @@ allowBuilds:
 
 autoInstallPeers: true
 
+blockExoticSubdeps: true
+
+dangerouslyAllowAllBuilds: false
+
 enablePrePostScripts: true
 
 engineStrict: true
@@ -12,8 +16,25 @@ minimumReleaseAge: 2880 # 2 days
 
 minimumReleaseAgeExcludePrune: true
 
+minimumReleaseAgeStrict: true
+
 overrides:
   uuid@<11.1.1: ^11.1.1
 
+strictDepBuilds: true
+
+strictStorePkgContentCheck: true
+
+trustPolicy: no-downgrade
+
+trustPolicyExclude:
+  - webpack-dev-middleware@7.4.6
+
+trustPolicyExcludePrune: true
+
+trustPolicyIgnoreAfter: 525600 # 1 year
+
 update:
   githubActions: true
+
+verifyStoreIntegrity: true
