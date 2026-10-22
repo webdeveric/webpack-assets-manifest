@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup
-        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3.1.1
         with:
           cache: true
           install: false # Audit before installing dependencies
@@ -32,9 +32,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # TODO: restore this step once pnpm audit signatures stops failing for `devEngines.runtime` with `Missing registry metadata`.
-      # - name: Verify registry signatures for installed packages
-      #   run: pnpm audit signatures
+      - name: Verify registry signatures for installed packages
+        run: pnpm audit signatures
 
       - name: Check spelling
         run: pnpm spellcheck
@@ -68,7 +67,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup
-        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3.1.1
         with:
           cache: true
           runtime: node@${{ matrix.node-version }}

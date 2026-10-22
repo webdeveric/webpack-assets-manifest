@@ -488,7 +488,7 @@ describe('Options', () => {
     });
   });
 
-  describe.sequential('merge', () => {
+  describe('merge', () => {
     beforeAll(async () => {
       await mkdir(getWorkspace(), { recursive: true, mode: 0o777 });
     });
@@ -1196,7 +1196,7 @@ describe('Options', () => {
       });
     });
 
-    describe.sequential('outputFileSystem', () => {
+    describe('outputFileSystem', () => {
       beforeAll(async () => {
         await mkdir(getWorkspace(), { recursive: true, mode: 0o777 });
       });

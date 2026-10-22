@@ -24,12 +24,16 @@ export function tmpDirPath(): string {
   return join(getWorkspace(), randomUUID());
 }
 
+function isMultiConfiguration(configuration: Configuration | MultiConfiguration): configuration is MultiConfiguration {
+  return Array.isArray(configuration);
+}
+
 export function makeWebpackCompiler(configuration: Configuration): Compiler;
 
 export function makeWebpackCompiler(configuration: MultiConfiguration): MultiCompiler;
 
 export function makeWebpackCompiler(configuration: Configuration | MultiConfiguration): Compiler | MultiCompiler {
-  const compiler = webpack(configuration);
+  const compiler = isMultiConfiguration(configuration) ? webpack(configuration) : webpack(configuration);
 
   assert(compiler, 'webpack compiler not defined');
 
