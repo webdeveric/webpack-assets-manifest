@@ -176,7 +176,7 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2
       schema-utils:
-        specifier: ^4.5.0
+        specifier: ^4.8.1
         version: 4.8.1(webpack@5.112.0(lightningcss@1.33.0)(postcss@8.5.31)(uglify-js@3.19.3))
       tapable:
         specifier: ^2.3.3
