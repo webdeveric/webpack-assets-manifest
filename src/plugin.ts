@@ -362,11 +362,11 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    *
    * @todo make this `private`
    */
-  public processAssetsByChunkName(assets: StatsCompilation['assetsByChunkName'], hmrFiles: Set<string>): void {
+  public processAssetsByChunkName(assets: StatsCompilation['assetsByChunkName'], excludedFiles: Set<string>): void {
     if (assets) {
       Object.keys(assets).forEach((chunkName) => {
         asArray(assets[chunkName])
-          .filter((filename): filename is string => typeof filename === 'string' && !hmrFiles.has(filename)) // Remove hot module replacement files
+          .filter((filename): filename is string => typeof filename === 'string' && !excludedFiles.has(filename))
           .forEach((filename) => {
             this.assetNames.set(chunkName + this.getExtension(filename), filename);
           });
@@ -547,13 +547,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    */
   private getCompilationAssets(compilation: Compilation): {
     assets: Asset[];
-    hmrFiles: Set<string>;
+    excludedFiles: Set<string>;
   } {
-    const hmrFiles = new Set<string>();
+    const excludedFiles = new Set<string>();
 
     const assets = compilation.getAssets().filter((asset) => {
       if (asset.info.hotModuleReplacement) {
-        hmrFiles.add(asset.name);
+        excludedFiles.add(asset.name);
 
         return false;
       }
@@ -561,9 +561,21 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       return !asset.info['assetsManifest'];
     });
 
+    // `stats.assetsByChunkName` includes `chunk.auxiliaryFiles` (asset modules, files from `emitFile()`, source maps).
+    // Exclude auxiliary files that already have a name, so they don't also get keyed by chunk name (e.g. `main.txt`).
+    const namedFiles = new Set(this.assetNames.values());
+
+    for (const chunk of compilation.chunks) {
+      for (const file of chunk.auxiliaryFiles) {
+        if (namedFiles.has(file)) {
+          excludedFiles.add(file);
+        }
+      }
+    }
+
     return {
       assets,
-      hmrFiles,
+      excludedFiles,
     };
   }
 
@@ -581,11 +593,11 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       chunkGroupChildren: this.options.entrypoints,
     });
 
-    const { assets, hmrFiles } = this.getCompilationAssets(compilation);
+    const { assets, excludedFiles } = this.getCompilationAssets(compilation);
 
     this.processStatsAssets(stats.assets);
 
-    this.processAssetsByChunkName(stats.assetsByChunkName, hmrFiles);
+    this.processAssetsByChunkName(stats.assetsByChunkName, excludedFiles);
 
     const findAssetKeys = findMapKeysByValue(this.assetNames);
 
@@ -611,7 +623,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     }
 
     if (this.options.entrypoints) {
-      const removeHMR = (file: string): boolean => !hmrFiles.has(file);
+      const removeExcludedFiles = (file: string): boolean => !excludedFiles.has(file);
       const getExtensionGroup = (file: string): string => this.getExtension(file).substring(1).toLowerCase();
       const getAssetOrFilename = (file: string): AssetsStorage[keyof AssetsStorage] | string => {
         let asset: AssetsStorage[keyof AssetsStorage] | undefined;
@@ -628,7 +640,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       const entrypoints = Object.fromEntries(
         Array.from(compilation.entrypoints, ([name, entrypoint]) => {
           const value: Record<PropertyKey, Record<PropertyKey, string[]>> = {
-            assets: group(entrypoint.getFiles().filter(removeHMR), getExtensionGroup, getAssetOrFilename),
+            assets: group(entrypoint.getFiles().filter(removeExcludedFiles), getExtensionGroup, getAssetOrFilename),
           };
 
           // This contains preload and prefetch
@@ -636,7 +648,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
           if (childAssets) {
             for (const [property, assets] of Object.entries(childAssets)) {
-              value[property] = group(assets.filter(removeHMR), getExtensionGroup, getAssetOrFilename);
+              value[property] = group(assets.filter(removeExcludedFiles), getExtensionGroup, getAssetOrFilename);
             }
           }
 
