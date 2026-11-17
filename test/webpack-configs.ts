@@ -56,9 +56,9 @@ export function client(hashed = false): ConfigurationForTests {
       path: tmpDirPath(),
       filename: hashed ? '[name]-[contenthash:6]-[chunkhash].js' : '[name].js',
     },
-    // optimization: {
-    //   realContentHash: true,
-    // },
+    optimization: {
+      realContentHash: true,
+    },
     module: {
       rules: [
         {
