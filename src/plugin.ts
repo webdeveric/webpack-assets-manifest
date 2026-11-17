@@ -100,6 +100,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   // Is a merge happening?
   #isMerging = false;
 
+  // Keys this instance added to `assets`. Used to only remove what this instance owns
+  // when `assets` is shared between multiple instances (multi-compiler mode).
+  #ownKeys = new Set<AssetsStorageKey>();
+
+  // Entrypoint names this instance added under `options.entrypointsKey`.
+  #ownEntrypoints = new Set<string>();
+
   /**
    * This is using hooks from {@link https://github.com/webpack/tapable | Tapable}.
    */
@@ -273,6 +280,11 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   public setRaw(key: AssetsStorageKey, value: AssetsStorageValue): this {
     this.assets[key] = value;
 
+    // Data merged from the existing manifest file may belong to other instances.
+    if (!this.#isMerging) {
+      this.#ownKeys.add(key);
+    }
+
     return this;
   }
 
@@ -345,12 +357,16 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    */
   public delete(key: AssetsStorageKey): boolean {
     if (Object.hasOwn(this.assets, key)) {
+      this.#ownKeys.delete(key);
+
       return delete this.assets[key];
     }
 
     key = this.fixKey(key);
 
     if (Object.hasOwn(this.assets, key)) {
+      this.#ownKeys.delete(key);
+
       return delete this.assets[key];
     }
 
@@ -661,10 +677,15 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
           this.setRaw(key, entrypoints[key]);
         }
       } else {
-        this.setRaw(this.options.entrypointsKey, {
+        // The `entrypointsKey` can be shared between instances, so only track the entrypoint names.
+        this.assets[this.options.entrypointsKey] = {
           ...this.get(this.options.entrypointsKey),
           ...entrypoints,
-        });
+        };
+
+        for (const name in entrypoints) {
+          this.#ownEntrypoints.add(name);
+        }
       }
     }
 
@@ -710,13 +731,48 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     Object.keys(this.assets).forEach((key) => {
       delete this.assets[key];
     });
+
+    this.#ownKeys.clear();
+    this.#ownEntrypoints.clear();
+  }
+
+  /**
+   * Remove only the data this instance added to `assets`.
+   *
+   * When `assets` is shared between instances (multi-compiler mode),
+   * data added by other instances is left alone.
+   */
+  private clearOwnData(): void {
+    for (const key of this.#ownKeys) {
+      delete this.assets[key];
+    }
+
+    this.#ownKeys.clear();
+
+    const { entrypointsKey } = this.options;
+
+    if (entrypointsKey !== false && this.#ownEntrypoints.size) {
+      const entrypoints = this.get(entrypointsKey);
+
+      if (isObject(entrypoints)) {
+        for (const name of this.#ownEntrypoints) {
+          delete entrypoints[name];
+        }
+
+        if (!Object.keys(entrypoints).length) {
+          delete this.assets[entrypointsKey];
+        }
+      }
+    }
+
+    this.#ownEntrypoints.clear();
   }
 
   /**
    * Cleanup before running Webpack.
    */
   private handleWatchRun(): void {
-    this.clear();
+    this.clearOwnData();
   }
 
   /**

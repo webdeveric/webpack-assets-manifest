@@ -920,6 +920,41 @@ describe('Options', () => {
 
       expect(entrypointsKeys).toEqual(expect.arrayContaining(['main', 'client']));
     });
+
+    it('Rebuilding one compiler does not remove shared assets from other compilers', async () => {
+      const assets = Object.create(null);
+
+      const options = {
+        assets,
+        entrypoints: true,
+      };
+
+      const { compiler: compiler1, manifest: manifest1, run: run1 } = create(configs.hello(), options);
+
+      const { run: run2 } = create(configs.client(), options);
+
+      await Promise.all([run1(), run2()]);
+
+      expect(assets).toMatchObject({ 'main.js': 'main.js', 'client.js': 'client.js' });
+      expect(Object.keys(assets['entrypoints'])).toEqual(expect.arrayContaining(['main', 'client']));
+
+      // Something this instance added that will not be added again during the rebuild.
+      manifest1.set('stale.js', 'stale.js');
+
+      // Simulate an incremental build of only the first compiler.
+      await promisify(compiler1.hooks.watchRun.callAsync.bind(compiler1.hooks.watchRun))(compiler1);
+
+      expect(assets).not.toHaveProperty('main.js');
+      expect(assets).not.toHaveProperty('stale.js');
+      expect(assets).toHaveProperty('client.js', 'client.js');
+      expect(Object.keys(assets['entrypoints'])).toEqual(['client']);
+
+      await run1();
+
+      expect(assets).toMatchObject({ 'main.js': 'main.js', 'client.js': 'client.js' });
+      expect(assets).not.toHaveProperty('stale.js');
+      expect(Object.keys(assets['entrypoints'])).toEqual(expect.arrayContaining(['main', 'client']));
+    });
   });
 
   describe('done', () => {
