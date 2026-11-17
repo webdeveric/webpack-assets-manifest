@@ -100,6 +100,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   // Is a merge happening?
   #isMerging = false;
 
+  // Keys this instance added to `assets`. Used to only remove what this instance owns
+  // when `assets` is shared between multiple instances (multi-compiler mode).
+  #ownKeys = new Set<AssetsStorageKey>();
+
+  // Entrypoint names this instance added under `options.entrypointsKey`.
+  #ownEntrypoints = new Set<string>();
+
   /**
    * This is using hooks from {@link https://github.com/webpack/tapable | Tapable}.
    */
@@ -273,6 +280,11 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
   public setRaw(key: AssetsStorageKey, value: AssetsStorageValue): this {
     this.assets[key] = value;
 
+    // Data merged from the existing manifest file may belong to other instances.
+    if (!this.#isMerging) {
+      this.#ownKeys.add(key);
+    }
+
     return this;
   }
 
@@ -345,12 +357,16 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    */
   public delete(key: AssetsStorageKey): boolean {
     if (Object.hasOwn(this.assets, key)) {
+      this.#ownKeys.delete(key);
+
       return delete this.assets[key];
     }
 
     key = this.fixKey(key);
 
     if (Object.hasOwn(this.assets, key)) {
+      this.#ownKeys.delete(key);
+
       return delete this.assets[key];
     }
 
@@ -362,11 +378,11 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    *
    * @todo make this `private`
    */
-  public processAssetsByChunkName(assets: StatsCompilation['assetsByChunkName'], hmrFiles: Set<string>): void {
+  public processAssetsByChunkName(assets: StatsCompilation['assetsByChunkName'], excludedFiles: Set<string>): void {
     if (assets) {
       Object.keys(assets).forEach((chunkName) => {
         asArray(assets[chunkName])
-          .filter((filename): filename is string => typeof filename === 'string' && !hmrFiles.has(filename)) // Remove hot module replacement files
+          .filter((filename): filename is string => typeof filename === 'string' && !excludedFiles.has(filename))
           .forEach((filename) => {
             this.assetNames.set(chunkName + this.getExtension(filename), filename);
           });
@@ -499,10 +515,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
             const assetInfo: AssetInfo | undefined = module.buildInfo?.['assetInfo'] ?? codeGenData?.get('assetInfo');
 
+            const existingInfo = assetsInfo.get(filename);
+
             const info = {
               rawRequest: module.rawRequest,
               sourceFilename: relative(compiler.context, module.userRequest),
               ...assetInfo,
+              ...existingInfo,
             };
 
             assetsInfo.set(filename, info);
@@ -544,13 +563,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
    */
   private getCompilationAssets(compilation: Compilation): {
     assets: Asset[];
-    hmrFiles: Set<string>;
+    excludedFiles: Set<string>;
   } {
-    const hmrFiles = new Set<string>();
+    const excludedFiles = new Set<string>();
 
     const assets = compilation.getAssets().filter((asset) => {
       if (asset.info.hotModuleReplacement) {
-        hmrFiles.add(asset.name);
+        excludedFiles.add(asset.name);
 
         return false;
       }
@@ -558,9 +577,21 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       return !asset.info['assetsManifest'];
     });
 
+    // `stats.assetsByChunkName` includes `chunk.auxiliaryFiles` (asset modules, files from `emitFile()`, source maps).
+    // Exclude auxiliary files that already have a name, so they don't also get keyed by chunk name (e.g. `main.txt`).
+    const namedFiles = new Set(this.assetNames.values());
+
+    for (const chunk of compilation.chunks) {
+      for (const file of chunk.auxiliaryFiles) {
+        if (namedFiles.has(file)) {
+          excludedFiles.add(file);
+        }
+      }
+    }
+
     return {
       assets,
-      hmrFiles,
+      excludedFiles,
     };
   }
 
@@ -578,11 +609,11 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       chunkGroupChildren: this.options.entrypoints,
     });
 
-    const { assets, hmrFiles } = this.getCompilationAssets(compilation);
+    const { assets, excludedFiles } = this.getCompilationAssets(compilation);
 
     this.processStatsAssets(stats.assets);
 
-    this.processAssetsByChunkName(stats.assetsByChunkName, hmrFiles);
+    this.processAssetsByChunkName(stats.assetsByChunkName, excludedFiles);
 
     const findAssetKeys = findMapKeysByValue(this.assetNames);
 
@@ -608,7 +639,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     }
 
     if (this.options.entrypoints) {
-      const removeHMR = (file: string): boolean => !hmrFiles.has(file);
+      const removeExcludedFiles = (file: string): boolean => !excludedFiles.has(file);
       const getExtensionGroup = (file: string): string => this.getExtension(file).substring(1).toLowerCase();
       const getAssetOrFilename = (file: string): AssetsStorage[keyof AssetsStorage] | string => {
         let asset: AssetsStorage[keyof AssetsStorage] | undefined;
@@ -625,7 +656,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
       const entrypoints = Object.fromEntries(
         Array.from(compilation.entrypoints, ([name, entrypoint]) => {
           const value: Record<PropertyKey, Record<PropertyKey, string[]>> = {
-            assets: group(entrypoint.getFiles().filter(removeHMR), getExtensionGroup, getAssetOrFilename),
+            assets: group(entrypoint.getFiles().filter(removeExcludedFiles), getExtensionGroup, getAssetOrFilename),
           };
 
           // This contains preload and prefetch
@@ -633,7 +664,7 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
           if (childAssets) {
             for (const [property, assets] of Object.entries(childAssets)) {
-              value[property] = group(assets.filter(removeHMR), getExtensionGroup, getAssetOrFilename);
+              value[property] = group(assets.filter(removeExcludedFiles), getExtensionGroup, getAssetOrFilename);
             }
           }
 
@@ -646,10 +677,15 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
           this.setRaw(key, entrypoints[key]);
         }
       } else {
-        this.setRaw(this.options.entrypointsKey, {
+        // The `entrypointsKey` can be shared between instances, so only track the entrypoint names.
+        this.assets[this.options.entrypointsKey] = {
           ...this.get(this.options.entrypointsKey),
           ...entrypoints,
-        });
+        };
+
+        for (const name in entrypoints) {
+          this.#ownEntrypoints.add(name);
+        }
       }
     }
 
@@ -695,13 +731,48 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
     Object.keys(this.assets).forEach((key) => {
       delete this.assets[key];
     });
+
+    this.#ownKeys.clear();
+    this.#ownEntrypoints.clear();
+  }
+
+  /**
+   * Remove only the data this instance added to `assets`.
+   *
+   * When `assets` is shared between instances (multi-compiler mode),
+   * data added by other instances is left alone.
+   */
+  private clearOwnData(): void {
+    for (const key of this.#ownKeys) {
+      delete this.assets[key];
+    }
+
+    this.#ownKeys.clear();
+
+    const { entrypointsKey } = this.options;
+
+    if (entrypointsKey !== false && this.#ownEntrypoints.size) {
+      const entrypoints = this.get(entrypointsKey);
+
+      if (isObject(entrypoints)) {
+        for (const name of this.#ownEntrypoints) {
+          delete entrypoints[name];
+        }
+
+        if (!Object.keys(entrypoints).length) {
+          delete this.assets[entrypointsKey];
+        }
+      }
+    }
+
+    this.#ownEntrypoints.clear();
   }
 
   /**
    * Cleanup before running Webpack.
    */
   private handleWatchRun(): void {
-    this.clear();
+    this.clearOwnData();
   }
 
   /**

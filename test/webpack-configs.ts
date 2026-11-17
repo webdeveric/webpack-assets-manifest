@@ -166,6 +166,29 @@ export function copy(): ConfigurationForTests {
   return config;
 }
 
+export function textAssetResource(): ConfigurationForTests {
+  return {
+    mode: 'production',
+    entry: {
+      text: resolve(fixturesDir, './text.js'),
+    },
+    output: {
+      path: tmpDirPath(),
+      filename: '[name].js',
+      publicPath: '/',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.txt$/,
+          type: 'asset/resource',
+        },
+      ],
+    },
+    plugins: [],
+  };
+}
+
 export function compression(): ConfigurationForTests {
   const config = hello();
 

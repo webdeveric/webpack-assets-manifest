@@ -17,7 +17,7 @@
   "js/ts.format.semicolons": "insert",
   "js/ts.preferences.preferTypeOnlyAutoImports": true,
   "js/ts.suggest.jsdoc.generateReturns": false,
-  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.tsdk.path": "node_modules/@typescript/native",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "js/ts.updateImportsOnFileMove.enabled": "always",
   "search.exclude": {
