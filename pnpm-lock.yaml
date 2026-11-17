@@ -190,7 +190,7 @@ importers:
         specifier: ^4.8.3
         version: 4.8.3(webpack@5.112.2(lightningcss@1.33.0)(postcss@8.5.33)(uglify-js@3.19.3))
       tapable:
-        specifier: ^2.3.3
+        specifier: ^2.3.4
         version: 2.3.4
     devDependencies:
       '@commitlint/config-conventional':
