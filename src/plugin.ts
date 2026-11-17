@@ -499,10 +499,13 @@ export class WebpackAssetsManifest implements WebpackPluginInstance {
 
             const assetInfo: AssetInfo | undefined = module.buildInfo?.['assetInfo'] ?? codeGenData?.get('assetInfo');
 
+            const existingInfo = assetsInfo.get(filename);
+
             const info = {
               rawRequest: module.rawRequest,
               sourceFilename: relative(compiler.context, module.userRequest),
               ...assetInfo,
+              ...existingInfo,
             };
 
             assetsInfo.set(filename, info);
