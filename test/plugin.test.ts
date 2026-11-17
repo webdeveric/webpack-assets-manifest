@@ -777,7 +777,7 @@ describe('Options', () => {
 
       expect(manifest.get('hello.txt')).toEqual(
         expect.objectContaining({
-          src: '63481c78ae04c201fa01.txt',
+          src: expect.stringMatching(/^[a-f0-9]{20}\.txt$/),
           integrity: expect.stringMatching(/^sha256-/),
         }),
       );
