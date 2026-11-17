@@ -56,9 +56,9 @@ export function client(hashed = false): ConfigurationForTests {
       path: tmpDirPath(),
       filename: hashed ? '[name]-[contenthash:6]-[chunkhash].js' : '[name].js',
     },
-    optimization: {
-      realContentHash: true,
-    },
+    // optimization: {
+    //   realContentHash: true,
+    // },
     module: {
       rules: [
         {
@@ -164,6 +164,29 @@ export function copy(): ConfigurationForTests {
   );
 
   return config;
+}
+
+export function textAssetResource(): ConfigurationForTests {
+  return {
+    mode: 'production',
+    entry: {
+      text: resolve(fixturesDir, './text.js'),
+    },
+    output: {
+      path: tmpDirPath(),
+      filename: '[name].js',
+      publicPath: '/',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.txt$/,
+          type: 'asset/resource',
+        },
+      ],
+    },
+    plugins: [],
+  };
 }
 
 export function compression(): ConfigurationForTests {

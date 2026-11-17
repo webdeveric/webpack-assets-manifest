@@ -760,6 +760,28 @@ describe('Options', () => {
         }),
       );
     });
+
+    it('Works with "mode: production" and "asset/resource"', async () => {
+      const { manifest, run } = create(configs.textAssetResource(), {
+        integrity: true,
+      });
+
+      await run();
+
+      expect(manifest.get('text.js')).toEqual(
+        expect.objectContaining({
+          src: 'text.js',
+          integrity: expect.stringMatching(/^sha256-/),
+        }),
+      );
+
+      expect(manifest.get('text.txt')).toEqual(
+        expect.objectContaining({
+          src: '63481c78ae04c201fa01.txt',
+          integrity: expect.stringMatching(/^sha256-/),
+        }),
+      );
+    });
   });
 
   describe('integrityPropertyName', () => {
